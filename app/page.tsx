@@ -15,7 +15,7 @@ const storyBeats: StoryBeat[] = [
   { year: 'More room', eyebrow: 'Scientific finding: elbows need space', title: 'We needed more room.', copy: 'The breakthrough came when opening the door required moving three chairs and one engineer.', scene: 'bigger' },
   { year: '2024', eyebrow: 'For documents with commitment issues', title: 'Ente Locker.', copy: 'Photos were private. Codes were private. Passports were still freelancing in a drawer.', beats: ['So we built a vault.', 'Ducky checked the lock twice.', 'Then once for emotional support.'], scene: 'locker' },
   { year: 'Building in the open', eyebrow: 'No secret sauce. Recipe included.', title: 'Out in the open.', copy: 'We build the company like the product: inspectable, accountable, and suspicious of graphs that go up too neatly.', beats: ['No mystery metrics.', 'No “trust us, it’s huge.”', 'Just the work. In daylight.'], scene: 'open' },
-  { year: 'Today', eyebrow: '≈20 people. Infinite mugs.', title: 'Still cooking.', copy: 'Still independent. Still building. Still blaming the missing whiteboard marker on “culture.”', beats: ['Photos. Auth. Locker.', 'Ducky reviewed the roadmap.', 'Requested more encryption.'], scene: 'cooking' },
+  { year: 'Today', eyebrow: '≈20 people. Infinite mugs.', title: 'Still cooking.', copy: 'Still independent. Still building. Still blaming the missing whiteboard marker on “culture.”', scene: 'cooking' },
 ];
 
 const timelineStops = [
