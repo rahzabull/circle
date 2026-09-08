@@ -139,7 +139,7 @@ h1,h2 { font-weight:900; }
 .milestone-copy { position:relative; z-index:9; max-width:680px; }
 .milestone-copy > p:first-of-type { margin:0 0 16px; color:var(--accent,var(--red)); font-size:16px; font-weight:900; }
 .milestone-copy h2 { margin:0; font-size:clamp(58px,7.6vw,124px); line-height:.8; letter-spacing:-.078em; text-transform:uppercase; }
-.milestone-line { width:74px; margin:30px 0 20px; border-top:4px solid var(--ink); }
+.milestone-copy h2 + .milestone-desc { margin-top:34px; }
 .milestone-desc { margin:0; max-width:430px; font-size:clamp(18px,1.8vw,27px); font-weight:650; line-height:1.12; letter-spacing:-.035em; }
 .chapter-number { position:absolute; left:-46px; top:8px; font-size:10px; font-weight:900; letter-spacing:.12em; }
 .milestone-duck { position:absolute; z-index:6; left:69%; bottom:5vh; transform:translateX(-50%) scale(.82); }
@@ -324,7 +324,6 @@ footer { position:absolute; z-index:12; left:34px; right:34px; bottom:26px; disp
 .milestone[data-layout='right-copy'] .milestone-props { left:0; right:auto; }
 .milestone[data-layout='left-copy'] .milestone-copy { grid-column:1; justify-self:start; padding-right:2vw; }
 .milestone[data-layout='right-copy'] .milestone-copy { grid-column:2; order:2; justify-self:end; margin-left:auto; padding-left:3vw; text-align:right; }
-.milestone[data-layout='right-copy'] .milestone-line { margin-left:auto; }
 .milestone[data-layout='right-copy'] .milestone-desc,
 .milestone[data-layout='right-copy'] .story-beat { margin-left:auto; }
 .milestone[data-layout='right-copy'] .chapter-number { left:auto; right:-46px; }
@@ -338,7 +337,6 @@ footer { position:absolute; z-index:12; left:34px; right:34px; bottom:26px; disp
   .data-pipes i { left:0; opacity:.55; }
   .milestone-stage { padding-top:12vh; }
   .milestone-copy,.milestone[data-layout='left-copy'] .milestone-copy,.milestone[data-layout='right-copy'] .milestone-copy { grid-column:1; width:100%; max-width:none; order:initial; justify-self:start; margin:0; padding:0; text-align:left; }
-  .milestone[data-layout='right-copy'] .milestone-line { margin-left:0; }
   .milestone[data-layout='right-copy'] .milestone-desc,.milestone[data-layout='right-copy'] .story-beat { margin-left:0; }
   .milestone[data-layout='right-copy'] .chapter-number { left:auto; right:0; }
   .milestone-copy h2 { font-size:clamp(43px,13vw,68px); }
