@@ -97,6 +97,8 @@ export default function Home() {
         const openingRect = openingChapter.getBoundingClientRect();
         const openingTravel = Math.max(1, openingRect.height - window.innerHeight);
         const openingProgress = Math.max(0, Math.min(1, -openingRect.top / openingTravel));
+        const firstScrollProgress = Math.min(1, openingProgress / .22);
+        root.style.setProperty('--opening-duck-zoom', String(1.4 - firstScrollProgress * .4));
         setTimelineVisible(openingProgress >= .08);
       }
       const viewportMiddle = window.innerHeight / 2;

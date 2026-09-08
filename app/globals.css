@@ -2,7 +2,7 @@
 
 :root {
   --ink:#171712; --cream:#f7f2e8; --yellow:#ffda3e; --orange:#f2a51b;
-  --red:#e95442; --blue:#75aee9; --green:#74b887; --page-progress:0; --mx:0; --my:0;
+  --red:#e95442; --blue:#75aee9; --green:#74b887; --page-progress:0; --opening-duck-zoom:1.4; --mx:0; --my:0;
 }
 * { box-sizing:border-box; }
 html { background:var(--cream); scroll-behavior:smooth; }
@@ -246,7 +246,7 @@ footer { position:absolute; z-index:12; left:34px; right:34px; bottom:26px; disp
 .bigtech-copy--second p { max-width:650px; margin:0 0 30px; font-size:clamp(31px,4vw,63px); font-weight:800; line-height:.92; letter-spacing:-.06em; }
 .bigtech-copy--second h2 { margin:0; color:var(--red); font-size:clamp(74px,11vw,170px); line-height:.8; letter-spacing:-.09em; text-transform:uppercase; }
 .bigtech-copy--second small { display:block; margin-top:28px; font:400 clamp(17px,1.55vw,23px)/1.1 var(--font-gochi-hand),'Comic Sans MS',cursive; transform:rotate(-1.5deg); }
-.bigtech-duck { position:absolute; z-index:5; left:72%; bottom:-35px; transform:translateX(calc(var(--scene-progress,0) * 12vw)) scale(.72); }
+.bigtech-duck { position:absolute; z-index:5; left:72%; bottom:-35px; scale:var(--opening-duck-zoom); transform:translateX(calc(var(--scene-progress,0) * 12vw)) scale(.72); transform-origin:50% 100%; transition:scale 100ms linear; }
 .bigtech .scroll-cue { z-index:10; }
 
 .story-beat { margin:14px 0 0; max-width:430px; font-size:clamp(15px,1.35vw,20px); font-weight:900; line-height:1.08; }
