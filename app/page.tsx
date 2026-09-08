@@ -66,10 +66,12 @@ function StorySection({ item, index }: { item: StoryBeat; index: number }) {
     <section id={`chapter-${item.scene}`} className={`chapter milestone milestone--${item.scene}`} data-year={item.year} data-layout={layout} data-parallax-scene data-stretch-reveal>
       <div className="scene milestone-stage">
         <div className="milestone-copy" data-parallax="-72" data-parallax-x={index % 2 ? '20' : '-20'}>
-          <span className="chapter-number">{String(index + 1).padStart(2, '0')}</span>
-          <p>{item.eyebrow}</p><h2>{item.title}</h2>
-          <p className="milestone-desc">{item.copy}</p>
-          {item.beats?.map((beat, beatIndex) => <p className={`story-beat story-beat--${beatIndex}`} key={beat}>{beat}</p>)}
+          <div className="milestone-copy-inner">
+            <span className="chapter-number">{String(index + 1).padStart(2, '0')}</span>
+            <p>{item.eyebrow}</p><h2>{item.title}</h2>
+            <p className="milestone-desc">{item.copy}</p>
+            {item.beats?.map((beat, beatIndex) => <p className={`story-beat story-beat--${beatIndex}`} key={beat}>{beat}</p>)}
+          </div>
         </div>
         <div className="milestone-props" data-parallax="-112" data-parallax-x="0"><StoryVisual scene={item.scene} /></div>
       </div>
