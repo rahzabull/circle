@@ -66,7 +66,7 @@ function StoryVisual({ scene }: { scene: SceneType }) {
   if (scene === 'bob') return <div className="prop-layer bob-arrives" aria-hidden="true"><img className="bob-ducky-scene" src="/ducky-bob.png" alt="" draggable="false" /></div>;
   if (scene === 'auth') return <div className="prop-layer auth-morph" aria-hidden="true"><img className="auth-ducky-scene" src="/ducky-auth.png" alt="" draggable="false" /></div>;
   if (scene === 'bigger') return <div className="prop-layer bigger-office" aria-hidden="true"><img className="team-ducky-scene" src="/ducky-team.png" alt="" draggable="false" /></div>;
-  if (scene === 'locker') return <div className="prop-layer vault-scene" aria-hidden="true"><div className="falling-papers">{['ID', 'PASS', 'DOC', 'KEY'].map((x, i) => <i key={x} style={{ '--n': i } as React.CSSProperties}>{x}</i>)}</div><div className="vault"><div className="vault-door"><i /><b>×</b></div><span>VERY IMPORTANT<br />DUCKUMENTS</span></div><div className="double-check">click&nbsp;&nbsp; click</div></div>;
+  if (scene === 'locker') return <div className="prop-layer vault-scene" aria-hidden="true"><img className="locker-ducky-scene" src="/ducky-locker.png" alt="" draggable="false" /></div>;
   if (scene === 'open') return <div className="prop-layer open-company"><div className="open-code" aria-hidden="true">{'{ privacy: true, ownership: yours }'}</div><div className="live-stats">{companyStats.map(stat => <div className="stat" data-stat={stat.key} key={stat.key}><span>{stat.label}</span><b>{stat.value}</b><i>LIVE</i></div>)}</div></div>;
   return <div className="prop-layer cooking-scene" aria-hidden="true"><TinyPeople count={20} /><div className="cooking-pot"><div className="pot-steam">{'{ }'} &nbsp; 🔒 &nbsp; ▧</div><span>PHOTOS</span><span>AUTH</span><span>LOCKER</span></div><div className="taste-note">hmm. needs more encryption.</div></div>;
 }
@@ -83,7 +83,7 @@ function StorySection({ item, index }: { item: StoryBeat; index: number }) {
           {item.beats?.map((beat, beatIndex) => <p className={`story-beat story-beat--${beatIndex}`} key={beat}>{beat}</p>)}
         </div>
         <div className="milestone-props" data-parallax="-112" data-parallax-x="0"><StoryVisual scene={item.scene} /></div>
-        {item.scene !== 'home' && item.scene !== 'experiment' && item.scene !== 'photos' && item.scene !== 'bob' && item.scene !== 'auth' && item.scene !== 'bigger' && <div className="milestone-duck" data-parallax="54" data-parallax-x={index % 2 ? '16' : '-16'}><Ducky state={item.state} label={`Ducky during ${item.title}`} /></div>}
+        {item.scene !== 'home' && item.scene !== 'experiment' && item.scene !== 'photos' && item.scene !== 'bob' && item.scene !== 'auth' && item.scene !== 'bigger' && item.scene !== 'locker' && <div className="milestone-duck" data-parallax="54" data-parallax-x={index % 2 ? '16' : '-16'}><Ducky state={item.state} label={`Ducky during ${item.title}`} /></div>}
       </div>
     </section>
   );
