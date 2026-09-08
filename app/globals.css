@@ -252,12 +252,12 @@ footer { position:absolute; z-index:12; left:34px; right:34px; bottom:26px; disp
 .story-beat { margin:14px 0 0; max-width:430px; font-size:clamp(15px,1.35vw,20px); font-weight:900; line-height:1.08; }
 .story-beat--0 { margin-top:28px; }.story-beat--1{color:var(--accent,var(--red))}.story-beat--2{font-family:var(--font-gochi-hand),'Comic Sans MS',cursive;font-weight:400;font-size:clamp(18px,1.7vw,25px);transform:rotate(-1.5deg)}
 .milestone--home { --scene-bg:#f2c79f; --accent:#8c332c; }
-.milestone--experiment { --scene-bg:#f4d653; --accent:#752638; }
-.milestone--photos { --scene-bg:#f0add0; --accent:#294a9c; }
-.milestone--bob { --scene-bg:#95ccef; --accent:#8e2534; }
+.milestone--experiment { --scene-bg:#f0add0; --accent:#294a9c; }
+.milestone--photos { --scene-bg:#98c9a7; --accent:#6f2930; }
+.milestone--bob { --scene-bg:#f3da67; --accent:#713547; }
 .milestone--auth { --scene-bg:#f4a25f; --accent:#8a2730; }
 .milestone--bigger { --scene-bg:#b7b4ec; --accent:#2f3d91; }
-.milestone--locker { --scene-bg:#98c9a7; --accent:#6f2930; }
+.milestone--locker { --scene-bg:#79c7eb; --accent:#284b86; }
 .milestone--open { --scene-bg:#c5a9dd; --accent:#5e2f70; }
 .milestone--cooking { --scene-bg:#f08367; --accent:#66212c; min-height:240vh; }
 
