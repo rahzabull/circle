@@ -46,6 +46,7 @@ button,a { color:inherit; }
 [data-parallax-scene] > .scene::before { content:''; position:absolute; z-index:0; right:-12vw; top:-26vh; width:min(62vw,900px); aspect-ratio:1; border:1px solid currentColor; border-radius:50%; opacity:.055; translate:0 var(--scene-bg-y,0px); box-shadow:0 0 0 9vw currentColor,0 0 0 18vw currentColor; pointer-events:none; will-change:translate; }
 .eyebrow { margin:0 0 22px; font-size:11px; font-weight:900; letter-spacing:.18em; text-transform:uppercase; }
 h1,h2,p { text-wrap:balance; }
+h1,h2 { font-weight:900; }
 
 /* Ducky is intentionally isolated so an SVG, sprite or Rive canvas can replace this block later. */
 .ducky { position:relative; width:330px; height:410px; transform:translate(calc(var(--mx) * 5px),calc(var(--my) * 4px)); transform-origin:50% 100%; transition:transform .45s cubic-bezier(.2,.8,.2,1); }
