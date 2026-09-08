@@ -101,6 +101,9 @@ export default function Home() {
         root.style.setProperty('--opening-duck-zoom', String(1.4 - firstScrollProgress * .4));
         root.style.setProperty('--opening-duck-shift', `${-30 + firstScrollProgress * 50}%`);
         root.style.setProperty('--opening-duck-mobile-shift', `${30 - firstScrollProgress * 10}%`);
+        root.style.setProperty('--ceo-callout-opacity', String(Math.max(0, 1 - firstScrollProgress * 1.6)));
+        root.style.setProperty('--ceo-callout-y', `${firstScrollProgress * -16}px`);
+        root.style.setProperty('--ceo-callout-scale', String(1 - firstScrollProgress * .08));
         setTimelineVisible(openingProgress >= .08);
       }
       const viewportMiddle = window.innerHeight / 2;
@@ -172,6 +175,7 @@ export default function Home() {
           <BigTechOffice />
           <div className="bigtech-copy bigtech-copy--first" data-parallax="-82"><p className="eyebrow">One duck. Several thousand servers.</p><h1>Vishnu worked at Google.</h1></div>
           <div className="bigtech-copy bigtech-copy--second" data-parallax="-48"><p>The more he learned about photo privacy, the less polite his nod became.</p><h2>So he left.</h2><small>Badge returned.<br />Side-eye retained.</small></div>
+          <div className="ceo-callout" aria-hidden="true"><span>our CEO</span><i /></div>
           <div className="bigtech-duck" data-parallax="52" data-parallax-x="30"><Ducky state="inspected" asset="/ducky-big-tech.png" label="Ducky representing Vishnu wrapped in Big Tech" /></div>
           <div className="scroll-cue" aria-hidden="true"><span>Scroll to resign dramatically</span><i /></div>
         </div>
