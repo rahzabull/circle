@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 
 type DuckState = 'idle' | 'surprised' | 'typing' | 'walking' | 'inspected' | 'celebrating';
-type SceneType = 'home' | 'experiment' | 'photos' | 'bob' | 'office' | 'auth' | 'bigger' | 'locker' | 'open' | 'cooking';
+type SceneType = 'home' | 'experiment' | 'photos' | 'bob' | 'auth' | 'bigger' | 'locker' | 'open' | 'cooking';
 type StoryBeat = { year: string; eyebrow: string; title: string; copy: string; beats?: string[]; state: DuckState; scene: SceneType };
 
 const storyBeats: StoryBeat[] = [
@@ -11,7 +11,6 @@ const storyBeats: StoryBeat[] = [
   { year: 'The first idea', eyebrow: 'Sketch. Encrypt. Add cable.', title: 'It wasn’t even a photo app.', copy: 'It was end-to-end encrypted, device-first, and extremely confident about cables.', beats: ['Device first sounded brilliant.', 'The devices disagreed.', 'So we built an app. Like practical adults.'], state: 'surprised', scene: 'experiment' },
   { year: '2022', eyebrow: 'Now containing actual photos', title: 'Ente Photos.', copy: 'Your memories go in. Advertising profiles do not come out. A surprisingly controversial business model.', state: 'celebrating', scene: 'photos' },
   { year: 'Co-founder', eyebrow: 'An office chair approaches', title: 'Then Bob rolled in.', copy: 'Co-founder. Chair operator. Second person willing to stare at the same bug until it apologised.', state: 'idle', scene: 'bob' },
-  { year: 'The team', eyebrow: 'Two desks. Eleven elbows.', title: 'Then more humans appeared.', copy: 'The office reached 130% capacity. Someone’s desk was mostly someone else’s elbow.', state: 'walking', scene: 'office' },
   { year: 'Photos → Auth', eyebrow: 'One code escaped', title: 'We started with Photos.', copy: 'Then someone had a deeply personal relationship with a missing 2FA code.', beats: ['Ducky caught it.', 'We called that product research.', 'Then we built Auth.'], state: 'surprised', scene: 'auth' },
   { year: 'More room', eyebrow: 'A data-driven property decision', title: 'We needed more room.', copy: 'This insight arrived when nobody could open the door without moving three chairs and one engineer.', state: 'celebrating', scene: 'bigger' },
   { year: '2024', eyebrow: 'One unnecessarily serious vault', title: 'Ente Locker.', copy: 'Photos were private. Codes were private. Passports were still living dangerously in a drawer.', beats: ['Enter: the vault.', 'Ducky checked the handle twice.', 'Then once more for morale.'], state: 'inspected', scene: 'locker' },
@@ -65,7 +64,6 @@ function StoryVisual({ scene }: { scene: SceneType }) {
   if (scene === 'experiment') return <div className="prop-layer experiment-rig" aria-hidden="true"><img className="experiment-ducky-scene" src="/ducky-experiment.png" alt="" draggable="false" /></div>;
   if (scene === 'photos') return <div className="prop-layer photos-reveal" aria-hidden="true"><img className="photos-ducky-scene" src="/ducky-photos.png" alt="" draggable="false" /></div>;
   if (scene === 'bob') return <div className="prop-layer bob-arrives" aria-hidden="true"><img className="bob-ducky-scene" src="/ducky-bob.png" alt="" draggable="false" /></div>;
-  if (scene === 'office') return <div className="prop-layer small-office" aria-hidden="true"><div className="office-walls" /><TinyPeople count={11} /><div className="desk-row">▰ ▰ ▰</div><div className="coffee-row">☕ ☕ ☕ ☕</div><div className="whiteboard">SHIP IT<br />FIX IT<br />SAY IT WAS<br />THE PLAN</div></div>;
   if (scene === 'auth') return <div className="prop-layer auth-morph" aria-hidden="true"><div className="fading-photos">{Array.from({ length: 10 }, (_, i) => <i key={i}>◆</i>)}</div><div className="auth-blocks">{['2', '7', '4', '1', '9', '0'].map((x, i) => <b key={`${x}-${i}`} style={{ '--n': i } as React.CSSProperties}>{x}</b>)}</div><div className="caught-code">7</div></div>;
   if (scene === 'bigger') return <div className="prop-layer bigger-office" aria-hidden="true"><div className="expanding-wall expanding-wall--left" /><div className="expanding-wall expanding-wall--right" /><div className="rising-ceiling" /><TinyPeople count={13} /></div>;
   if (scene === 'locker') return <div className="prop-layer vault-scene" aria-hidden="true"><div className="falling-papers">{['ID', 'PASS', 'DOC', 'KEY'].map((x, i) => <i key={x} style={{ '--n': i } as React.CSSProperties}>{x}</i>)}</div><div className="vault"><div className="vault-door"><i /><b>×</b></div><span>VERY IMPORTANT<br />DUCKUMENTS</span></div><div className="double-check">click&nbsp;&nbsp; click</div></div>;

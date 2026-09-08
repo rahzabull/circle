@@ -259,7 +259,6 @@ footer { position:absolute; z-index:12; left:34px; right:34px; bottom:26px; disp
 .milestone--experiment { --scene-bg:#e9d55d; --accent:#8e2f35; }
 .milestone--photos { --scene-bg:#eabbd4; --accent:#355ab4; }
 .milestone--bob { --scene-bg:#b8d8ef; --accent:#b3373e; }
-.milestone--office { --scene-bg:#e2d9cb; --accent:#466e58; }
 .milestone--auth { --scene-bg:#f0c858; --accent:#bd2c33; }
 .milestone--bigger { --scene-bg:#b9dbef; --accent:#3449a0; }
 .milestone--locker { --scene-bg:#a9c7b0; --accent:#8b2f32; }
@@ -273,8 +272,6 @@ footer { position:absolute; z-index:12; left:34px; right:34px; bottom:26px; disp
 .photos-ducky-scene { position:absolute; right:clamp(12px,3vw,50px); top:50%; width:min(49vw,720px); max-height:90vh; object-fit:contain; border-radius:12%; transform:translateY(-50%); filter:drop-shadow(0 22px 20px rgba(23,23,18,.1)); }
 
 .bob-ducky-scene { position:absolute; left:clamp(12px,3vw,50px); top:50%; width:min(49vw,720px); max-height:88vh; object-fit:contain; border-radius:12%; transform:translateY(-50%); filter:drop-shadow(0 22px 20px rgba(23,23,18,.1)); }
-
-.office-walls { position:absolute; left:4%; right:4%; top:8%; bottom:4%; border:7px solid var(--ink); background:rgba(255,255,255,.2); }.small-office .tiny-people{left:5%;right:5%;bottom:5%}.desk-row{position:absolute;left:8%;right:8%;bottom:18%;word-spacing:10vw;font-size:70px;white-space:nowrap}.coffee-row{position:absolute;left:10%;bottom:28%;font-size:30px;word-spacing:5vw;transform:rotate(-3deg)}.whiteboard{position:absolute;right:8%;top:14%;width:180px;height:130px;padding:22px;border:4px solid;background:#fff;font:16px/1.5 monospace;transform:rotate(2deg)}
 
 .fading-photos { position:absolute; inset:8%; display:grid; grid-template-columns:repeat(5,1fr); gap:10px; opacity:calc(1 - var(--scene-progress,.5)); }.fading-photos i{display:grid;place-items:center;border:3px solid;background:#e8bed2;font-style:normal;font-size:30px}.caught-code{position:absolute;z-index:8;left:44%;top:42%;display:grid;place-items:center;width:92px;height:108px;border:5px solid;background:var(--cream);font-size:56px;font-weight:900;transform:rotate(-12deg)}
 
@@ -299,7 +296,7 @@ footer { position:absolute; z-index:12; left:34px; right:34px; bottom:26px; disp
 
 @media (max-width:780px) {
   .bigtech{min-height:220vh}.bigtech-copy{left:24px;width:calc(100% - 48px)}.bigtech-copy h1{font-size:clamp(64px,19vw,100px)}.bigtech-copy--second p{font-size:clamp(28px,8.6vw,44px)}.bigtech-copy--second h2{font-size:22vw}.server-wall{left:27%;width:95vw;grid-template-columns:repeat(4,1fr);opacity:.72}.profile-machine{right:-28px;top:50vh;transform:scale(.65)}.photo-belt{left:8%;bottom:3vh}.bigtech-duck{left:47%;bottom:-76px;transform:translateX(calc(var(--scene-progress,0)*14vw)) scale(.56)}.google-badge{left:69%;transform:scale(.72) translateY(calc(var(--scene-progress,0)*70vh)) rotate(calc(var(--scene-progress,0)*32deg))}
-  .small-office .tiny-people{bottom:2%}.whiteboard{right:5%;top:48%;transform:scale(.65)}.desk-row{bottom:11%;font-size:40px}.coffee-row{bottom:20%;font-size:19px}.caught-code{left:38%;top:61%;transform:scale(.7) rotate(-12deg)}.live-stats{inset:44% 4% 5%;grid-template-columns:1fr 1fr}.stat{padding:12px}.stat b{font-size:22px}.stat i{top:7px;right:7px}.cooking-pot{width:70vw;height:190px;bottom:8%;transform:translateX(-50%)}.cooking-pot>span{margin:75px 0 0 9px;padding:6px;font-size:8px}.cooking-scene .tiny-people{bottom:1%}.taste-note{top:47%;right:5%;font-size:16px}.story-beat{font-size:14px}
+  .caught-code{left:38%;top:61%;transform:scale(.7) rotate(-12deg)}.live-stats{inset:44% 4% 5%;grid-template-columns:1fr 1fr}.stat{padding:12px}.stat b{font-size:22px}.stat i{top:7px;right:7px}.cooking-pot{width:70vw;height:190px;bottom:8%;transform:translateX(-50%)}.cooking-pot>span{margin:75px 0 0 9px;padding:6px;font-size:8px}.cooking-scene .tiny-people{bottom:1%}.taste-note{top:47%;right:5%;font-size:16px}.story-beat{font-size:14px}
 }
 
 /* Supplied Ducky artwork */
@@ -357,7 +354,6 @@ footer { position:absolute; z-index:12; left:34px; right:34px; bottom:26px; disp
   .milestone--experiment .experiment-ducky-scene { left:50%; top:52%; width:min(94vw,500px); max-height:44vh; transform:translate(-50%,-50%); }
   .milestone--photos .photos-ducky-scene { right:50%; top:52%; width:min(96vw,520px); max-height:44vh; transform:translate(50%,-50%); }
   .milestone--bob .bob-ducky-scene { left:50%; top:52%; width:min(96vw,540px); max-height:44vh; transform:translate(-50%,-50%); }
-  .milestone--office .whiteboard { top:4%; }
   .milestone--auth .caught-code { top:28%; }
   .milestone--open .live-stats { inset:2%; grid-template-columns:1fr 1fr; }
   .milestone--open .stat { padding:10px; }.milestone--open .stat b{font-size:19px}
