@@ -36,10 +36,6 @@ function Ducky({ state = 'idle', label = 'Ducky', asset = '/ducky.svg' }: { stat
   );
 }
 
-function TinyPeople({ count = 8 }: { count?: number }) {
-  return <div className="tiny-people" aria-hidden="true">{Array.from({ length: count }, (_, i) => <span key={i} style={{ '--n': i } as React.CSSProperties}><i /></span>)}</div>;
-}
-
 function BigTechOffice() {
   return (
     <div className="bigtech-world" aria-hidden="true">
@@ -61,7 +57,7 @@ function StoryVisual({ scene }: { scene: SceneType }) {
   if (scene === 'bigger') return <div className="prop-layer bigger-office" aria-hidden="true"><img className="team-ducky-scene" src="/ducky-team.png" alt="" draggable="false" /></div>;
   if (scene === 'locker') return <div className="prop-layer vault-scene" aria-hidden="true"><img className="locker-ducky-scene" src="/ducky-locker.png" alt="" draggable="false" /></div>;
   if (scene === 'open') return <div className="prop-layer open-company" aria-hidden="true"><img className="open-ducky-scene" src="/ducky-open.png" alt="" draggable="false" /></div>;
-  return <div className="prop-layer cooking-scene" aria-hidden="true"><TinyPeople count={20} /><div className="cooking-pot"><div className="pot-steam">{'{ }'} &nbsp; 🔒 &nbsp; ▧</div><span>PHOTOS</span><span>AUTH</span><span>LOCKER</span></div><div className="taste-note">hmm. needs more encryption.</div></div>;
+  return <div className="prop-layer cooking-scene" aria-hidden="true"><img className="final-team-scene" src="/ducky-finale.png" alt="" draggable="false" /></div>;
 }
 
 function StorySection({ item, index }: { item: StoryBeat; index: number }) {
@@ -76,7 +72,7 @@ function StorySection({ item, index }: { item: StoryBeat; index: number }) {
           {item.beats?.map((beat, beatIndex) => <p className={`story-beat story-beat--${beatIndex}`} key={beat}>{beat}</p>)}
         </div>
         <div className="milestone-props" data-parallax="-112" data-parallax-x="0"><StoryVisual scene={item.scene} /></div>
-        {item.scene !== 'home' && item.scene !== 'experiment' && item.scene !== 'photos' && item.scene !== 'bob' && item.scene !== 'auth' && item.scene !== 'bigger' && item.scene !== 'locker' && item.scene !== 'open' && <div className="milestone-duck" data-parallax="54" data-parallax-x={index % 2 ? '16' : '-16'}><Ducky state={item.state} label={`Ducky during ${item.title}`} /></div>}
+        {item.scene !== 'home' && item.scene !== 'experiment' && item.scene !== 'photos' && item.scene !== 'bob' && item.scene !== 'auth' && item.scene !== 'bigger' && item.scene !== 'locker' && item.scene !== 'open' && item.scene !== 'cooking' && <div className="milestone-duck" data-parallax="54" data-parallax-x={index % 2 ? '16' : '-16'}><Ducky state={item.state} label={`Ducky during ${item.title}`} /></div>}
       </div>
     </section>
   );
