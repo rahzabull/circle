@@ -274,7 +274,7 @@ footer { position:absolute; z-index:12; left:34px; right:34px; bottom:26px; disp
 
 .auth-ducky-scene { position:absolute; right:clamp(12px,3vw,50px); top:50%; width:min(47vw,680px); max-height:90vh; object-fit:contain; border-radius:12%; transform:translateY(-50%); filter:drop-shadow(0 22px 20px rgba(23,23,18,.1)); }
 
-.expanding-wall { position:absolute; top:9%; bottom:6%; width:35%; border:7px solid var(--ink); background:#8ebad3; transition:transform .1s linear; }.expanding-wall--left{left:14%;transform:translateX(calc(var(--scene-progress,.5) * -36vw))}.expanding-wall--right{right:14%;transform:translateX(calc(var(--scene-progress,.5) * 36vw))}.rising-ceiling{position:absolute;left:8%;right:8%;top:16%;border-top:8px solid;transform:translateY(calc(var(--scene-progress,.5) * -24vh))}.bigger-office .tiny-people{bottom:4%}
+.team-ducky-scene { position:absolute; left:clamp(8px,2vw,34px); top:50%; width:min(53vw,820px); max-height:86vh; object-fit:contain; border-radius:12%; transform:translateY(-50%); filter:drop-shadow(0 22px 20px rgba(23,23,18,.1)); }
 
 .falling-papers i { position:absolute; z-index:6; left:calc(10% + var(--n)*8%); top:calc(12% + var(--n)*10%); display:grid; place-items:center; width:76px;height:98px;border:3px solid;background:var(--cream);font:12px monospace;transform:rotate(calc(-13deg + var(--n)*9deg));animation:paper-fall calc(2.2s + var(--n)*.2s) ease-in-out infinite alternate}.double-check{position:absolute;left:34%;bottom:8%;font-family:'Comic Sans MS',cursive;font-size:20px;transform:rotate(-4deg)}
 
@@ -354,6 +354,7 @@ footer { position:absolute; z-index:12; left:34px; right:34px; bottom:26px; disp
   .milestone--photos .photos-ducky-scene { right:50%; top:52%; width:min(96vw,520px); max-height:44vh; transform:translate(50%,-50%); }
   .milestone--bob .bob-ducky-scene { left:50%; top:52%; width:min(96vw,540px); max-height:44vh; transform:translate(-50%,-50%); }
   .milestone--auth .auth-ducky-scene { right:50%; top:52%; width:min(92vw,500px); max-height:44vh; transform:translate(50%,-50%); }
+  .milestone--bigger .team-ducky-scene { left:50%; top:52%; width:min(98vw,600px); max-height:42vh; transform:translate(-50%,-50%); }
   .milestone--open .live-stats { inset:2%; grid-template-columns:1fr 1fr; }
   .milestone--open .stat { padding:10px; }.milestone--open .stat b{font-size:19px}
   .milestone--cooking .cooking-pot { width:72%; bottom:2%; }
