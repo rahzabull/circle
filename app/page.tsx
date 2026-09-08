@@ -36,10 +36,10 @@ const companyStats = [
   { label: 'Countries', value: 'Connect', key: 'countries' },
 ];
 
-function Ducky({ state = 'idle', label = 'Ducky' }: { state?: DuckState; label?: string }) {
+function Ducky({ state = 'idle', label = 'Ducky', asset = '/ducky.svg' }: { state?: DuckState; label?: string; asset?: string }) {
   return (
     <div className={`ducky ducky--${state}`} role="img" aria-label={label}>
-      <img className="ducky-asset" src="/ducky.svg" alt="" draggable="false" />
+      <img className="ducky-asset" src={asset} alt="" draggable="false" />
     </div>
   );
 }
@@ -181,7 +181,7 @@ export default function Home() {
           <BigTechOffice />
           <div className="bigtech-copy bigtech-copy--first" data-parallax="-82"><p className="eyebrow">One duck. Several thousand servers.</p><h1>Vishnu worked at Google.</h1></div>
           <div className="bigtech-copy bigtech-copy--second" data-parallax="-48"><p>The more he saw what happened to people’s photos, the harder it became to nod politely.</p><h2>So he left.</h2><small>Badge returned. Trust issues retained.</small></div>
-          <div className="bigtech-duck" data-parallax="52" data-parallax-x="30"><Ducky state="inspected" label="Ducky representing Vishnu inside a huge Big Tech office" /></div>
+          <div className="bigtech-duck" data-parallax="52" data-parallax-x="30"><Ducky state="inspected" asset="/ducky-big-tech.png" label="Ducky representing Vishnu wrapped in Big Tech" /></div>
           <div className="scroll-cue" aria-hidden="true"><span>Scroll to resign dramatically</span><i /></div>
         </div>
       </section>
