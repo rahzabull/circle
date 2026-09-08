@@ -3,17 +3,27 @@
 import { useEffect, useRef, useState } from 'react';
 
 type DuckState = 'idle' | 'surprised' | 'typing' | 'walking' | 'inspected' | 'celebrating';
-type SceneType = 'build' | 'users' | 'open' | 'security' | 'photos' | 'auth' | 'locker' | 'growth';
+type SceneType = 'home' | 'experiment' | 'photos' | 'bob' | 'office' | 'auth' | 'bigger' | 'locker' | 'open' | 'cooking';
+type StoryBeat = { year: string; eyebrow: string; title: string; copy: string; beats?: string[]; state: DuckState; scene: SceneType };
 
-const milestones: Array<{ year: string; title: string; copy: string; state: DuckState; scene: SceneType }> = [
-  { year: '2017', title: 'First build', copy: 'One duck, one laptop, and a very optimistic amount of storage.', state: 'typing', scene: 'build' },
-  { year: '2018', title: 'First users', copy: 'A few curious humans arrived. Then they brought their friends.', state: 'idle', scene: 'users' },
-  { year: '2019', title: 'Open source', copy: 'We opened the walls. The good kind of people looked inside.', state: 'celebrating', scene: 'open' },
-  { year: '2021', title: 'Security, audited', copy: 'Serious scanners. Serious clipboards. One spotless duck.', state: 'inspected', scene: 'security' },
-  { year: '2022', title: 'Photos', copy: 'Your camera roll got a private home that did not snoop around.', state: 'celebrating', scene: 'photos' },
-  { year: '2023', title: 'Auth', copy: 'Keys, codes and passkeys. Only you get to be you.', state: 'surprised', scene: 'auth' },
-  { year: '2024', title: 'Locker', copy: 'For the documents that deserve an absurdly secure little room.', state: 'walking', scene: 'locker' },
-  { year: 'Today', title: 'Still growing', copy: 'More people. More privacy. Approximately the same duck.', state: 'celebrating', scene: 'growth' },
+const storyBeats: StoryBeat[] = [
+  { year: 'Home', eyebrow: 'A much smaller desk', title: 'He came home.', copy: 'And started trying to build something better.', state: 'typing', scene: 'home' },
+  { year: 'The first idea', eyebrow: 'Sketch. Encrypt. Repeat.', title: 'It wasn’t even a photo app.', copy: 'The first experiments were end-to-end encrypted and device-first.', beats: ['Device first sounded like a good idea.', 'Until it didn’t.', 'So we built an app instead.'], state: 'surprised', scene: 'experiment' },
+  { year: '2022', eyebrow: 'The first big milestone', title: 'Ente Photos.', copy: 'A private home for photos—built without the part where strangers learn everything about you.', state: 'celebrating', scene: 'photos' },
+  { year: 'Co-founder', eyebrow: 'An office chair approaches', title: 'Then Bob showed up.', copy: 'They stared at the same laptop for a while. It went surprisingly well.', state: 'idle', scene: 'bob' },
+  { year: 'The team', eyebrow: 'Two desks. Nine chairs.', title: 'Then a few more people joined.', copy: 'The tiny office filled with computers, whiteboards, coffee, and absolutely no personal space.', state: 'walking', scene: 'office' },
+  { year: 'Photos → Auth', eyebrow: 'One code escaped', title: 'We started with Photos.', copy: 'Then we built Auth.', beats: ['Private photos.', 'Private 2FA codes.'], state: 'surprised', scene: 'auth' },
+  { year: 'More room', eyebrow: 'Structural optimism', title: 'We needed more room.', copy: 'The walls moved out. The desks stopped touching. The ceiling finally exhaled.', state: 'celebrating', scene: 'bigger' },
+  { year: '2024', eyebrow: 'One very serious vault', title: 'Ente Locker.', copy: 'Photos were private. 2FA codes were private. So… why stop there?', beats: ['Passports. IDs. Documents.', 'Handle checked twice.'], state: 'inspected', scene: 'locker' },
+  { year: 'Building in the open', eyebrow: 'No mysterious charts', title: 'Out in the open.', copy: 'We decided to build the company the same way we build the product.', beats: ['No secret growth charts.', 'No mysterious “trust us” numbers.', 'Just the numbers.'], state: 'idle', scene: 'open' },
+  { year: 'Today', eyebrow: 'Around 20 people', title: 'Still cooking.', copy: 'Still independent. Still building. Still figuring things out.', beats: ['Photos. Auth. Locker.', 'Needs more encryption.'], state: 'celebrating', scene: 'cooking' },
+];
+
+const companyStats = [
+  { label: 'Revenue', value: 'Connect', key: 'revenue' },
+  { label: 'Active users', value: 'Connect', key: 'activeUsers' },
+  { label: 'Team size', value: '≈ 20', key: 'teamSize' },
+  { label: 'Countries', value: 'Connect', key: 'countries' },
 ];
 
 function Ducky({ state = 'idle', label = 'Ducky' }: { state?: DuckState; label?: string }) {
@@ -21,37 +31,15 @@ function Ducky({ state = 'idle', label = 'Ducky' }: { state?: DuckState; label?:
     <div className={`ducky ducky--${state}`} role="img" aria-label={label}>
       <div className="duck-shadow" />
       <div className="duck-body">
-        <div className="duck-wing duck-wing--left" />
-        <div className="duck-wing duck-wing--right" />
+        <div className="duck-wing duck-wing--left" /><div className="duck-wing duck-wing--right" />
         <div className="duck-head">
-          <span className="duck-eye duck-eye--left" />
-          <span className="duck-eye duck-eye--right" />
-          <span className="duck-brow duck-brow--left" />
-          <span className="duck-brow duck-brow--right" />
-          <span className="duck-bill" />
-          <span className="duck-cheek duck-cheek--left" />
-          <span className="duck-cheek duck-cheek--right" />
+          <span className="duck-eye duck-eye--left" /><span className="duck-eye duck-eye--right" />
+          <span className="duck-brow duck-brow--left" /><span className="duck-brow duck-brow--right" />
+          <span className="duck-bill" /><span className="duck-cheek duck-cheek--left" /><span className="duck-cheek duck-cheek--right" />
         </div>
-        <div className="duck-foot duck-foot--left" />
-        <div className="duck-foot duck-foot--right" />
+        <div className="duck-foot duck-foot--left" /><div className="duck-foot duck-foot--right" />
       </div>
       <div className="ceo-tie" />
-    </div>
-  );
-}
-
-function Chaos() {
-  const things = [
-    ['chaos-photo', '▧', 'Your photo'], ['chaos-eye', '● ●', 'tracking eyes'],
-    ['chaos-ad', 'BUY!', 'an advertisement'], ['chaos-cloud', '☁', 'a cloud'],
-    ['chaos-bell', '12', 'notifications'], ['chaos-data', '0101', 'random data'],
-    ['chaos-cookie', '🍪', 'a cookie'], ['chaos-pin', '⌖', 'a location pin'],
-  ];
-  return (
-    <div className="chaos-field" aria-hidden="true">
-      {things.map(([className, symbol, label], index) => (
-        <span className={`chaos-thing ${className}`} data-label={label} key={className} style={{ '--i': index } as React.CSSProperties}>{symbol}</span>
-      ))}
     </div>
   );
 }
@@ -64,29 +52,46 @@ function TinyPeople({ count = 8 }: { count?: number }) {
   return <div className="tiny-people" aria-hidden="true">{Array.from({ length: count }, (_, i) => <span key={i} style={{ '--n': i } as React.CSSProperties}><i /></span>)}</div>;
 }
 
-function MilestoneVisual({ scene }: { scene: SceneType }) {
-  if (scene === 'build') return <div className="prop-layer code-swarm" aria-hidden="true"><Laptop />{['{ }', '</>', '01', '•••'].map((x, i) => <b key={x} style={{ '--n': i } as React.CSSProperties}>{x}</b>)}</div>;
-  if (scene === 'users') return <div className="prop-layer people-scene"><TinyPeople count={9} /></div>;
-  if (scene === 'open') return <div className="prop-layer open-source" aria-hidden="true"><div className="wall wall--left">CLOSED</div><div className="wall wall--right">ISH</div><div className="source-lines">const privacy = yours;<br />share(byChoice);<br />track(nothing);</div></div>;
-  if (scene === 'security') return <div className="prop-layer scanners" aria-hidden="true"><div className="scanner scanner--left">SECURITY<br /><b>VERY ON</b></div><div className="scan-beam" /><div className="scanner scanner--right">AUDIT<br /><b>PASS</b></div></div>;
-  if (scene === 'photos') return <div className="prop-layer phone-drop" aria-hidden="true"><div className="phone"><div className="phone-sky" /><span>◆</span><i /></div><em>4,832 photos<br />not for sale</em></div>;
-  if (scene === 'auth') return <div className="prop-layer auth-blocks" aria-hidden="true">{['2', '7', '4', '1', '9', '0'].map((x, i) => <b key={`${x}-${i}`} style={{ '--n': i } as React.CSSProperties}>{x}</b>)}</div>;
-  if (scene === 'locker') return <div className="prop-layer vault-scene" aria-hidden="true"><div className="vault"><div className="vault-door"><i /><b>×</b></div><span>VERY IMPORTANT<br />DUCKUMENTS</span></div><div className="paper">TOP<br />SECRET</div></div>;
-  return <div className="prop-layer growth-scene"><TinyPeople count={18} /><strong aria-hidden="true">+ + +</strong></div>;
+function BigTechOffice() {
+  return (
+    <div className="bigtech-world" aria-hidden="true">
+      <div className="server-wall">{Array.from({ length: 18 }, (_, i) => <span key={i}><i /></span>)}</div>
+      <div className="data-pipes"><i /><i /><i /><i /></div>
+      <div className="profile-machine"><b>PROFILE</b><span>BUILDING…</span><i /></div>
+      <div className="photo-belt">{['▧', '▥', '▧', '▤', '▧'].map((item, i) => <span key={i}>{item}</span>)}</div>
+      <div className="google-badge">VISITOR<br /><b>VISHNU</b></div>
+    </div>
+  );
 }
 
-function Milestone({ item, index }: { item: (typeof milestones)[number]; index: number }) {
+function Bob() {
+  return <div className="bob-character" aria-label="Bob, co-founder"><div className="bob-head"><i /><i /></div><div className="bob-body" /><div className="office-chair"><i /><i /></div><span>BOB</span></div>;
+}
+
+function StoryVisual({ scene }: { scene: SceneType }) {
+  if (scene === 'home') return <div className="prop-layer home-room" aria-hidden="true"><div className="tiny-room"><div className="window">⌂</div><div className="family-frame">♥</div><div className="tiny-desk"><Laptop /></div><div className="backpack">BACK<br />PACK</div></div></div>;
+  if (scene === 'experiment') return <div className="prop-layer experiment-rig" aria-hidden="true"><div className="device device--phone">PHONE</div><div className="device device--laptop">LAPTOP</div><div className="device device--drive">DRIVE</div><div className="cable cable--one" /><div className="cable cable--two" /><div className="cable cable--three" /><div className="collapse-label">until it didn’t</div></div>;
+  if (scene === 'photos') return <div className="prop-layer photos-reveal" aria-hidden="true"><div className="photo-wall">{Array.from({ length: 15 }, (_, i) => <span key={i} style={{ '--n': i } as React.CSSProperties}>◆</span>)}</div><div className="product-stamp">2022<br /><b>PHOTOS</b></div></div>;
+  if (scene === 'bob') return <div className="prop-layer bob-arrives"><Bob /><div className="shared-laptop"><Laptop /></div><div className="awkward-pause">…</div></div>;
+  if (scene === 'office') return <div className="prop-layer small-office" aria-hidden="true"><div className="office-walls" /><TinyPeople count={11} /><div className="desk-row">▰ ▰ ▰</div><div className="coffee-row">☕ ☕ ☕ ☕</div><div className="whiteboard">SHIP IT<br />FIX IT<br />SHIP IT</div></div>;
+  if (scene === 'auth') return <div className="prop-layer auth-morph" aria-hidden="true"><div className="fading-photos">{Array.from({ length: 10 }, (_, i) => <i key={i}>◆</i>)}</div><div className="auth-blocks">{['2', '7', '4', '1', '9', '0'].map((x, i) => <b key={`${x}-${i}`} style={{ '--n': i } as React.CSSProperties}>{x}</b>)}</div><div className="caught-code">7</div></div>;
+  if (scene === 'bigger') return <div className="prop-layer bigger-office" aria-hidden="true"><div className="expanding-wall expanding-wall--left" /><div className="expanding-wall expanding-wall--right" /><div className="rising-ceiling" /><TinyPeople count={13} /></div>;
+  if (scene === 'locker') return <div className="prop-layer vault-scene" aria-hidden="true"><div className="falling-papers">{['ID', 'PASS', 'DOC', 'KEY'].map((x, i) => <i key={x} style={{ '--n': i } as React.CSSProperties}>{x}</i>)}</div><div className="vault"><div className="vault-door"><i /><b>×</b></div><span>VERY IMPORTANT<br />DUCKUMENTS</span></div><div className="double-check">click&nbsp;&nbsp; click</div></div>;
+  if (scene === 'open') return <div className="prop-layer open-company"><div className="open-code" aria-hidden="true">{'{ privacy: true, ownership: yours }'}</div><div className="live-stats">{companyStats.map(stat => <div className="stat" data-stat={stat.key} key={stat.key}><span>{stat.label}</span><b>{stat.value}</b><i>LIVE</i></div>)}</div></div>;
+  return <div className="prop-layer cooking-scene" aria-hidden="true"><TinyPeople count={20} /><div className="cooking-pot"><div className="pot-steam">{'{ }'} &nbsp; 🔒 &nbsp; ▧</div><span>PHOTOS</span><span>AUTH</span><span>LOCKER</span></div><div className="taste-note">needs more encryption</div></div>;
+}
+
+function StorySection({ item, index }: { item: StoryBeat; index: number }) {
   return (
     <section className={`chapter milestone milestone--${item.scene}`} data-year={item.year} data-parallax-scene>
       <div className="scene milestone-stage">
         <div className="milestone-copy" data-parallax="-72" data-parallax-x={index % 2 ? '20' : '-20'}>
           <span className="chapter-number">{String(index + 1).padStart(2, '0')}</span>
-          <p>{item.year}</p>
-          <h2>{item.title}</h2>
-          <div className="milestone-line" />
+          <p>{item.eyebrow}</p><h2>{item.title}</h2><div className="milestone-line" />
           <p className="milestone-desc">{item.copy}</p>
+          {item.beats?.map((beat, beatIndex) => <p className={`story-beat story-beat--${beatIndex}`} key={beat}>{beat}</p>)}
         </div>
-        <div className="milestone-props" data-parallax="-138" data-parallax-x={index % 2 ? '-34' : '34'}><MilestoneVisual scene={item.scene} /></div>
+        <div className="milestone-props" data-parallax="-138" data-parallax-x={index % 2 ? '-34' : '34'}><StoryVisual scene={item.scene} /></div>
         <div className="milestone-duck" data-parallax="54" data-parallax-x={index % 2 ? '16' : '-16'}><Ducky state={item.state} label={`Ducky during ${item.title}`} /></div>
       </div>
     </section>
@@ -95,7 +100,7 @@ function Milestone({ item, index }: { item: (typeof milestones)[number]; index: 
 
 export default function Home() {
   const shellRef = useRef<HTMLElement>(null);
-  const [currentYear, setCurrentYear] = useState('2017');
+  const [currentYear, setCurrentYear] = useState('Google');
 
   useEffect(() => {
     const root = shellRef.current;
@@ -107,23 +112,21 @@ export default function Home() {
     const update = () => {
       const max = document.documentElement.scrollHeight - window.innerHeight;
       root.style.setProperty('--page-progress', String(max ? window.scrollY / max : 0));
-      if (!reducedMotion.matches) {
-        const viewportMiddle = window.innerHeight / 2;
-        parallaxScenes.forEach(scene => {
-          const rect = scene.getBoundingClientRect();
-          const shift = Math.max(-1, Math.min(1, (viewportMiddle - (rect.top + rect.height / 2)) / ((rect.height + window.innerHeight) / 2)));
-          scene.style.setProperty('--scene-bg-y', `${shift * -44}px`);
-        });
-        parallaxItems.forEach(item => {
-          const scene = item.closest<HTMLElement>('[data-parallax-scene]') || item;
-          const rect = scene.getBoundingClientRect();
-          const shift = Math.max(-1, Math.min(1, (viewportMiddle - (rect.top + rect.height / 2)) / ((rect.height + window.innerHeight) / 2)));
-          const speedY = Number(item.dataset.parallax || 0);
-          const speedX = Number(item.dataset.parallaxX || 0);
-          item.style.setProperty('--parallax-y', `${shift * speedY}px`);
-          item.style.setProperty('--parallax-x', `${shift * speedX}px`);
-        });
-      }
+      const viewportMiddle = window.innerHeight / 2;
+      parallaxScenes.forEach(scene => {
+        const rect = scene.getBoundingClientRect();
+        const shift = Math.max(-1, Math.min(1, (viewportMiddle - (rect.top + rect.height / 2)) / ((rect.height + window.innerHeight) / 2)));
+        const progress = Math.max(0, Math.min(1, (window.innerHeight - rect.top) / (rect.height + window.innerHeight)));
+        scene.style.setProperty('--scene-progress', String(progress));
+        scene.style.setProperty('--scene-bg-y', `${reducedMotion.matches ? 0 : shift * -44}px`);
+      });
+      if (!reducedMotion.matches) parallaxItems.forEach(item => {
+        const scene = item.closest<HTMLElement>('[data-parallax-scene]') || item;
+        const rect = scene.getBoundingClientRect();
+        const shift = Math.max(-1, Math.min(1, (viewportMiddle - (rect.top + rect.height / 2)) / ((rect.height + window.innerHeight) / 2)));
+        item.style.setProperty('--parallax-y', `${shift * Number(item.dataset.parallax || 0)}px`);
+        item.style.setProperty('--parallax-x', `${shift * Number(item.dataset.parallaxX || 0)}px`);
+      });
       frame = 0;
     };
     const onScroll = () => { if (!frame) frame = requestAnimationFrame(update); };
@@ -133,64 +136,32 @@ export default function Home() {
     };
     const observer = new IntersectionObserver(entries => {
       const visible = entries.filter(entry => entry.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-      if (visible) setCurrentYear((visible.target as HTMLElement).dataset.year || '2017');
+      if (visible) setCurrentYear((visible.target as HTMLElement).dataset.year || 'Today');
     }, { threshold: [.25, .45, .7] });
-    document.querySelectorAll<HTMLElement>('[data-year]').forEach(el => observer.observe(el));
-    update();
-    window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('pointermove', onPointer, { passive: true });
+    root.querySelectorAll<HTMLElement>('[data-year]').forEach(el => observer.observe(el));
+    update(); window.addEventListener('scroll', onScroll, { passive: true }); window.addEventListener('pointermove', onPointer, { passive: true });
     return () => { window.removeEventListener('scroll', onScroll); window.removeEventListener('pointermove', onPointer); observer.disconnect(); if (frame) cancelAnimationFrame(frame); };
   }, []);
 
   return (
     <main className="story-shell" ref={shellRef} id="top">
-      <nav className="wordmark" aria-label="Company"><span className="wordmark-dot" />ente</nav>
-      <aside className="progress-ui" aria-label={`Company journey, currently ${currentYear}`}>
-        <span>2017</span><div className="progress-track"><i /></div><b>{currentYear}</b><span>Today</span>
-      </aside>
+      <nav className="wordmark" aria-label="Ente"><span className="wordmark-dot" />ente</nav>
+      <aside className="progress-ui" aria-label={`Ente journey, currently ${currentYear}`}><span>Google</span><div className="progress-track"><i /></div><b>{currentYear}</b><span>Today</span></aside>
 
-      <section className="chapter intro" aria-labelledby="intro-title" data-parallax-scene>
-        <div className="scene intro-scene">
-          <div className="intro-copy" data-parallax="-95" data-parallax-x="-18">
-            <p className="eyebrow">A very serious company story</p>
-            <h1 id="intro-title">Meet our CEO.</h1>
-            <p className="intro-sub">He had a problem with the internet.</p>
-          </div>
-          <div className="intro-stage" data-parallax="56" data-parallax-x="25"><span className="stage-scribble">CEO*</span><div className="ducky-wrap ducky-arrival"><Ducky label="Ducky, our CEO" /></div></div>
-          <div className="scroll-cue" aria-hidden="true"><span>Scroll to begin</span><i /></div>
+      <section className="chapter bigtech" data-year="Google" data-parallax-scene>
+        <div className="scene bigtech-scene">
+          <BigTechOffice />
+          <div className="bigtech-copy bigtech-copy--first" data-parallax="-82"><p className="eyebrow">The story starts somewhere enormous</p><h1>Vishnu worked at Google.</h1></div>
+          <div className="bigtech-copy bigtech-copy--second" data-parallax="-48"><p>The more he saw what happened to people’s photos, the less okay it felt.</p><h2>So he left.</h2></div>
+          <div className="bigtech-duck" data-parallax="52" data-parallax-x="30"><Ducky state="inspected" label="Ducky representing Vishnu inside a huge Big Tech office" /></div>
+          <div className="scroll-cue" aria-hidden="true"><span>Scroll into the machine</span><i /></div>
         </div>
       </section>
 
-      <section className="chapter problem" data-year="The problem" data-parallax-scene>
-        <div className="scene problem-scene">
-          <div className="problem-copy" data-parallax="-88" data-parallax-x="-20"><p className="eyebrow">The problem</p><h2>Everything wanted his photos.</h2><p>Including things that absolutely did not need his photos.</p></div>
-          <div className="chaos-parallax" data-parallax="-170" data-parallax-x="52"><Chaos /></div>
-          <div className="problem-duck" data-parallax="58" data-parallax-x="-18"><Ducky state="surprised" label="Ducky surrounded by a messy internet" /></div>
-        </div>
-      </section>
+      <div className="journey-intro" data-year="Home" data-parallax-scene><div data-parallax="-72"><p>Badge off. Backpack on.</p><h2>From a huge office<br />to a very tiny desk.</h2><span>↓</span></div></div>
+      {storyBeats.map((item, index) => <StorySection item={item} index={index} key={item.scene} />)}
 
-      <section className="chapter idea" data-year="The idea" data-parallax-scene>
-        <div className="scene idea-scene">
-          <div className="quiet-ring" data-parallax="-45" data-parallax-x="24" aria-hidden="true" />
-          <div className="idea-copy" data-parallax="-82" data-parallax-x="-22"><p className="eyebrow">Then it got quiet</p><h2>So he built somewhere they could just… <em>exist.</em></h2></div>
-          <div className="idea-duck" data-parallax="64" data-parallax-x="26"><Ducky state="typing" label="Ducky quietly building at a laptop" /><Laptop /></div>
-        </div>
-      </section>
-
-      <div className="journey-intro" data-year="2017" data-parallax-scene><div data-parallax="-72"><p>The long version</p><h2>One small idea.<br />A surprisingly long walk.</h2><span>↓</span></div></div>
-      {milestones.map((item, index) => <Milestone item={item} index={index} key={item.title} />)}
-
-      <section className="chapter ending" data-year="Today" data-parallax-scene>
-        <div className="scene ending-scene">
-          <div className="orbit orbit--one" data-parallax="-92" data-parallax-x="45" aria-hidden="true"><span>PHOTOS</span></div>
-          <div className="orbit orbit--two" data-parallax="-145" data-parallax-x="-26" aria-hidden="true"><span>AUTH</span></div>
-          <div className="orbit orbit--three" data-parallax="-205" data-parallax-x="34" aria-hidden="true"><span>LOCKER</span></div>
-          <div className="ending-copy" data-parallax="-74" data-parallax-x="-18"><p className="eyebrow">Today, tomorrow, etc.</p><h2>Still<br />building.</h2><p>Photos. Auth. Locker.</p><strong>Private by default.<br />Open by choice.</strong></div>
-          <div className="ending-duck"><Ducky state="walking" label="Ducky walking off, then awkwardly returning" /></div>
-          <div className="forgot-note" aria-hidden="true">forgot his keys</div>
-          <footer><span>Made with unreasonable care.</span><a href="#top" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>Again? ↑</a></footer>
-        </div>
-      </section>
+      <footer className="story-footer"><span>Made in the open.</span><a href="#top" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>Cook again? ↑</a></footer>
     </main>
   );
 }
