@@ -54,7 +54,7 @@ function StoryVisual({ scene }: { scene: SceneType }) {
   if (scene === 'photos') return <div className="prop-layer photos-reveal" aria-hidden="true"><img className="photos-ducky-scene" src="/ducky-photos.png" alt="" draggable="false" /></div>;
   if (scene === 'bob') return <div className="prop-layer bob-arrives" aria-hidden="true"><img className="bob-ducky-scene" src="/ducky-bob.png" alt="" draggable="false" /></div>;
   if (scene === 'auth') return <div className="prop-layer auth-morph" aria-hidden="true"><img className="auth-ducky-scene" src="/ducky-auth.png" alt="" draggable="false" /></div>;
-  if (scene === 'bigger') return <div className="prop-layer bigger-office" aria-hidden="true"><img className="team-ducky-scene" src="/ducky-team.png" alt="" draggable="false" /></div>;
+  if (scene === 'bigger') return <div className="prop-layer bigger-office" aria-hidden="true"><img className="team-ducky-scene" src="/ducky-team-transparent.png" alt="" draggable="false" /></div>;
   if (scene === 'locker') return <div className="prop-layer vault-scene" aria-hidden="true"><img className="locker-ducky-scene" src="/ducky-locker.png" alt="" draggable="false" /></div>;
   if (scene === 'open') return <div className="prop-layer open-company" aria-hidden="true"><img className="open-ducky-scene" src="/ducky-open.png" alt="" draggable="false" /></div>;
   return <div className="prop-layer cooking-scene" aria-hidden="true"><img className="final-team-scene" src="/ducky-finale.png" alt="" draggable="false" /></div>;
