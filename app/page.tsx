@@ -77,17 +77,17 @@ function MilestoneVisual({ scene }: { scene: SceneType }) {
 
 function Milestone({ item, index }: { item: (typeof milestones)[number]; index: number }) {
   return (
-    <section className={`chapter milestone milestone--${item.scene}`} data-year={item.year}>
+    <section className={`chapter milestone milestone--${item.scene}`} data-year={item.year} data-parallax-scene>
       <div className="scene milestone-stage">
-        <div className="milestone-copy">
+        <div className="milestone-copy" data-parallax="-72" data-parallax-x={index % 2 ? '20' : '-20'}>
           <span className="chapter-number">{String(index + 1).padStart(2, '0')}</span>
           <p>{item.year}</p>
           <h2>{item.title}</h2>
           <div className="milestone-line" />
           <p className="milestone-desc">{item.copy}</p>
         </div>
-        <MilestoneVisual scene={item.scene} />
-        <div className="milestone-duck"><Ducky state={item.state} label={`Ducky during ${item.title}`} /></div>
+        <div className="milestone-props" data-parallax="-138" data-parallax-x={index % 2 ? '-34' : '34'}><MilestoneVisual scene={item.scene} /></div>
+        <div className="milestone-duck" data-parallax="54" data-parallax-x={index % 2 ? '16' : '-16'}><Ducky state={item.state} label={`Ducky during ${item.title}`} /></div>
       </div>
     </section>
   );
@@ -101,9 +101,29 @@ export default function Home() {
     const root = shellRef.current;
     if (!root) return;
     let frame = 0;
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const parallaxItems = Array.from(root.querySelectorAll<HTMLElement>('[data-parallax]'));
+    const parallaxScenes = Array.from(root.querySelectorAll<HTMLElement>('[data-parallax-scene]'));
     const update = () => {
       const max = document.documentElement.scrollHeight - window.innerHeight;
       root.style.setProperty('--page-progress', String(max ? window.scrollY / max : 0));
+      if (!reducedMotion.matches) {
+        const viewportMiddle = window.innerHeight / 2;
+        parallaxScenes.forEach(scene => {
+          const rect = scene.getBoundingClientRect();
+          const shift = Math.max(-1, Math.min(1, (viewportMiddle - (rect.top + rect.height / 2)) / ((rect.height + window.innerHeight) / 2)));
+          scene.style.setProperty('--scene-bg-y', `${shift * -44}px`);
+        });
+        parallaxItems.forEach(item => {
+          const scene = item.closest<HTMLElement>('[data-parallax-scene]') || item;
+          const rect = scene.getBoundingClientRect();
+          const shift = Math.max(-1, Math.min(1, (viewportMiddle - (rect.top + rect.height / 2)) / ((rect.height + window.innerHeight) / 2)));
+          const speedY = Number(item.dataset.parallax || 0);
+          const speedX = Number(item.dataset.parallaxX || 0);
+          item.style.setProperty('--parallax-y', `${shift * speedY}px`);
+          item.style.setProperty('--parallax-x', `${shift * speedX}px`);
+        });
+      }
       frame = 0;
     };
     const onScroll = () => { if (!frame) frame = requestAnimationFrame(update); };
@@ -129,43 +149,43 @@ export default function Home() {
         <span>2017</span><div className="progress-track"><i /></div><b>{currentYear}</b><span>Today</span>
       </aside>
 
-      <section className="chapter intro" aria-labelledby="intro-title">
+      <section className="chapter intro" aria-labelledby="intro-title" data-parallax-scene>
         <div className="scene intro-scene">
-          <div className="intro-copy">
+          <div className="intro-copy" data-parallax="-95" data-parallax-x="-18">
             <p className="eyebrow">A very serious company story</p>
             <h1 id="intro-title">Meet our CEO.</h1>
             <p className="intro-sub">He had a problem with the internet.</p>
           </div>
-          <div className="intro-stage"><span className="stage-scribble">CEO*</span><div className="ducky-wrap ducky-arrival"><Ducky label="Ducky, our CEO" /></div></div>
+          <div className="intro-stage" data-parallax="56" data-parallax-x="25"><span className="stage-scribble">CEO*</span><div className="ducky-wrap ducky-arrival"><Ducky label="Ducky, our CEO" /></div></div>
           <div className="scroll-cue" aria-hidden="true"><span>Scroll to begin</span><i /></div>
         </div>
       </section>
 
-      <section className="chapter problem" data-year="The problem">
+      <section className="chapter problem" data-year="The problem" data-parallax-scene>
         <div className="scene problem-scene">
-          <div className="problem-copy"><p className="eyebrow">The problem</p><h2>Everything wanted his photos.</h2><p>Including things that absolutely did not need his photos.</p></div>
-          <Chaos />
-          <div className="problem-duck"><Ducky state="surprised" label="Ducky surrounded by a messy internet" /></div>
+          <div className="problem-copy" data-parallax="-88" data-parallax-x="-20"><p className="eyebrow">The problem</p><h2>Everything wanted his photos.</h2><p>Including things that absolutely did not need his photos.</p></div>
+          <div className="chaos-parallax" data-parallax="-170" data-parallax-x="52"><Chaos /></div>
+          <div className="problem-duck" data-parallax="58" data-parallax-x="-18"><Ducky state="surprised" label="Ducky surrounded by a messy internet" /></div>
         </div>
       </section>
 
-      <section className="chapter idea" data-year="The idea">
+      <section className="chapter idea" data-year="The idea" data-parallax-scene>
         <div className="scene idea-scene">
-          <div className="quiet-ring" aria-hidden="true" />
-          <div className="idea-copy"><p className="eyebrow">Then it got quiet</p><h2>So he built somewhere they could just… <em>exist.</em></h2></div>
-          <div className="idea-duck"><Ducky state="typing" label="Ducky quietly building at a laptop" /><Laptop /></div>
+          <div className="quiet-ring" data-parallax="-45" data-parallax-x="24" aria-hidden="true" />
+          <div className="idea-copy" data-parallax="-82" data-parallax-x="-22"><p className="eyebrow">Then it got quiet</p><h2>So he built somewhere they could just… <em>exist.</em></h2></div>
+          <div className="idea-duck" data-parallax="64" data-parallax-x="26"><Ducky state="typing" label="Ducky quietly building at a laptop" /><Laptop /></div>
         </div>
       </section>
 
-      <div className="journey-intro" data-year="2017"><p>The long version</p><h2>One small idea.<br />A surprisingly long walk.</h2><span>↓</span></div>
+      <div className="journey-intro" data-year="2017" data-parallax-scene><div data-parallax="-72"><p>The long version</p><h2>One small idea.<br />A surprisingly long walk.</h2><span>↓</span></div></div>
       {milestones.map((item, index) => <Milestone item={item} index={index} key={item.title} />)}
 
-      <section className="chapter ending" data-year="Today">
+      <section className="chapter ending" data-year="Today" data-parallax-scene>
         <div className="scene ending-scene">
-          <div className="orbit orbit--one" aria-hidden="true"><span>PHOTOS</span></div>
-          <div className="orbit orbit--two" aria-hidden="true"><span>AUTH</span></div>
-          <div className="orbit orbit--three" aria-hidden="true"><span>LOCKER</span></div>
-          <div className="ending-copy"><p className="eyebrow">Today, tomorrow, etc.</p><h2>Still<br />building.</h2><p>Photos. Auth. Locker.</p><strong>Private by default.<br />Open by choice.</strong></div>
+          <div className="orbit orbit--one" data-parallax="-92" data-parallax-x="45" aria-hidden="true"><span>PHOTOS</span></div>
+          <div className="orbit orbit--two" data-parallax="-145" data-parallax-x="-26" aria-hidden="true"><span>AUTH</span></div>
+          <div className="orbit orbit--three" data-parallax="-205" data-parallax-x="34" aria-hidden="true"><span>LOCKER</span></div>
+          <div className="ending-copy" data-parallax="-74" data-parallax-x="-18"><p className="eyebrow">Today, tomorrow, etc.</p><h2>Still<br />building.</h2><p>Photos. Auth. Locker.</p><strong>Private by default.<br />Open by choice.</strong></div>
           <div className="ending-duck"><Ducky state="walking" label="Ducky walking off, then awkwardly returning" /></div>
           <div className="forgot-note" aria-hidden="true">forgot his keys</div>
           <footer><span>Made with unreasonable care.</span><a href="#top" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>Again? ↑</a></footer>
