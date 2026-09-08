@@ -7,16 +7,16 @@ type SceneType = 'home' | 'experiment' | 'photos' | 'bob' | 'office' | 'auth' | 
 type StoryBeat = { year: string; eyebrow: string; title: string; copy: string; beats?: string[]; state: DuckState; scene: SceneType };
 
 const storyBeats: StoryBeat[] = [
-  { year: 'Home', eyebrow: 'A much smaller desk', title: 'He came home.', copy: 'And started trying to build something better.', state: 'typing', scene: 'home' },
-  { year: 'The first idea', eyebrow: 'Sketch. Encrypt. Repeat.', title: 'It wasn’t even a photo app.', copy: 'The first experiments were end-to-end encrypted and device-first.', beats: ['Device first sounded like a good idea.', 'Until it didn’t.', 'So we built an app instead.'], state: 'surprised', scene: 'experiment' },
-  { year: '2022', eyebrow: 'The first big milestone', title: 'Ente Photos.', copy: 'A private home for photos—built without the part where strangers learn everything about you.', state: 'celebrating', scene: 'photos' },
-  { year: 'Co-founder', eyebrow: 'An office chair approaches', title: 'Then Bob showed up.', copy: 'They stared at the same laptop for a while. It went surprisingly well.', state: 'idle', scene: 'bob' },
-  { year: 'The team', eyebrow: 'Two desks. Nine chairs.', title: 'Then a few more people joined.', copy: 'The tiny office filled with computers, whiteboards, coffee, and absolutely no personal space.', state: 'walking', scene: 'office' },
-  { year: 'Photos → Auth', eyebrow: 'One code escaped', title: 'We started with Photos.', copy: 'Then we built Auth.', beats: ['Private photos.', 'Private 2FA codes.'], state: 'surprised', scene: 'auth' },
-  { year: 'More room', eyebrow: 'Structural optimism', title: 'We needed more room.', copy: 'The walls moved out. The desks stopped touching. The ceiling finally exhaled.', state: 'celebrating', scene: 'bigger' },
-  { year: '2024', eyebrow: 'One very serious vault', title: 'Ente Locker.', copy: 'Photos were private. 2FA codes were private. So… why stop there?', beats: ['Passports. IDs. Documents.', 'Handle checked twice.'], state: 'inspected', scene: 'locker' },
-  { year: 'Building in the open', eyebrow: 'No mysterious charts', title: 'Out in the open.', copy: 'We decided to build the company the same way we build the product.', beats: ['No secret growth charts.', 'No mysterious “trust us” numbers.', 'Just the numbers.'], state: 'idle', scene: 'open' },
-  { year: 'Today', eyebrow: 'Around 20 people', title: 'Still cooking.', copy: 'Still independent. Still building. Still figuring things out.', beats: ['Photos. Auth. Locker.', 'Needs more encryption.'], state: 'celebrating', scene: 'cooking' },
+  { year: 'Home', eyebrow: 'Career plan: smaller desk', title: 'He came home.', copy: 'And started building something better. Same laptop. Fewer cafeterias. Significantly more relatives asking what the app does.', state: 'typing', scene: 'home' },
+  { year: 'The first idea', eyebrow: 'Sketch. Encrypt. Add cable.', title: 'It wasn’t even a photo app.', copy: 'It was end-to-end encrypted, device-first, and extremely confident about cables.', beats: ['Device first sounded brilliant.', 'The devices disagreed.', 'So we built an app. Like practical adults.'], state: 'surprised', scene: 'experiment' },
+  { year: '2022', eyebrow: 'Now containing actual photos', title: 'Ente Photos.', copy: 'Your memories go in. Advertising profiles do not come out. A surprisingly controversial business model.', state: 'celebrating', scene: 'photos' },
+  { year: 'Co-founder', eyebrow: 'An office chair approaches', title: 'Then Bob rolled in.', copy: 'Co-founder. Chair operator. Second person willing to stare at the same bug until it apologised.', state: 'idle', scene: 'bob' },
+  { year: 'The team', eyebrow: 'Two desks. Eleven elbows.', title: 'Then more humans appeared.', copy: 'The office reached 130% capacity. Someone’s desk was mostly someone else’s elbow.', state: 'walking', scene: 'office' },
+  { year: 'Photos → Auth', eyebrow: 'One code escaped', title: 'We started with Photos.', copy: 'Then someone had a deeply personal relationship with a missing 2FA code.', beats: ['Ducky caught it.', 'We called that product research.', 'Then we built Auth.'], state: 'surprised', scene: 'auth' },
+  { year: 'More room', eyebrow: 'A data-driven property decision', title: 'We needed more room.', copy: 'This insight arrived when nobody could open the door without moving three chairs and one engineer.', state: 'celebrating', scene: 'bigger' },
+  { year: '2024', eyebrow: 'One unnecessarily serious vault', title: 'Ente Locker.', copy: 'Photos were private. Codes were private. Passports were still living dangerously in a drawer.', beats: ['Enter: the vault.', 'Ducky checked the handle twice.', 'Then once more for morale.'], state: 'inspected', scene: 'locker' },
+  { year: 'Building in the open', eyebrow: 'No mysterious hockey sticks', title: 'Out in the open.', copy: 'We decided to build the company like the product: inspectable, accountable, and allergic to suspicious charts.', beats: ['No secret growth graphs.', 'No “trust us, it’s huge.”', 'Just the numbers. In daylight.'], state: 'idle', scene: 'open' },
+  { year: 'Today', eyebrow: 'Around 20 people and several mugs', title: 'Still cooking.', copy: 'Still independent. Still building. Still asking who moved the good whiteboard marker.', beats: ['Photos. Auth. Locker.', 'Ducky tasted the roadmap.', 'Needs more encryption.'], state: 'celebrating', scene: 'cooking' },
 ];
 
 const companyStats = [
@@ -57,7 +57,7 @@ function BigTechOffice() {
     <div className="bigtech-world" aria-hidden="true">
       <div className="server-wall">{Array.from({ length: 18 }, (_, i) => <span key={i}><i /></span>)}</div>
       <div className="data-pipes"><i /><i /><i /><i /></div>
-      <div className="profile-machine"><b>PROFILE</b><span>BUILDING…</span><i /></div>
+      <div className="profile-machine"><b>PROFILE</b><span>BUILDING… FOR SOME REASON</span><i /></div>
       <div className="photo-belt">{['▧', '▥', '▧', '▤', '▧'].map((item, i) => <span key={i}>{item}</span>)}</div>
       <div className="google-badge">VISITOR<br /><b>VISHNU</b></div>
     </div>
@@ -73,12 +73,12 @@ function StoryVisual({ scene }: { scene: SceneType }) {
   if (scene === 'experiment') return <div className="prop-layer experiment-rig" aria-hidden="true"><div className="device device--phone">PHONE</div><div className="device device--laptop">LAPTOP</div><div className="device device--drive">DRIVE</div><div className="cable cable--one" /><div className="cable cable--two" /><div className="cable cable--three" /><div className="collapse-label">until it didn’t</div></div>;
   if (scene === 'photos') return <div className="prop-layer photos-reveal" aria-hidden="true"><div className="photo-wall">{Array.from({ length: 15 }, (_, i) => <span key={i} style={{ '--n': i } as React.CSSProperties}>◆</span>)}</div><div className="product-stamp">2022<br /><b>PHOTOS</b></div></div>;
   if (scene === 'bob') return <div className="prop-layer bob-arrives"><Bob /><div className="shared-laptop"><Laptop /></div><div className="awkward-pause">…</div></div>;
-  if (scene === 'office') return <div className="prop-layer small-office" aria-hidden="true"><div className="office-walls" /><TinyPeople count={11} /><div className="desk-row">▰ ▰ ▰</div><div className="coffee-row">☕ ☕ ☕ ☕</div><div className="whiteboard">SHIP IT<br />FIX IT<br />SHIP IT</div></div>;
+  if (scene === 'office') return <div className="prop-layer small-office" aria-hidden="true"><div className="office-walls" /><TinyPeople count={11} /><div className="desk-row">▰ ▰ ▰</div><div className="coffee-row">☕ ☕ ☕ ☕</div><div className="whiteboard">SHIP IT<br />FIX IT<br />SAY IT WAS<br />THE PLAN</div></div>;
   if (scene === 'auth') return <div className="prop-layer auth-morph" aria-hidden="true"><div className="fading-photos">{Array.from({ length: 10 }, (_, i) => <i key={i}>◆</i>)}</div><div className="auth-blocks">{['2', '7', '4', '1', '9', '0'].map((x, i) => <b key={`${x}-${i}`} style={{ '--n': i } as React.CSSProperties}>{x}</b>)}</div><div className="caught-code">7</div></div>;
   if (scene === 'bigger') return <div className="prop-layer bigger-office" aria-hidden="true"><div className="expanding-wall expanding-wall--left" /><div className="expanding-wall expanding-wall--right" /><div className="rising-ceiling" /><TinyPeople count={13} /></div>;
   if (scene === 'locker') return <div className="prop-layer vault-scene" aria-hidden="true"><div className="falling-papers">{['ID', 'PASS', 'DOC', 'KEY'].map((x, i) => <i key={x} style={{ '--n': i } as React.CSSProperties}>{x}</i>)}</div><div className="vault"><div className="vault-door"><i /><b>×</b></div><span>VERY IMPORTANT<br />DUCKUMENTS</span></div><div className="double-check">click&nbsp;&nbsp; click</div></div>;
   if (scene === 'open') return <div className="prop-layer open-company"><div className="open-code" aria-hidden="true">{'{ privacy: true, ownership: yours }'}</div><div className="live-stats">{companyStats.map(stat => <div className="stat" data-stat={stat.key} key={stat.key}><span>{stat.label}</span><b>{stat.value}</b><i>LIVE</i></div>)}</div></div>;
-  return <div className="prop-layer cooking-scene" aria-hidden="true"><TinyPeople count={20} /><div className="cooking-pot"><div className="pot-steam">{'{ }'} &nbsp; 🔒 &nbsp; ▧</div><span>PHOTOS</span><span>AUTH</span><span>LOCKER</span></div><div className="taste-note">needs more encryption</div></div>;
+  return <div className="prop-layer cooking-scene" aria-hidden="true"><TinyPeople count={20} /><div className="cooking-pot"><div className="pot-steam">{'{ }'} &nbsp; 🔒 &nbsp; ▧</div><span>PHOTOS</span><span>AUTH</span><span>LOCKER</span></div><div className="taste-note">hmm. needs more encryption.</div></div>;
 }
 
 function StorySection({ item, index }: { item: StoryBeat; index: number }) {
@@ -151,14 +151,14 @@ export default function Home() {
       <section className="chapter bigtech" data-year="Google" data-parallax-scene>
         <div className="scene bigtech-scene">
           <BigTechOffice />
-          <div className="bigtech-copy bigtech-copy--first" data-parallax="-82"><p className="eyebrow">The story starts somewhere enormous</p><h1>Vishnu worked at Google.</h1></div>
-          <div className="bigtech-copy bigtech-copy--second" data-parallax="-48"><p>The more he saw what happened to people’s photos, the less okay it felt.</p><h2>So he left.</h2></div>
+          <div className="bigtech-copy bigtech-copy--first" data-parallax="-82"><p className="eyebrow">One duck. Several thousand servers.</p><h1>Vishnu worked at Google.</h1></div>
+          <div className="bigtech-copy bigtech-copy--second" data-parallax="-48"><p>The more he saw what happened to people’s photos, the harder it became to nod politely.</p><h2>So he left.</h2><small>Badge returned. Trust issues retained.</small></div>
           <div className="bigtech-duck" data-parallax="52" data-parallax-x="30"><Ducky state="inspected" label="Ducky representing Vishnu inside a huge Big Tech office" /></div>
-          <div className="scroll-cue" aria-hidden="true"><span>Scroll into the machine</span><i /></div>
+          <div className="scroll-cue" aria-hidden="true"><span>Scroll to resign dramatically</span><i /></div>
         </div>
       </section>
 
-      <div className="journey-intro" data-year="Home" data-parallax-scene><div data-parallax="-72"><p>Badge off. Backpack on.</p><h2>From a huge office<br />to a very tiny desk.</h2><span>↓</span></div></div>
+      <div className="journey-intro" data-year="Home" data-parallax-scene><div data-parallax="-72"><p>Badge off. Backpack on. Free lunch status: complicated.</p><h2>From a huge office<br />to a desk with relatives nearby.</h2><span>↓</span></div></div>
       {storyBeats.map((item, index) => <StorySection item={item} index={index} key={item.scene} />)}
 
       <footer className="story-footer"><span>Made in the open.</span><a href="#top" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>Cook again? ↑</a></footer>

@@ -217,6 +217,7 @@ footer { position:absolute; z-index:12; left:34px; right:34px; bottom:26px; disp
 .bigtech-copy--second { top:19vh; opacity:clamp(0,calc((var(--scene-progress,0) - .27) * 4),1); }
 .bigtech-copy--second p { max-width:650px; margin:0 0 30px; font-size:clamp(31px,4vw,63px); font-weight:800; line-height:.92; letter-spacing:-.06em; }
 .bigtech-copy--second h2 { margin:0; color:var(--red); font-size:clamp(74px,11vw,170px); line-height:.8; letter-spacing:-.09em; text-transform:uppercase; }
+.bigtech-copy--second small { display:block; margin-top:28px; font:700 clamp(14px,1.3vw,19px)/1.2 'Comic Sans MS',cursive; transform:rotate(-1.5deg); }
 .bigtech-duck { position:absolute; z-index:5; left:52%; bottom:-35px; transform:translateX(calc(var(--scene-progress,0) * 18vw)) scale(.78); }
 .bigtech .scroll-cue { z-index:10; }
 
