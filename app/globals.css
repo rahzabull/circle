@@ -268,10 +268,7 @@ footer { position:absolute; z-index:12; left:34px; right:34px; bottom:26px; disp
 
 .home-ducky-scene { position:absolute; right:clamp(18px,4vw,70px); top:50%; width:min(48vw,700px); max-height:90vh; object-fit:contain; transform:translateY(-50%); filter:drop-shadow(0 22px 20px rgba(23,23,18,.13)); }
 
-.device { position:absolute; display:grid; place-items:center; border:4px solid var(--ink); background:#f7f2e8; font-size:10px; font-weight:900; letter-spacing:.1em; z-index:2; }
-.device--phone{left:11%;top:17%;width:95px;height:175px;border-radius:20px;transform:rotate(-9deg)}.device--laptop{left:32%;top:22%;width:185px;height:120px;transform:rotate(5deg)}.device--drive{left:22%;bottom:14%;width:120px;height:90px;transform:rotate(-13deg)}
-.cable { position:absolute; z-index:1; width:260px; height:180px; border:7px solid var(--ink); border-color:var(--ink) transparent transparent var(--ink); border-radius:50%; transform-origin:center; animation:cable-tangle 2.7s ease-in-out infinite alternate; }.cable--one{left:14%;top:36%;transform:rotate(18deg)}.cable--two{left:28%;top:34%;transform:rotate(104deg)}.cable--three{left:17%;top:49%;transform:rotate(-50deg)}
-.collapse-label { position:absolute; left:17%; bottom:6%; font-family:'Comic Sans MS',cursive; font-size:22px; transform:rotate(-8deg); }
+.experiment-ducky-scene { position:absolute; left:clamp(18px,4vw,70px); top:50%; width:min(47vw,680px); max-height:88vh; object-fit:contain; transform:translateY(-50%); filter:drop-shadow(0 22px 20px rgba(23,23,18,.13)); }
 
 .photo-wall { position:absolute; left:5%; right:5%; top:9%; bottom:8%; display:grid; grid-template-columns:repeat(5,1fr); gap:8px; transform:perspective(800px) rotateY(5deg); }
 .photo-wall span { display:grid; place-items:center; border:3px solid var(--ink); background:hsl(calc(var(--n) * 32deg) 58% 72%); font-size:36px; animation:photo-pop .5s calc(var(--n)*.05s) both; }
@@ -303,11 +300,11 @@ footer { position:absolute; z-index:12; left:34px; right:34px; bottom:26px; disp
 .story-footer { position:absolute; z-index:30; left:34px; right:34px; bottom:24px; display:flex; justify-content:space-between; color:var(--ink); font-size:10px; font-weight:900; letter-spacing:.13em; text-transform:uppercase; }.story-footer a{text-decoration:none;border-bottom:1px solid}
 
 @keyframes server-blink{to{opacity:.28}}@keyframes data-flow{to{filter:hue-rotate(80deg);transform:translateX(80px)}}@keyframes belt{to{transform:translateX(-138px)}}
-@keyframes cable-tangle{to{scale:1.12;rotate:22deg}}@keyframes photo-pop{from{opacity:0;transform:scale(.1) rotate(-12deg)}}@keyframes bob-roll{from{transform:translateX(70vw) rotate(8deg)}}@keyframes paper-fall{to{translate:15px 45px;rotate:9deg}}@keyframes live-blink{50%{opacity:.2}}@keyframes steam{to{translate:0 -25px;opacity:.3}}
+@keyframes photo-pop{from{opacity:0;transform:scale(.1) rotate(-12deg)}}@keyframes bob-roll{from{transform:translateX(70vw) rotate(8deg)}}@keyframes paper-fall{to{translate:15px 45px;rotate:9deg}}@keyframes live-blink{50%{opacity:.2}}@keyframes steam{to{translate:0 -25px;opacity:.3}}
 
 @media (max-width:780px) {
   .bigtech{min-height:220vh}.bigtech-copy{left:24px;width:calc(100% - 48px)}.bigtech-copy h1{font-size:clamp(64px,19vw,100px)}.bigtech-copy--second p{font-size:clamp(28px,8.6vw,44px)}.bigtech-copy--second h2{font-size:22vw}.server-wall{left:27%;width:95vw;grid-template-columns:repeat(4,1fr);opacity:.72}.profile-machine{right:-28px;top:50vh;transform:scale(.65)}.photo-belt{left:8%;bottom:3vh}.bigtech-duck{left:47%;bottom:-76px;transform:translateX(calc(var(--scene-progress,0)*14vw)) scale(.56)}.google-badge{left:69%;transform:scale(.72) translateY(calc(var(--scene-progress,0)*70vh)) rotate(calc(var(--scene-progress,0)*32deg))}
-  .device--phone{left:4%;top:45%;transform:scale(.72) rotate(-9deg)}.device--laptop{left:37%;top:48%;transform:scale(.7) rotate(5deg)}.device--drive{left:18%;bottom:7%;transform:scale(.75) rotate(-13deg)}.cable{top:54%;left:18%;transform:scale(.72)}.photo-wall{top:40%;bottom:5%;grid-template-columns:repeat(3,1fr)}.photo-wall span{font-size:22px}.bob-character{right:6%;bottom:1%;transform:scale(.68);transform-origin:bottom right}.shared-laptop{left:45%;bottom:3%;transform:translateX(-50%) scale(.67)}.awkward-pause{top:52%;left:55%}.small-office .tiny-people{bottom:2%}.whiteboard{right:5%;top:48%;transform:scale(.65)}.desk-row{bottom:11%;font-size:40px}.coffee-row{bottom:20%;font-size:19px}.caught-code{left:38%;top:61%;transform:scale(.7) rotate(-12deg)}.live-stats{inset:44% 4% 5%;grid-template-columns:1fr 1fr}.stat{padding:12px}.stat b{font-size:22px}.stat i{top:7px;right:7px}.cooking-pot{width:70vw;height:190px;bottom:8%;transform:translateX(-50%)}.cooking-pot>span{margin:75px 0 0 9px;padding:6px;font-size:8px}.cooking-scene .tiny-people{bottom:1%}.taste-note{top:47%;right:5%;font-size:16px}.story-beat{font-size:14px}
+  .photo-wall{top:40%;bottom:5%;grid-template-columns:repeat(3,1fr)}.photo-wall span{font-size:22px}.bob-character{right:6%;bottom:1%;transform:scale(.68);transform-origin:bottom right}.shared-laptop{left:45%;bottom:3%;transform:translateX(-50%) scale(.67)}.awkward-pause{top:52%;left:55%}.small-office .tiny-people{bottom:2%}.whiteboard{right:5%;top:48%;transform:scale(.65)}.desk-row{bottom:11%;font-size:40px}.coffee-row{bottom:20%;font-size:19px}.caught-code{left:38%;top:61%;transform:scale(.7) rotate(-12deg)}.live-stats{inset:44% 4% 5%;grid-template-columns:1fr 1fr}.stat{padding:12px}.stat b{font-size:22px}.stat i{top:7px;right:7px}.cooking-pot{width:70vw;height:190px;bottom:8%;transform:translateX(-50%)}.cooking-pot>span{margin:75px 0 0 9px;padding:6px;font-size:8px}.cooking-scene .tiny-people{bottom:1%}.taste-note{top:47%;right:5%;font-size:16px}.story-beat{font-size:14px}
 }
 
 /* Supplied Ducky artwork */
@@ -340,8 +337,6 @@ footer { position:absolute; z-index:12; left:34px; right:34px; bottom:26px; disp
 .milestone[data-layout='right-copy'] .chapter-number { left:auto; right:-46px; }
 .milestone[data-layout='right-copy'] .milestone-duck { left:24%; }
 .milestone[data-layout='left-copy'] .milestone-duck { left:76%; }
-.milestone--experiment .milestone-props { width:48%; }
-.milestone--experiment .milestone-duck { left:20%; }
 .milestone--bob .bob-character { left:10%; right:auto; }
 .milestone--cooking .cooking-pot { width:min(88%,620px); }
 .milestone--open .live-stats { grid-template-columns:1fr; inset:20% 7% 7%; }
@@ -365,7 +360,7 @@ footer { position:absolute; z-index:12; left:34px; right:34px; bottom:26px; disp
   .milestone-props,.milestone[data-layout='left-copy'] .milestone-props,.milestone[data-layout='right-copy'] .milestone-props { left:0; right:0; top:54%; bottom:0; width:100%; height:46%; overflow:hidden; }
   .milestone[data-layout='left-copy'] .milestone-duck,.milestone[data-layout='right-copy'] .milestone-duck { left:50%; bottom:-72px; transform:translateX(-50%) scale(.48); }
   .milestone--home .home-ducky-scene { right:50%; top:52%; width:min(96vw,520px); max-height:44vh; transform:translate(50%,-50%); }
-  .milestone--experiment .device--phone { top:5%; }.milestone--experiment .device--laptop{top:10%}.milestone--experiment .cable{top:20%}
+  .milestone--experiment .experiment-ducky-scene { left:50%; top:52%; width:min(94vw,500px); max-height:44vh; transform:translate(-50%,-50%); }
   .milestone--photos .photo-wall { top:0; bottom:0; }
   .milestone--bob .bob-character { left:5%; bottom:-18%; }
   .milestone--office .whiteboard { top:4%; }
