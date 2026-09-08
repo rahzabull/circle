@@ -278,7 +278,7 @@ footer { position:absolute; z-index:12; left:34px; right:34px; bottom:26px; disp
 .open-ducky-scene { position:absolute; left:-1vw; top:50%; width:min(54vw,840px); max-height:88vh; object-fit:contain; transform:translateY(-50%) scale(1.11); transform-origin:left center; }
 
 .final-team-scene { position:absolute; right:-2vw; top:50%; width:min(50vw,790px); max-height:88vh; object-fit:contain; transform:translateY(-50%) scale(1.24); transform-origin:right center; }
-.team-ducky-scene,.open-ducky-scene,.final-team-scene { -webkit-mask-image:linear-gradient(to bottom,transparent 0%,#000 9%,#000 91%,transparent 100%); mask-image:linear-gradient(to bottom,transparent 0%,#000 9%,#000 91%,transparent 100%); }
+.team-ducky-scene,.open-ducky-scene,.final-team-scene { -webkit-mask-image:radial-gradient(ellipse 82% 76% at center,#000 55%,rgba(0,0,0,.96) 70%,transparent 100%); mask-image:radial-gradient(ellipse 82% 76% at center,#000 55%,rgba(0,0,0,.96) 70%,transparent 100%); }
 .story-footer { position:absolute; z-index:30; left:34px; right:34px; bottom:24px; display:flex; justify-content:space-between; color:var(--ink); font-size:10px; font-weight:900; letter-spacing:.13em; text-transform:uppercase; }.story-footer a{text-decoration:none;border-bottom:1px solid}
 
 @keyframes server-blink{to{opacity:.28}}@keyframes data-flow{to{filter:hue-rotate(80deg);transform:translateX(80px)}}@keyframes belt{to{transform:translateX(-138px)}}
