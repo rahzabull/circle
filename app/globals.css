@@ -302,14 +302,16 @@ footer { position:absolute; z-index:12; left:34px; right:34px; bottom:26px; disp
 .milestone-props { top:0; bottom:0; width:52%; overflow:hidden; }
 .milestone[data-layout='left-copy'] .milestone-props { left:auto; right:0; }
 .milestone[data-layout='right-copy'] .milestone-props { left:0; right:auto; }
-.milestone[data-layout='left-copy'] .milestone-copy { justify-self:start; padding-right:2vw; }
-.milestone[data-layout='right-copy'] .milestone-copy { order:2; justify-self:end; margin-left:auto; padding-left:2vw; text-align:right; }
+.milestone[data-layout='left-copy'] .milestone-copy { grid-column:1; justify-self:start; padding-right:2vw; }
+.milestone[data-layout='right-copy'] .milestone-copy { grid-column:2; order:2; justify-self:end; margin-left:auto; padding-left:3vw; text-align:right; }
 .milestone[data-layout='right-copy'] .milestone-line { margin-left:auto; }
 .milestone[data-layout='right-copy'] .milestone-desc,
 .milestone[data-layout='right-copy'] .story-beat { margin-left:auto; }
 .milestone[data-layout='right-copy'] .chapter-number { left:auto; right:-46px; }
 .milestone[data-layout='right-copy'] .milestone-duck { left:24%; }
 .milestone[data-layout='left-copy'] .milestone-duck { left:76%; }
+.milestone--experiment .milestone-props { width:48%; }
+.milestone--experiment .milestone-duck { left:20%; }
 .milestone--bob .bob-character { left:10%; right:auto; }
 .milestone--home .tiny-room { left:4vw; width:calc(100% - 8vw); }
 .milestone--cooking .cooking-pot { width:min(88%,620px); }
@@ -323,7 +325,7 @@ footer { position:absolute; z-index:12; left:34px; right:34px; bottom:26px; disp
   .photo-belt { left:0; bottom:2vh; opacity:.8; }
   .data-pipes i { left:0; opacity:.55; }
   .milestone-stage { padding-top:12vh; }
-  .milestone-copy,.milestone[data-layout='left-copy'] .milestone-copy,.milestone[data-layout='right-copy'] .milestone-copy { width:100%; max-width:none; order:initial; justify-self:start; margin:0; padding:0; text-align:left; }
+  .milestone-copy,.milestone[data-layout='left-copy'] .milestone-copy,.milestone[data-layout='right-copy'] .milestone-copy { grid-column:1; width:100%; max-width:none; order:initial; justify-self:start; margin:0; padding:0; text-align:left; }
   .milestone[data-layout='right-copy'] .milestone-line { margin-left:0; }
   .milestone[data-layout='right-copy'] .milestone-desc,.milestone[data-layout='right-copy'] .story-beat { margin-left:0; }
   .milestone[data-layout='right-copy'] .chapter-number { left:auto; right:0; }
