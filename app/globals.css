@@ -2,7 +2,7 @@
 
 :root {
   --ink:#171712; --cream:#f7f2e8; --yellow:#ffda3e; --orange:#f2a51b;
-  --red:#e95442; --blue:#75aee9; --green:#74b887; --page-progress:0; --opening-duck-zoom:1.4; --opening-duck-shift:-30%; --mx:0; --my:0;
+  --red:#e95442; --blue:#75aee9; --green:#74b887; --page-progress:0; --opening-duck-zoom:1.4; --opening-duck-shift:-30%; --opening-duck-mobile-shift:30%; --mx:0; --my:0;
 }
 * { box-sizing:border-box; }
 html { background:var(--cream); scroll-behavior:smooth; }
@@ -321,7 +321,7 @@ footer { position:absolute; z-index:12; left:34px; right:34px; bottom:26px; disp
 
 @media (max-width:780px) {
   .bigtech-scene::after { background:linear-gradient(180deg,#deded7 0%,#deded7 43%,rgba(222,222,215,.84) 55%,transparent 73%); }
-  .bigtech-duck { left:50%; bottom:0; transform:translateX(-50%) translateX(var(--opening-duck-shift)) translateX(calc(var(--scene-progress,0)*4vw)) scale(.5); }
+  .bigtech-duck { left:50%; bottom:0; transform:translateX(-50%) translateX(var(--opening-duck-mobile-shift)) translateX(calc(var(--scene-progress,0)*4vw)) scale(.5); }
   .photo-belt { left:0; bottom:2vh; opacity:.8; }
   .data-pipes i { left:0; opacity:.55; }
   .milestone-stage { padding-top:12vh; }
