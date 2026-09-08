@@ -19,6 +19,16 @@ const storyBeats: StoryBeat[] = [
   { year: 'Today', eyebrow: 'Around 20 people and several mugs', title: 'Still cooking.', copy: 'Still independent. Still building. Still asking who moved the good whiteboard marker.', beats: ['Photos. Auth. Locker.', 'Ducky tasted the roadmap.', 'Needs more encryption.'], state: 'celebrating', scene: 'cooking' },
 ];
 
+const timelineStops = [
+  { year: 'Google', label: 'Google', href: '#top', short: 'G' },
+  ...storyBeats.map((item, index) => ({
+    year: item.year,
+    label: item.year,
+    href: `#chapter-${item.scene}`,
+    short: String(index + 1).padStart(2, '0'),
+  })),
+];
+
 const companyStats = [
   { label: 'Revenue', value: 'Connect', key: 'revenue' },
   { label: 'Active users', value: 'Connect', key: 'activeUsers' },
@@ -74,7 +84,7 @@ function StoryVisual({ scene }: { scene: SceneType }) {
 function StorySection({ item, index }: { item: StoryBeat; index: number }) {
   const layout = index % 2 === 0 ? 'left-copy' : 'right-copy';
   return (
-    <section className={`chapter milestone milestone--${item.scene}`} data-year={item.year} data-layout={layout} data-parallax-scene>
+    <section id={`chapter-${item.scene}`} className={`chapter milestone milestone--${item.scene}`} data-year={item.year} data-layout={layout} data-parallax-scene>
       <div className="scene milestone-stage">
         <div className="milestone-copy" data-parallax="-72" data-parallax-x={index % 2 ? '20' : '-20'}>
           <span className="chapter-number">{String(index + 1).padStart(2, '0')}</span>
@@ -92,6 +102,7 @@ function StorySection({ item, index }: { item: StoryBeat; index: number }) {
 export default function Home() {
   const shellRef = useRef<HTMLElement>(null);
   const [currentYear, setCurrentYear] = useState('Google');
+  const [timelineVisible, setTimelineVisible] = useState(false);
 
   useEffect(() => {
     const root = shellRef.current;
@@ -100,9 +111,16 @@ export default function Home() {
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
     const parallaxItems = Array.from(root.querySelectorAll<HTMLElement>('[data-parallax]'));
     const parallaxScenes = Array.from(root.querySelectorAll<HTMLElement>('[data-parallax-scene]'));
+    const openingChapter = root.querySelector<HTMLElement>('.bigtech');
     const update = () => {
       const max = document.documentElement.scrollHeight - window.innerHeight;
       root.style.setProperty('--page-progress', String(max ? window.scrollY / max : 0));
+      if (openingChapter) {
+        const openingRect = openingChapter.getBoundingClientRect();
+        const openingTravel = Math.max(1, openingRect.height - window.innerHeight);
+        const openingProgress = Math.max(0, Math.min(1, -openingRect.top / openingTravel));
+        setTimelineVisible(openingProgress >= .08);
+      }
       const viewportMiddle = window.innerHeight / 2;
       parallaxScenes.forEach(scene => {
         const rect = scene.getBoundingClientRect();
@@ -138,6 +156,25 @@ export default function Home() {
     <main className="story-shell" ref={shellRef} id="top">
       <nav className="wordmark" aria-label="Ente"><span className="wordmark-dot" />ente</nav>
       <aside className="progress-ui" aria-label={`Ente journey, currently ${currentYear}`}><span>Google</span><div className="progress-track"><i /></div><b>{currentYear}</b><span>Today</span></aside>
+      <nav className={`journey-timeline${timelineVisible ? ' is-visible' : ''}`} aria-label="Jump to a chapter" aria-hidden={!timelineVisible}>
+        <span className="journey-timeline-caption" aria-hidden="true">Jump</span>
+        {timelineStops.map(stop => {
+          const active = currentYear === stop.year;
+          return (
+            <a
+              href={stop.href}
+              className={`journey-timeline-link${active ? ' is-active' : ''}`}
+              data-label={stop.label}
+              aria-label={`Jump to ${stop.label}`}
+              aria-current={active ? 'step' : undefined}
+              tabIndex={timelineVisible ? 0 : -1}
+              key={stop.href}
+            >
+              <span>{stop.short}</span>
+            </a>
+          );
+        })}
+      </nav>
 
       <section className="chapter bigtech" data-year="Google" data-parallax-scene>
         <div className="scene bigtech-scene">
