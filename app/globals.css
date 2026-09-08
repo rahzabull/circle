@@ -257,23 +257,23 @@ footer { position:absolute; z-index:12; left:34px; right:34px; bottom:26px; disp
 .milestone--open { --scene-bg:#1c2220; --ink:#f7f2e8; --accent:#ffda3e; color:#f7f2e8; }
 .milestone--cooking { --scene-bg:#f19f73; --accent:#7f2731; min-height:240vh; }
 
-.home-ducky-scene { position:absolute; right:clamp(18px,4vw,70px); top:50%; width:min(48vw,700px); max-height:90vh; object-fit:contain; transform:translateY(-50%); filter:drop-shadow(0 22px 20px rgba(23,23,18,.13)); }
+.home-ducky-scene { position:absolute; right:clamp(18px,4vw,70px); top:50%; width:min(48vw,700px); max-height:90vh; object-fit:contain; transform:translateY(-50%); }
 
-.experiment-ducky-scene { position:absolute; left:clamp(18px,4vw,70px); top:50%; width:min(47vw,680px); max-height:88vh; object-fit:contain; transform:translateY(-50%); filter:drop-shadow(0 22px 20px rgba(23,23,18,.13)); }
+.experiment-ducky-scene { position:absolute; left:clamp(18px,4vw,70px); top:50%; width:min(47vw,680px); max-height:88vh; object-fit:contain; transform:translateY(-50%); }
 
-.photos-ducky-scene { position:absolute; right:clamp(12px,3vw,50px); top:50%; width:min(49vw,720px); max-height:90vh; object-fit:contain; border-radius:12%; transform:translateY(-50%); filter:drop-shadow(0 22px 20px rgba(23,23,18,.1)); }
+.photos-ducky-scene { position:absolute; right:clamp(12px,3vw,50px); top:50%; width:min(49vw,720px); max-height:90vh; object-fit:contain; border-radius:12%; transform:translateY(-50%); }
 
-.bob-ducky-scene { position:absolute; left:clamp(12px,3vw,50px); top:50%; width:min(49vw,720px); max-height:88vh; object-fit:contain; border-radius:12%; transform:translateY(-50%); filter:drop-shadow(0 22px 20px rgba(23,23,18,.1)); }
+.bob-ducky-scene { position:absolute; left:clamp(12px,3vw,50px); top:50%; width:min(49vw,720px); max-height:88vh; object-fit:contain; border-radius:12%; transform:translateY(-50%); }
 
-.auth-ducky-scene { position:absolute; right:clamp(12px,3vw,50px); top:50%; width:min(47vw,680px); max-height:90vh; object-fit:contain; border-radius:12%; transform:translateY(-50%); filter:drop-shadow(0 22px 20px rgba(23,23,18,.1)); }
+.auth-ducky-scene { position:absolute; right:clamp(12px,3vw,50px); top:50%; width:min(47vw,680px); max-height:90vh; object-fit:contain; border-radius:12%; transform:translateY(-50%); }
 
-.team-ducky-scene { position:absolute; left:clamp(8px,2vw,34px); top:50%; width:min(53vw,820px); max-height:86vh; object-fit:contain; border-radius:12%; transform:translateY(-50%); filter:drop-shadow(0 22px 20px rgba(23,23,18,.1)); }
+.team-ducky-scene { position:absolute; left:clamp(8px,2vw,34px); top:50%; width:min(53vw,820px); max-height:86vh; object-fit:contain; border-radius:12%; transform:translateY(-50%); }
 
-.locker-ducky-scene { position:absolute; right:clamp(8px,2vw,34px); top:50%; width:min(51vw,780px); max-height:88vh; object-fit:contain; transform:translateY(-50%); filter:drop-shadow(0 22px 20px rgba(23,23,18,.14)); }
+.locker-ducky-scene { position:absolute; right:clamp(8px,2vw,34px); top:50%; width:min(51vw,780px); max-height:88vh; object-fit:contain; transform:translateY(-50%); }
 
-.open-ducky-scene { position:absolute; left:clamp(6px,1.5vw,26px); top:50%; width:min(54vw,840px); max-height:88vh; object-fit:contain; border-radius:12%; transform:translateY(-50%); filter:drop-shadow(0 24px 26px rgba(0,0,0,.24)); }
+.open-ducky-scene { position:absolute; left:clamp(6px,1.5vw,26px); top:50%; width:min(54vw,840px); max-height:88vh; object-fit:contain; border-radius:12%; transform:translateY(-50%); }
 
-.final-team-scene { position:absolute; right:clamp(6px,1vw,18px); top:50%; width:min(50vw,790px); max-height:88vh; object-fit:contain; border-radius:12%; transform:translateY(-50%); filter:drop-shadow(0 24px 24px rgba(23,23,18,.12)); }
+.final-team-scene { position:absolute; right:clamp(6px,1vw,18px); top:50%; width:min(50vw,790px); max-height:88vh; object-fit:contain; border-radius:12%; transform:translateY(-50%); }
 .story-footer { position:absolute; z-index:30; left:34px; right:34px; bottom:24px; display:flex; justify-content:space-between; color:var(--ink); font-size:10px; font-weight:900; letter-spacing:.13em; text-transform:uppercase; }.story-footer a{text-decoration:none;border-bottom:1px solid}
 
 @keyframes server-blink{to{opacity:.28}}@keyframes data-flow{to{filter:hue-rotate(80deg);transform:translateX(80px)}}@keyframes belt{to{transform:translateX(-138px)}}
