@@ -153,7 +153,7 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="story-shell" ref={shellRef} id="top">
+    <main className={`story-shell${timelineVisible ? ' timeline-visible' : ''}`} ref={shellRef} id="top">
       <nav className="wordmark" aria-label="Ente"><span className="wordmark-dot" />ente</nav>
       <aside className="progress-ui" aria-label={`Ente journey, currently ${currentYear}`}><span>Google</span><div className="progress-track"><i /></div><b>{currentYear}</b><span>Today</span></aside>
       <nav className={`journey-timeline${timelineVisible ? ' is-visible' : ''}`} aria-label="Jump to a chapter" aria-hidden={!timelineVisible}>
