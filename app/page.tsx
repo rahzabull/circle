@@ -29,17 +29,7 @@ const companyStats = [
 function Ducky({ state = 'idle', label = 'Ducky' }: { state?: DuckState; label?: string }) {
   return (
     <div className={`ducky ducky--${state}`} role="img" aria-label={label}>
-      <div className="duck-shadow" />
-      <div className="duck-body">
-        <div className="duck-wing duck-wing--left" /><div className="duck-wing duck-wing--right" />
-        <div className="duck-head">
-          <span className="duck-eye duck-eye--left" /><span className="duck-eye duck-eye--right" />
-          <span className="duck-brow duck-brow--left" /><span className="duck-brow duck-brow--right" />
-          <span className="duck-bill" /><span className="duck-cheek duck-cheek--left" /><span className="duck-cheek duck-cheek--right" />
-        </div>
-        <div className="duck-foot duck-foot--left" /><div className="duck-foot duck-foot--right" />
-      </div>
-      <div className="ceo-tie" />
+      <img className="ducky-asset" src="/ducky.svg" alt="" draggable="false" />
     </div>
   );
 }

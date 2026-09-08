@@ -280,3 +280,19 @@ footer { position:absolute; z-index:12; left:34px; right:34px; bottom:26px; disp
   .bigtech{min-height:220vh}.bigtech-copy{left:24px;width:calc(100% - 48px)}.bigtech-copy h1{font-size:clamp(64px,19vw,100px)}.bigtech-copy--second p{font-size:clamp(28px,8.6vw,44px)}.bigtech-copy--second h2{font-size:22vw}.server-wall{left:27%;width:95vw;grid-template-columns:repeat(4,1fr);opacity:.72}.profile-machine{right:-28px;top:50vh;transform:scale(.65)}.photo-belt{left:8%;bottom:3vh}.bigtech-duck{left:47%;bottom:-76px;transform:translateX(calc(var(--scene-progress,0)*14vw)) scale(.56)}.google-badge{left:69%;transform:scale(.72) translateY(calc(var(--scene-progress,0)*70vh)) rotate(calc(var(--scene-progress,0)*32deg))}
   .tiny-room{left:5%;top:38%;width:90%;height:55%;transform:scale(.72);transform-origin:top center}.device--phone{left:4%;top:45%;transform:scale(.72) rotate(-9deg)}.device--laptop{left:37%;top:48%;transform:scale(.7) rotate(5deg)}.device--drive{left:18%;bottom:7%;transform:scale(.75) rotate(-13deg)}.cable{top:54%;left:18%;transform:scale(.72)}.photo-wall{top:40%;bottom:5%;grid-template-columns:repeat(3,1fr)}.photo-wall span{font-size:22px}.bob-character{right:6%;bottom:1%;transform:scale(.68);transform-origin:bottom right}.shared-laptop{left:45%;bottom:3%;transform:translateX(-50%) scale(.67)}.awkward-pause{top:52%;left:55%}.small-office .tiny-people{bottom:2%}.whiteboard{right:5%;top:48%;transform:scale(.65)}.desk-row{bottom:11%;font-size:40px}.coffee-row{bottom:20%;font-size:19px}.caught-code{left:38%;top:61%;transform:scale(.7) rotate(-12deg)}.live-stats{inset:44% 4% 5%;grid-template-columns:1fr 1fr}.stat{padding:12px}.stat b{font-size:22px}.stat i{top:7px;right:7px}.cooking-pot{width:70vw;height:190px;bottom:8%;transform:translateX(-50%)}.cooking-pot>span{margin:75px 0 0 9px;padding:6px;font-size:8px}.cooking-scene .tiny-people{bottom:1%}.taste-note{top:47%;right:5%;font-size:16px}.story-beat{font-size:14px}
 }
+
+/* Supplied Ducky artwork */
+.ducky { width:390px; height:auto; aspect-ratio:520/483; }
+.ducky-asset { display:block; width:100%; height:100%; object-fit:contain; user-select:none; pointer-events:none; transform-origin:50% 86%; animation:ducky-asset-idle 3.2s ease-in-out infinite; }
+.ducky--surprised .ducky-asset { animation:ducky-asset-surprised 1.15s cubic-bezier(.2,.9,.25,1) infinite alternate; }
+.ducky--typing .ducky-asset { animation:ducky-asset-typing .42s ease-in-out infinite alternate; transform-origin:65% 78%; }
+.ducky--inspected .ducky-asset { animation:ducky-asset-inspected 2.2s ease-in-out infinite alternate; transform-origin:50% 92%; }
+.ducky--celebrating .ducky-asset { animation:ducky-asset-celebrate .8s cubic-bezier(.2,.9,.3,1.25) infinite alternate; }
+.ducky--walking .ducky-asset { animation:ducky-asset-walk .44s ease-in-out infinite alternate; }
+@keyframes ducky-asset-idle { 50%{transform:translateY(-7px) rotate(.8deg)} }
+@keyframes ducky-asset-surprised { to{transform:translateY(-15px) rotate(-4deg) scale(1.035)} }
+@keyframes ducky-asset-typing { to{transform:translateY(3px) rotate(1.8deg)} }
+@keyframes ducky-asset-inspected { to{transform:rotate(-4deg) translateX(-5px)} }
+@keyframes ducky-asset-celebrate { to{transform:translateY(-22px) rotate(5deg) scale(1.025)} }
+@keyframes ducky-asset-walk { to{transform:translateY(-10px) rotate(-3deg)} }
+@media (max-width:780px) { .ducky{width:330px;height:auto} }
