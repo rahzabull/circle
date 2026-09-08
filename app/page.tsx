@@ -99,6 +99,7 @@ export default function Home() {
         const openingProgress = Math.max(0, Math.min(1, -openingRect.top / openingTravel));
         const firstScrollProgress = Math.min(1, openingProgress / .22);
         root.style.setProperty('--opening-duck-zoom', String(1.4 - firstScrollProgress * .4));
+        root.style.setProperty('--opening-duck-shift', `${-30 + firstScrollProgress * 30}%`);
         setTimelineVisible(openingProgress >= .08);
       }
       const viewportMiddle = window.innerHeight / 2;
