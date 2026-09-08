@@ -129,6 +129,7 @@ h1,h2,p { text-wrap:balance; }
 /* Milestones */
 .milestone { background:var(--scene-bg,var(--cream)); }
 .milestone-stage { display:grid; grid-template-columns:1fr 1fr; align-items:center; padding:10vh clamp(28px,8vw,140px); background:var(--scene-bg,var(--cream)); isolation:isolate; }
+.milestone-stage::before { display:none; }
 .milestone:nth-of-type(odd) .milestone-copy { order:2; margin-left:auto; }.milestone:nth-of-type(odd) .milestone-duck { left:23%; }
 .milestone-copy { position:relative; z-index:9; max-width:680px; }
 .milestone-copy > p:first-of-type { margin:0 0 16px; color:var(--accent,var(--red)); font-size:16px; font-weight:900; }
@@ -138,6 +139,9 @@ h1,h2,p { text-wrap:balance; }
 .chapter-number { position:absolute; left:-46px; top:8px; font-size:10px; font-weight:900; letter-spacing:.12em; }
 .milestone-duck { position:absolute; z-index:6; left:69%; bottom:5vh; transform:translateX(-50%) scale(.82); }
 .milestone-props { position:absolute; inset:0; z-index:4; pointer-events:none; }
+.milestone-props::after { content:''; position:absolute; z-index:8; top:0; bottom:0; width:5vw; pointer-events:none; }
+.milestone[data-layout='left-copy'] .milestone-props::after { left:0; background:linear-gradient(90deg,var(--scene-bg,var(--cream)),transparent); }
+.milestone[data-layout='right-copy'] .milestone-props::after { right:0; background:linear-gradient(90deg,transparent,var(--scene-bg,var(--cream))); }
 .prop-layer { position:absolute; inset:0; z-index:4; pointer-events:none; }
 .milestone--build { --scene-bg:#e6dbca; --accent:#735bea; }.milestone--users { --scene-bg:#b6daf0; --accent:#d9423c; }.milestone--open { --scene-bg:#f2b8b0; --accent:#075e4d; }.milestone--security { --scene-bg:#1e2130; --ink:#f7f2e8; --accent:#ffda3e; color:var(--cream); }.milestone--photos { --scene-bg:#efc2db; --accent:#3957b7; }.milestone--auth { --scene-bg:#f0c858; --accent:#bd2c33; }.milestone--locker { --scene-bg:#a9c7b0; --accent:#8b2f32; }.milestone--growth { --scene-bg:#f7f2e8; --accent:#e95442; }
 
@@ -257,23 +261,24 @@ footer { position:absolute; z-index:12; left:34px; right:34px; bottom:26px; disp
 .milestone--open { --scene-bg:#1c2220; --ink:#f7f2e8; --accent:#ffda3e; color:#f7f2e8; }
 .milestone--cooking { --scene-bg:#f19f73; --accent:#7f2731; min-height:240vh; }
 
-.home-ducky-scene { position:absolute; right:clamp(18px,4vw,70px); top:50%; width:min(48vw,700px); max-height:90vh; object-fit:contain; transform:translateY(-50%); }
+.home-ducky-scene { position:absolute; right:0; top:50%; width:min(48vw,700px); max-height:90vh; object-fit:contain; transform:translateY(-50%) scale(1.15); transform-origin:right center; }
 
-.experiment-ducky-scene { position:absolute; left:clamp(18px,4vw,70px); top:50%; width:min(47vw,680px); max-height:88vh; object-fit:contain; transform:translateY(-50%); }
+.experiment-ducky-scene { position:absolute; left:0; top:50%; width:min(47vw,680px); max-height:88vh; object-fit:contain; transform:translateY(-50%) scale(1.27); transform-origin:left center; }
 
-.photos-ducky-scene { position:absolute; right:clamp(12px,3vw,50px); top:50%; width:min(49vw,720px); max-height:90vh; object-fit:contain; border-radius:12%; transform:translateY(-50%); }
+.photos-ducky-scene { position:absolute; right:-1vw; top:50%; width:min(49vw,720px); max-height:90vh; object-fit:contain; transform:translateY(-50%) scale(1.18); transform-origin:right center; }
 
-.bob-ducky-scene { position:absolute; left:clamp(12px,3vw,50px); top:50%; width:min(49vw,720px); max-height:88vh; object-fit:contain; border-radius:12%; transform:translateY(-50%); }
+.bob-ducky-scene { position:absolute; left:-2vw; top:50%; width:min(49vw,720px); max-height:88vh; object-fit:contain; transform:translateY(-50%) scale(1.3); transform-origin:left center; }
 
-.auth-ducky-scene { position:absolute; right:clamp(12px,3vw,50px); top:50%; width:min(47vw,680px); max-height:90vh; object-fit:contain; border-radius:12%; transform:translateY(-50%); }
+.auth-ducky-scene { position:absolute; right:0; top:50%; width:min(47vw,680px); max-height:90vh; object-fit:contain; transform:translateY(-50%) scale(1.22); transform-origin:right center; }
 
-.team-ducky-scene { position:absolute; left:clamp(8px,2vw,34px); top:50%; width:min(53vw,820px); max-height:86vh; object-fit:contain; border-radius:12%; transform:translateY(-50%); }
+.team-ducky-scene { position:absolute; left:-4vw; top:50%; width:min(53vw,820px); max-height:86vh; object-fit:contain; transform:translateY(-50%) scale(1.28); transform-origin:left center; }
 
-.locker-ducky-scene { position:absolute; right:clamp(8px,2vw,34px); top:50%; width:min(51vw,780px); max-height:88vh; object-fit:contain; transform:translateY(-50%); }
+.locker-ducky-scene { position:absolute; right:0; top:50%; width:min(51vw,780px); max-height:88vh; object-fit:contain; transform:translateY(-50%) scale(1.16); transform-origin:right center; }
 
-.open-ducky-scene { position:absolute; left:clamp(6px,1.5vw,26px); top:50%; width:min(54vw,840px); max-height:88vh; object-fit:contain; border-radius:12%; transform:translateY(-50%); }
+.open-ducky-scene { position:absolute; left:-1vw; top:50%; width:min(54vw,840px); max-height:88vh; object-fit:contain; transform:translateY(-50%) scale(1.11); transform-origin:left center; }
 
-.final-team-scene { position:absolute; right:clamp(6px,1vw,18px); top:50%; width:min(50vw,790px); max-height:88vh; object-fit:contain; border-radius:12%; transform:translateY(-50%); }
+.final-team-scene { position:absolute; right:-2vw; top:50%; width:min(50vw,790px); max-height:88vh; object-fit:contain; transform:translateY(-50%) scale(1.24); transform-origin:right center; }
+.team-ducky-scene,.open-ducky-scene,.final-team-scene { -webkit-mask-image:linear-gradient(to bottom,transparent 0%,#000 9%,#000 91%,transparent 100%); mask-image:linear-gradient(to bottom,transparent 0%,#000 9%,#000 91%,transparent 100%); }
 .story-footer { position:absolute; z-index:30; left:34px; right:34px; bottom:24px; display:flex; justify-content:space-between; color:var(--ink); font-size:10px; font-weight:900; letter-spacing:.13em; text-transform:uppercase; }.story-footer a{text-decoration:none;border-bottom:1px solid}
 
 @keyframes server-blink{to{opacity:.28}}@keyframes data-flow{to{filter:hue-rotate(80deg);transform:translateX(80px)}}@keyframes belt{to{transform:translateX(-138px)}}
@@ -329,14 +334,15 @@ footer { position:absolute; z-index:12; left:34px; right:34px; bottom:26px; disp
   .story-beat { margin-top:9px; font-size:13px; max-width:92%; }
   .story-beat--0 { margin-top:18px; }
   .milestone-props,.milestone[data-layout='left-copy'] .milestone-props,.milestone[data-layout='right-copy'] .milestone-props { left:0; right:0; top:54%; bottom:0; width:100%; height:46%; overflow:hidden; }
+  .milestone-props::after { display:none; }
   .milestone[data-layout='left-copy'] .milestone-duck,.milestone[data-layout='right-copy'] .milestone-duck { left:50%; bottom:-72px; transform:translateX(-50%) scale(.48); }
-  .milestone--home .home-ducky-scene { right:50%; top:52%; width:min(96vw,520px); max-height:44vh; transform:translate(50%,-50%); }
-  .milestone--experiment .experiment-ducky-scene { left:50%; top:52%; width:min(94vw,500px); max-height:44vh; transform:translate(-50%,-50%); }
-  .milestone--photos .photos-ducky-scene { right:50%; top:52%; width:min(96vw,520px); max-height:44vh; transform:translate(50%,-50%); }
-  .milestone--bob .bob-ducky-scene { left:50%; top:52%; width:min(96vw,540px); max-height:44vh; transform:translate(-50%,-50%); }
-  .milestone--auth .auth-ducky-scene { right:50%; top:52%; width:min(92vw,500px); max-height:44vh; transform:translate(50%,-50%); }
-  .milestone--bigger .team-ducky-scene { left:50%; top:52%; width:min(98vw,600px); max-height:42vh; transform:translate(-50%,-50%); }
-  .milestone--locker .locker-ducky-scene { right:50%; top:52%; width:min(96vw,560px); max-height:44vh; transform:translate(50%,-50%); }
-  .milestone--open .open-ducky-scene { left:50%; top:52%; width:min(98vw,600px); max-height:43vh; transform:translate(-50%,-50%); }
-  .milestone--cooking .final-team-scene { right:50%; top:52%; width:min(98vw,620px); max-height:43vh; transform:translate(50%,-50%); }
+  .milestone--home .home-ducky-scene { right:50%; top:52%; width:min(96vw,520px); max-height:44vh; transform:translate(50%,-50%) scale(1.08); transform-origin:center; }
+  .milestone--experiment .experiment-ducky-scene { left:50%; top:52%; width:min(94vw,500px); max-height:44vh; transform:translate(-50%,-50%) scale(1.14); transform-origin:center; }
+  .milestone--photos .photos-ducky-scene { right:50%; top:52%; width:min(96vw,520px); max-height:44vh; transform:translate(50%,-50%) scale(1.1); transform-origin:center; }
+  .milestone--bob .bob-ducky-scene { left:50%; top:52%; width:min(96vw,540px); max-height:44vh; transform:translate(-50%,-50%) scale(1.16); transform-origin:center; }
+  .milestone--auth .auth-ducky-scene { right:50%; top:52%; width:min(92vw,500px); max-height:44vh; transform:translate(50%,-50%) scale(1.09); transform-origin:center; }
+  .milestone--bigger .team-ducky-scene { left:50%; top:52%; width:min(98vw,600px); max-height:42vh; transform:translate(-50%,-50%) scale(1.13); transform-origin:center; }
+  .milestone--locker .locker-ducky-scene { right:50%; top:52%; width:min(96vw,560px); max-height:44vh; transform:translate(50%,-50%) scale(1.07); transform-origin:center; }
+  .milestone--open .open-ducky-scene { left:50%; top:52%; width:min(98vw,600px); max-height:43vh; transform:translate(-50%,-50%) scale(1.12); transform-origin:center; }
+  .milestone--cooking .final-team-scene { right:50%; top:52%; width:min(98vw,620px); max-height:43vh; transform:translate(50%,-50%) scale(1.1); transform-origin:center; }
 }

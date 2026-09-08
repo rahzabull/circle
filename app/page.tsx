@@ -4,18 +4,18 @@ import { useEffect, useRef, useState } from 'react';
 
 type DuckState = 'idle' | 'surprised' | 'typing' | 'walking' | 'inspected' | 'celebrating';
 type SceneType = 'home' | 'experiment' | 'photos' | 'bob' | 'auth' | 'bigger' | 'locker' | 'open' | 'cooking';
-type StoryBeat = { year: string; eyebrow: string; title: string; copy: string; beats?: string[]; state: DuckState; scene: SceneType };
+type StoryBeat = { year: string; eyebrow: string; title: string; copy: string; beats?: string[]; scene: SceneType };
 
 const storyBeats: StoryBeat[] = [
-  { year: 'Home', eyebrow: 'Career plan: smaller desk', title: 'He came home.', copy: 'And started building something better. Same laptop. Fewer cafeterias. Significantly more relatives asking what the app does.', state: 'typing', scene: 'home' },
-  { year: 'The first idea', eyebrow: 'Sketch. Encrypt. Add cable.', title: 'It wasn’t even a photo app.', copy: 'It was end-to-end encrypted, device-first, and extremely confident about cables.', beats: ['Device first sounded brilliant.', 'The devices disagreed.', 'So we built an app. Like practical adults.'], state: 'surprised', scene: 'experiment' },
-  { year: '2022', eyebrow: 'Now containing actual photos', title: 'Ente Photos.', copy: 'Your memories go in. Advertising profiles do not come out. A surprisingly controversial business model.', state: 'celebrating', scene: 'photos' },
-  { year: 'Co-founder', eyebrow: 'An office chair approaches', title: 'Then Bob rolled in.', copy: 'Co-founder. Chair operator. Second person willing to stare at the same bug until it apologised.', state: 'idle', scene: 'bob' },
-  { year: 'Photos → Auth', eyebrow: 'One code escaped', title: 'We started with Photos.', copy: 'Then someone had a deeply personal relationship with a missing 2FA code.', beats: ['Ducky caught it.', 'We called that product research.', 'Then we built Auth.'], state: 'surprised', scene: 'auth' },
-  { year: 'More room', eyebrow: 'A data-driven property decision', title: 'We needed more room.', copy: 'This insight arrived when nobody could open the door without moving three chairs and one engineer.', state: 'celebrating', scene: 'bigger' },
-  { year: '2024', eyebrow: 'One unnecessarily serious vault', title: 'Ente Locker.', copy: 'Photos were private. Codes were private. Passports were still living dangerously in a drawer.', beats: ['Enter: the vault.', 'Ducky checked the handle twice.', 'Then once more for morale.'], state: 'inspected', scene: 'locker' },
-  { year: 'Building in the open', eyebrow: 'No mysterious hockey sticks', title: 'Out in the open.', copy: 'We decided to build the company like the product: inspectable, accountable, and allergic to suspicious charts.', beats: ['No secret growth graphs.', 'No “trust us, it’s huge.”', 'Just the numbers. In daylight.'], state: 'idle', scene: 'open' },
-  { year: 'Today', eyebrow: 'Around 20 people and several mugs', title: 'Still cooking.', copy: 'Still independent. Still building. Still asking who moved the good whiteboard marker.', beats: ['Photos. Auth. Locker.', 'Ducky tasted the roadmap.', 'Needs more encryption.'], state: 'celebrating', scene: 'cooking' },
+  { year: 'Home', eyebrow: 'New office: one desk, many opinions', title: 'He came home.', copy: 'Same laptop. Smaller desk. Unlimited relatives asking, “So… what exactly are you building?”', scene: 'home' },
+  { year: 'The first idea', eyebrow: 'Encrypt. Sync. Find cable.', title: 'It wasn’t even a photo app.', copy: 'Device-first. End-to-end encrypted. Extremely confident for something held together by cables.', beats: ['The idea was brilliant.', 'The devices filed a complaint.', 'So we built an app.'], scene: 'experiment' },
+  { year: '2022', eyebrow: 'Now with actual photos', title: 'Ente Photos.', copy: 'Your memories go in. Ad profiles do not crawl out. Apparently this is rebellious.', scene: 'photos' },
+  { year: 'Co-founder', eyebrow: 'Plot twist: another adult', title: 'Then Bob rolled in.', copy: 'Co-founder. Debugger. Second person willing to stare at one bug until it confessed.', scene: 'bob' },
+  { year: 'Photos → Auth', eyebrow: 'A 2FA code escaped', title: 'We started with Photos.', copy: 'Then someone lost a 2FA code and experienced all five stages of grief before lunch.', beats: ['Ducky found it.', 'We called it user research.', 'Hello, Ente Auth.'], scene: 'auth' },
+  { year: 'More room', eyebrow: 'Scientific finding: elbows need space', title: 'We needed more room.', copy: 'The breakthrough came when opening the door required moving three chairs and one engineer.', scene: 'bigger' },
+  { year: '2024', eyebrow: 'For documents with commitment issues', title: 'Ente Locker.', copy: 'Photos were private. Codes were private. Passports were still freelancing in a drawer.', beats: ['So we built a vault.', 'Ducky checked the lock twice.', 'Then once for emotional support.'], scene: 'locker' },
+  { year: 'Building in the open', eyebrow: 'No secret sauce. Recipe included.', title: 'Out in the open.', copy: 'We build the company like the product: inspectable, accountable, and suspicious of graphs that go up too neatly.', beats: ['No mystery metrics.', 'No “trust us, it’s huge.”', 'Just the work. In daylight.'], scene: 'open' },
+  { year: 'Today', eyebrow: '≈20 people. Infinite mugs.', title: 'Still cooking.', copy: 'Still independent. Still building. Still blaming the missing whiteboard marker on “culture.”', beats: ['Photos. Auth. Locker.', 'Ducky reviewed the roadmap.', 'Requested more encryption.'], scene: 'cooking' },
 ];
 
 const timelineStops = [
@@ -72,7 +72,6 @@ function StorySection({ item, index }: { item: StoryBeat; index: number }) {
           {item.beats?.map((beat, beatIndex) => <p className={`story-beat story-beat--${beatIndex}`} key={beat}>{beat}</p>)}
         </div>
         <div className="milestone-props" data-parallax="-112" data-parallax-x="0"><StoryVisual scene={item.scene} /></div>
-        {item.scene !== 'home' && item.scene !== 'experiment' && item.scene !== 'photos' && item.scene !== 'bob' && item.scene !== 'auth' && item.scene !== 'bigger' && item.scene !== 'locker' && item.scene !== 'open' && item.scene !== 'cooking' && <div className="milestone-duck" data-parallax="54" data-parallax-x={index % 2 ? '16' : '-16'}><Ducky state={item.state} label={`Ducky during ${item.title}`} /></div>}
       </div>
     </section>
   );
@@ -159,13 +158,13 @@ export default function Home() {
         <div className="scene bigtech-scene">
           <BigTechOffice />
           <div className="bigtech-copy bigtech-copy--first" data-parallax="-82"><p className="eyebrow">One duck. Several thousand servers.</p><h1>Vishnu worked at Google.</h1></div>
-          <div className="bigtech-copy bigtech-copy--second" data-parallax="-48"><p>The more he saw what happened to people’s photos, the harder it became to nod politely.</p><h2>So he left.</h2><small>Badge returned. Trust issues retained.</small></div>
+          <div className="bigtech-copy bigtech-copy--second" data-parallax="-48"><p>The more he learned about photo privacy, the less polite his nod became.</p><h2>So he left.</h2><small>Badge returned. Side-eye retained.</small></div>
           <div className="bigtech-duck" data-parallax="52" data-parallax-x="30"><Ducky state="inspected" asset="/ducky-big-tech.png" label="Ducky representing Vishnu wrapped in Big Tech" /></div>
           <div className="scroll-cue" aria-hidden="true"><span>Scroll to resign dramatically</span><i /></div>
         </div>
       </section>
 
-      <div className="journey-intro" data-year="Home" data-parallax-scene><div data-parallax="-72"><p>Badge off. Backpack on. Free lunch status: complicated.</p><h2>From a huge office<br />to a desk with relatives nearby.</h2><span>↓</span></div></div>
+      <div className="journey-intro" data-year="Home" data-parallax-scene><div data-parallax="-72"><p>Big office out. Family tech support in.</p><h2>One desk.<br />Unlimited feedback.</h2><span>↓</span></div></div>
       {storyBeats.map((item, index) => <StorySection item={item} index={index} key={item.scene} />)}
 
       <footer className="story-footer"><span>Made in the open.</span><a href="#top" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>Cook again? ↑</a></footer>
