@@ -98,7 +98,8 @@ export default function Home() {
         const openingTravel = Math.max(1, openingRect.height - window.innerHeight);
         const openingProgress = Math.max(0, Math.min(1, -openingRect.top / openingTravel));
         const firstScrollProgress = Math.min(1, openingProgress / .22);
-        root.style.setProperty('--opening-duck-zoom', String(1.4 - firstScrollProgress * .4));
+        root.style.setProperty('--opening-duck-zoom', String(1.96 - firstScrollProgress * .96));
+        root.style.setProperty('--opening-duck-drop', `${10 - firstScrollProgress * 10}%`);
         root.style.setProperty('--opening-duck-shift', `${-30 + firstScrollProgress * 50}%`);
         root.style.setProperty('--opening-duck-mobile-shift', `${30 - firstScrollProgress * 10}%`);
         root.style.setProperty('--ceo-callout-opacity', String(Math.max(0, 1 - firstScrollProgress * 1.6)));
