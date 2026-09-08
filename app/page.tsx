@@ -171,7 +171,7 @@ export default function Home() {
         <div className="scene bigtech-scene">
           <BigTechOffice />
           <div className="bigtech-copy bigtech-copy--first" data-parallax="-82"><p className="eyebrow">One duck. Several thousand servers.</p><h1>Vishnu worked at Google.</h1></div>
-          <div className="bigtech-copy bigtech-copy--second" data-parallax="-48"><p>The more he learned about photo privacy, the less polite his nod became.</p><h2>So he left.</h2><small>Badge returned. Side-eye retained.</small></div>
+          <div className="bigtech-copy bigtech-copy--second" data-parallax="-48"><p>The more he learned about photo privacy, the less polite his nod became.</p><h2>So he left.</h2><small>Badge returned.<br />Side-eye retained.</small></div>
           <div className="bigtech-duck" data-parallax="52" data-parallax-x="30"><Ducky state="inspected" asset="/ducky-big-tech.png" label="Ducky representing Vishnu wrapped in Big Tech" /></div>
           <div className="scroll-cue" aria-hidden="true"><span>Scroll to resign dramatically</span><i /></div>
         </div>
