@@ -90,6 +90,7 @@ export default function Home() {
     const parallaxItems = Array.from(root.querySelectorAll<HTMLElement>('[data-parallax]'));
     const parallaxScenes = Array.from(root.querySelectorAll<HTMLElement>('[data-parallax-scene]'));
     const openingChapter = root.querySelector<HTMLElement>('.bigtech');
+    const journeyIntro = root.querySelector<HTMLElement>('.journey-intro');
     const update = () => {
       const max = document.documentElement.scrollHeight - window.innerHeight;
       root.style.setProperty('--page-progress', String(max ? window.scrollY / max : 0));
@@ -102,6 +103,18 @@ export default function Home() {
         root.style.setProperty('--opening-duck-shift', `${-30 + firstScrollProgress * 30}%`);
         root.style.setProperty('--opening-duck-mobile-shift', `${30 - firstScrollProgress * 30}%`);
         setTimelineVisible(openingProgress >= .08);
+      }
+      if (journeyIntro && !reducedMotion.matches) {
+        const introRect = journeyIntro.getBoundingClientRect();
+        const introTravel = Math.max(1, introRect.height - window.innerHeight);
+        const introProgress = Math.max(0, Math.min(1, -introRect.top / introTravel));
+        const curtainProgress = Math.max(0, Math.min(1, (introProgress - .36) / .64));
+        const curtainEase = 1 - Math.pow(1 - curtainProgress, 3);
+        journeyIntro.style.setProperty('--curtain-left', `${-104 + curtainEase * 104}%`);
+        journeyIntro.style.setProperty('--curtain-right', `${104 - curtainEase * 104}%`);
+        journeyIntro.style.setProperty('--curtain-opacity', String(Math.min(1, curtainProgress * 2.6)));
+        journeyIntro.style.setProperty('--curtain-copy-opacity', String(Math.max(0, 1 - curtainProgress * 1.45)));
+        journeyIntro.style.setProperty('--curtain-copy-scale', String(1 - curtainProgress * .08));
       }
       const viewportMiddle = window.innerHeight / 2;
       parallaxScenes.forEach(scene => {
@@ -168,7 +181,13 @@ export default function Home() {
         </div>
       </section>
 
-      <div className="journey-intro" data-year="Home" data-parallax-scene><div data-parallax="-72"><p>Big office out. Family tech support in.</p><h2>One desk.<br />Unlimited feedback.</h2><span>↓</span></div></div>
+      <div className="journey-intro" data-year="Home" data-parallax-scene>
+        <div className="journey-intro-stage">
+          <div className="journey-intro-copy" data-parallax="-72"><p>Big office out. Family tech support in.</p><h2>One desk.<br />Unlimited feedback.</h2><span>↓</span></div>
+          <div className="journey-curtain journey-curtain--left" aria-hidden="true" />
+          <div className="journey-curtain journey-curtain--right" aria-hidden="true" />
+        </div>
+      </div>
       {storyBeats.map((item, index) => <StorySection item={item} index={index} key={item.scene} />)}
 
       <footer className="story-footer"><span>Made in the open.</span><a href="#top" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>Cook again? ↑</a></footer>
