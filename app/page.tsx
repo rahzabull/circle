@@ -71,7 +71,7 @@ function Bob() {
 function StoryVisual({ scene }: { scene: SceneType }) {
   if (scene === 'home') return <div className="prop-layer home-room" aria-hidden="true"><img className="home-ducky-scene" src="/ducky-home.png" alt="" draggable="false" /></div>;
   if (scene === 'experiment') return <div className="prop-layer experiment-rig" aria-hidden="true"><img className="experiment-ducky-scene" src="/ducky-experiment.png" alt="" draggable="false" /></div>;
-  if (scene === 'photos') return <div className="prop-layer photos-reveal" aria-hidden="true"><div className="photo-wall">{Array.from({ length: 15 }, (_, i) => <span key={i} style={{ '--n': i } as React.CSSProperties}>◆</span>)}</div><div className="product-stamp">2022<br /><b>PHOTOS</b></div></div>;
+  if (scene === 'photos') return <div className="prop-layer photos-reveal" aria-hidden="true"><img className="photos-ducky-scene" src="/ducky-photos.png" alt="" draggable="false" /></div>;
   if (scene === 'bob') return <div className="prop-layer bob-arrives"><Bob /><div className="shared-laptop"><Laptop /></div><div className="awkward-pause">…</div></div>;
   if (scene === 'office') return <div className="prop-layer small-office" aria-hidden="true"><div className="office-walls" /><TinyPeople count={11} /><div className="desk-row">▰ ▰ ▰</div><div className="coffee-row">☕ ☕ ☕ ☕</div><div className="whiteboard">SHIP IT<br />FIX IT<br />SAY IT WAS<br />THE PLAN</div></div>;
   if (scene === 'auth') return <div className="prop-layer auth-morph" aria-hidden="true"><div className="fading-photos">{Array.from({ length: 10 }, (_, i) => <i key={i}>◆</i>)}</div><div className="auth-blocks">{['2', '7', '4', '1', '9', '0'].map((x, i) => <b key={`${x}-${i}`} style={{ '--n': i } as React.CSSProperties}>{x}</b>)}</div><div className="caught-code">7</div></div>;
@@ -93,7 +93,7 @@ function StorySection({ item, index }: { item: StoryBeat; index: number }) {
           {item.beats?.map((beat, beatIndex) => <p className={`story-beat story-beat--${beatIndex}`} key={beat}>{beat}</p>)}
         </div>
         <div className="milestone-props" data-parallax="-112" data-parallax-x="0"><StoryVisual scene={item.scene} /></div>
-        {item.scene !== 'home' && item.scene !== 'experiment' && <div className="milestone-duck" data-parallax="54" data-parallax-x={index % 2 ? '16' : '-16'}><Ducky state={item.state} label={`Ducky during ${item.title}`} /></div>}
+        {item.scene !== 'home' && item.scene !== 'experiment' && item.scene !== 'photos' && <div className="milestone-duck" data-parallax="54" data-parallax-x={index % 2 ? '16' : '-16'}><Ducky state={item.state} label={`Ducky during ${item.title}`} /></div>}
       </div>
     </section>
   );
