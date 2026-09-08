@@ -129,6 +129,10 @@ h1,h2,p { text-wrap:balance; }
 /* Milestones */
 .milestone { background:var(--scene-bg,var(--cream)); }
 .milestone-stage { display:grid; grid-template-columns:1fr 1fr; align-items:center; padding:10vh clamp(28px,8vw,140px); background:var(--scene-bg,var(--cream)); isolation:isolate; }
+.milestone[data-stretch-reveal] { background:var(--previous-scene-bg,var(--cream)); }
+.milestone[data-stretch-reveal] .milestone-stage { clip-path:inset(var(--stretch-inset-y,0%) var(--stretch-inset-x,0%) round var(--stretch-radius,0px)); will-change:clip-path; }
+.milestone[data-stretch-reveal] .milestone-copy,
+.milestone[data-stretch-reveal] .milestone-props { scale:1 var(--stretch-content-y,1); opacity:var(--stretch-content-opacity,1); transform-origin:center; will-change:scale,opacity,translate; }
 .milestone-stage::before { display:none; }
 .milestone:nth-of-type(odd) .milestone-copy { order:2; margin-left:auto; }.milestone:nth-of-type(odd) .milestone-duck { left:23%; }
 .milestone-copy { position:relative; z-index:9; max-width:680px; }
@@ -251,15 +255,15 @@ footer { position:absolute; z-index:12; left:34px; right:34px; bottom:26px; disp
 
 .story-beat { margin:14px 0 0; max-width:430px; font-size:clamp(15px,1.35vw,20px); font-weight:900; line-height:1.08; }
 .story-beat--0 { margin-top:28px; }.story-beat--1{color:var(--accent,var(--red))}.story-beat--2{font-family:var(--font-gochi-hand),'Comic Sans MS',cursive;font-weight:400;font-size:clamp(18px,1.7vw,25px);transform:rotate(-1.5deg)}
-.milestone--home { --scene-bg:#f2c79f; --accent:#8c332c; }
-.milestone--experiment { --scene-bg:#f0add0; --accent:#294a9c; }
-.milestone--photos { --scene-bg:#98c9a7; --accent:#6f2930; }
-.milestone--bob { --scene-bg:#f3da67; --accent:#713547; }
-.milestone--auth { --scene-bg:#f4a25f; --accent:#8a2730; }
-.milestone--bigger { --scene-bg:#b7b4ec; --accent:#2f3d91; }
-.milestone--locker { --scene-bg:#79c7eb; --accent:#284b86; }
-.milestone--open { --scene-bg:#c5a9dd; --accent:#5e2f70; }
-.milestone--cooking { --scene-bg:#f09a69; --accent:#66212c; min-height:240vh; }
+.milestone--home { --previous-scene-bg:var(--cream); --scene-bg:#f2c79f; --accent:#8c332c; }
+.milestone--experiment { --previous-scene-bg:#f2c79f; --scene-bg:#f0add0; --accent:#294a9c; }
+.milestone--photos { --previous-scene-bg:#f0add0; --scene-bg:#98c9a7; --accent:#6f2930; }
+.milestone--bob { --previous-scene-bg:#98c9a7; --scene-bg:#f3da67; --accent:#713547; }
+.milestone--auth { --previous-scene-bg:#f3da67; --scene-bg:#f4a25f; --accent:#8a2730; }
+.milestone--bigger { --previous-scene-bg:#f4a25f; --scene-bg:#b7b4ec; --accent:#2f3d91; }
+.milestone--locker { --previous-scene-bg:#b7b4ec; --scene-bg:#79c7eb; --accent:#284b86; }
+.milestone--open { --previous-scene-bg:#79c7eb; --scene-bg:#c5a9dd; --accent:#5e2f70; }
+.milestone--cooking { --previous-scene-bg:#c5a9dd; --scene-bg:#f09a69; --accent:#66212c; min-height:240vh; }
 
 .home-ducky-scene { position:absolute; right:0; top:50%; width:min(48vw,700px); max-height:90vh; object-fit:contain; transform:translateY(-50%) scale(1.15); transform-origin:right center; }
 

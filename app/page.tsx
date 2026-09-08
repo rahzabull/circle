@@ -63,7 +63,7 @@ function StoryVisual({ scene }: { scene: SceneType }) {
 function StorySection({ item, index }: { item: StoryBeat; index: number }) {
   const layout = index % 2 === 0 ? 'left-copy' : 'right-copy';
   return (
-    <section id={`chapter-${item.scene}`} className={`chapter milestone milestone--${item.scene}`} data-year={item.year} data-layout={layout} data-parallax-scene>
+    <section id={`chapter-${item.scene}`} className={`chapter milestone milestone--${item.scene}`} data-year={item.year} data-layout={layout} data-parallax-scene data-stretch-reveal>
       <div className="scene milestone-stage">
         <div className="milestone-copy" data-parallax="-72" data-parallax-x={index % 2 ? '20' : '-20'}>
           <span className="chapter-number">{String(index + 1).padStart(2, '0')}</span>
@@ -110,6 +110,15 @@ export default function Home() {
         const progress = Math.max(0, Math.min(1, (window.innerHeight - rect.top) / (rect.height + window.innerHeight)));
         scene.style.setProperty('--scene-progress', String(progress));
         scene.style.setProperty('--scene-bg-y', `${reducedMotion.matches ? 0 : shift * -44}px`);
+        if (scene.hasAttribute('data-stretch-reveal')) {
+          const rawReveal = Math.max(0, Math.min(1, (window.innerHeight - rect.top) / (window.innerHeight * .92)));
+          const reveal = reducedMotion.matches ? 1 : 1 - Math.pow(1 - rawReveal, 3);
+          scene.style.setProperty('--stretch-inset-y', `${(1 - reveal) * 48}%`);
+          scene.style.setProperty('--stretch-inset-x', `${(1 - reveal) * 7}%`);
+          scene.style.setProperty('--stretch-radius', `${(1 - reveal) * 72}px`);
+          scene.style.setProperty('--stretch-content-y', String(.56 + reveal * .44));
+          scene.style.setProperty('--stretch-content-opacity', String(Math.min(1, .2 + reveal * 1.2)));
+        }
       });
       if (!reducedMotion.matches) parallaxItems.forEach(item => {
         const scene = item.closest<HTMLElement>('[data-parallax-scene]') || item;
