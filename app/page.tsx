@@ -64,7 +64,7 @@ function StoryVisual({ scene }: { scene: SceneType }) {
   if (scene === 'experiment') return <div className="prop-layer experiment-rig" aria-hidden="true"><img className="experiment-ducky-scene" src="/ducky-experiment.png" alt="" draggable="false" /></div>;
   if (scene === 'photos') return <div className="prop-layer photos-reveal" aria-hidden="true"><img className="photos-ducky-scene" src="/ducky-photos.png" alt="" draggable="false" /></div>;
   if (scene === 'bob') return <div className="prop-layer bob-arrives" aria-hidden="true"><img className="bob-ducky-scene" src="/ducky-bob.png" alt="" draggable="false" /></div>;
-  if (scene === 'auth') return <div className="prop-layer auth-morph" aria-hidden="true"><div className="fading-photos">{Array.from({ length: 10 }, (_, i) => <i key={i}>◆</i>)}</div><div className="auth-blocks">{['2', '7', '4', '1', '9', '0'].map((x, i) => <b key={`${x}-${i}`} style={{ '--n': i } as React.CSSProperties}>{x}</b>)}</div><div className="caught-code">7</div></div>;
+  if (scene === 'auth') return <div className="prop-layer auth-morph" aria-hidden="true"><img className="auth-ducky-scene" src="/ducky-auth.png" alt="" draggable="false" /></div>;
   if (scene === 'bigger') return <div className="prop-layer bigger-office" aria-hidden="true"><div className="expanding-wall expanding-wall--left" /><div className="expanding-wall expanding-wall--right" /><div className="rising-ceiling" /><TinyPeople count={13} /></div>;
   if (scene === 'locker') return <div className="prop-layer vault-scene" aria-hidden="true"><div className="falling-papers">{['ID', 'PASS', 'DOC', 'KEY'].map((x, i) => <i key={x} style={{ '--n': i } as React.CSSProperties}>{x}</i>)}</div><div className="vault"><div className="vault-door"><i /><b>×</b></div><span>VERY IMPORTANT<br />DUCKUMENTS</span></div><div className="double-check">click&nbsp;&nbsp; click</div></div>;
   if (scene === 'open') return <div className="prop-layer open-company"><div className="open-code" aria-hidden="true">{'{ privacy: true, ownership: yours }'}</div><div className="live-stats">{companyStats.map(stat => <div className="stat" data-stat={stat.key} key={stat.key}><span>{stat.label}</span><b>{stat.value}</b><i>LIVE</i></div>)}</div></div>;
@@ -83,7 +83,7 @@ function StorySection({ item, index }: { item: StoryBeat; index: number }) {
           {item.beats?.map((beat, beatIndex) => <p className={`story-beat story-beat--${beatIndex}`} key={beat}>{beat}</p>)}
         </div>
         <div className="milestone-props" data-parallax="-112" data-parallax-x="0"><StoryVisual scene={item.scene} /></div>
-        {item.scene !== 'home' && item.scene !== 'experiment' && item.scene !== 'photos' && item.scene !== 'bob' && <div className="milestone-duck" data-parallax="54" data-parallax-x={index % 2 ? '16' : '-16'}><Ducky state={item.state} label={`Ducky during ${item.title}`} /></div>}
+        {item.scene !== 'home' && item.scene !== 'experiment' && item.scene !== 'photos' && item.scene !== 'bob' && item.scene !== 'auth' && <div className="milestone-duck" data-parallax="54" data-parallax-x={index % 2 ? '16' : '-16'}><Ducky state={item.state} label={`Ducky during ${item.title}`} /></div>}
       </div>
     </section>
   );
