@@ -298,8 +298,7 @@ footer { position:absolute; z-index:12; left:34px; right:34px; bottom:26px; disp
 @media (max-width:780px) {
   .bigtech{min-height:220vh}.bigtech-copy{left:24px;width:calc(100% - 48px)}.bigtech-copy h1{font-size:clamp(64px,19vw,100px)}.bigtech-copy--second p{font-size:clamp(28px,8.6vw,44px)}.bigtech-copy--second h2{font-size:22vw}.server-wall{left:27%;width:95vw;grid-template-columns:repeat(4,1fr);opacity:.72}.profile-machine{right:-28px;top:50vh;transform:scale(.65)}.photo-belt{left:8%;bottom:3vh}.bigtech-duck{left:47%;bottom:-76px;transform:translateX(calc(var(--scene-progress,0)*14vw)) scale(.56)}.google-badge{left:69%;transform:scale(.72) translateY(calc(var(--scene-progress,0)*70vh)) rotate(calc(var(--scene-progress,0)*32deg))}
   .ceo-callout { left:20px; top:auto; bottom:30vh; font-size:30px; }
-  .ceo-callout i { left:68%; width:62px; height:38px; }
-  .ceo-callout i::after { width:10px; height:10px; }
+  .ceo-callout i { display:none; }
   .story-beat{font-size:14px}
 }
 
