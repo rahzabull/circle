@@ -1,196 +1,188 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import type { CSSProperties, ChangeEvent } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Bell, Check, Heart, ImagePlus, LockKeyhole, Plus, Send, SmilePlus, Upload, Users, X } from 'lucide-react';
 
-type DuckState = 'idle' | 'surprised' | 'typing' | 'walking' | 'inspected' | 'celebrating';
-type SceneType = 'home' | 'experiment' | 'photos' | 'bob' | 'auth' | 'bigger' | 'locker' | 'open' | 'cooking';
-type StoryBeat = { year: string; eyebrow: string; title: string; copy: string; beats?: string[]; scene: SceneType };
+type Friend = {
+  name: string; color: string; x: number; y: number; size: number; image: string;
+  fresh?: boolean; time: string; caption: string; photo: string;
+};
 
-const storyBeats: StoryBeat[] = [
-  { year: 'Home', eyebrow: 'New office: one desk, many opinions', title: 'He came home.', copy: 'Same laptop. Smaller desk. Unlimited relatives asking, “So… what exactly are you building?”', scene: 'home' },
-  { year: 'The first idea', eyebrow: 'Encrypt. Sync. Find cable.', title: 'It wasn’t even a photo app.', copy: 'Device-first. End-to-end encrypted. Extremely confident for something held together by cables.', beats: ['The idea was brilliant.', 'The devices filed a complaint.', 'So we built an app.'], scene: 'experiment' },
-  { year: '2022', eyebrow: 'Now with actual photos', title: 'Ente Photos.', copy: 'Your memories go in. Ad profiles do not crawl out. Apparently this is rebellious.', scene: 'photos' },
-  { year: 'Co-founder', eyebrow: 'Plot twist: another adult', title: 'Then Bob rolled in.', copy: 'Co-founder. Debugger. Second person willing to stare at one bug until it confessed.', scene: 'bob' },
-  { year: 'Photos → Auth', eyebrow: 'A 2FA code escaped', title: 'Then came Auth.', copy: 'Then someone lost a 2FA code and experienced all five stages of grief before lunch.', beats: ['Ducky found it.', 'We called it user research.', 'Hello, Ente Auth.'], scene: 'auth' },
-  { year: 'More room', eyebrow: 'Scientific finding: elbows need space', title: 'We needed more room.', copy: 'The breakthrough came when opening the door required moving three chairs and one engineer.', scene: 'bigger' },
-  { year: '2024', eyebrow: 'For documents with commitment issues', title: 'Ente Locker.', copy: 'Photos were private. Codes were private. Passports were still freelancing in a drawer.', beats: ['So we built a vault.', 'Ducky checked the lock twice.', 'Then once for emotional support.'], scene: 'locker' },
-  { year: 'Building in the open', eyebrow: 'No secret sauce. Recipe included.', title: 'Out in the open.', copy: 'We build the company like the product: inspectable, accountable, and suspicious of graphs that go up too neatly.', beats: ['No mystery metrics.', 'No “trust us, it’s huge.”', 'Just the work. In daylight.'], scene: 'open' },
-  { year: 'Today', eyebrow: '≈20 people. Infinite mugs.', title: 'Still cooking.', copy: 'Still independent. Still building. Still blaming the missing whiteboard marker on “culture.”', scene: 'cooking' },
+const friends: Friend[] = [
+  { name:'Maya', color:'#e7b6a3', x:18, y:28, size:116, image:'https://i.pravatar.cc/240?img=47', fresh:true, time:'18 min ago', caption:'We missed the sunset but found this tiny blue hour instead.', photo:'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1400&q=88' },
+  { name:'Noah', color:'#a8c5bb', x:45, y:19, size:88, image:'https://i.pravatar.cc/240?img=12', time:'Yesterday', caption:'Found a table for eight. You know what that means.', photo:'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=1400&q=88' },
+  { name:'Ari', color:'#d8c4a0', x:74, y:28, size:126, image:'https://i.pravatar.cc/240?img=49', fresh:true, time:'42 min ago', caption:'A very serious morning meeting.', photo:'https://images.unsplash.com/photo-1499209974431-9dddcece7f88?auto=format&fit=crop&w=1400&q=88' },
+  { name:'Sam', color:'#b6b8cc', x:9, y:62, size:82, image:'https://i.pravatar.cc/240?img=5', time:'2 days ago', caption:'No plans. Perfect day.', photo:'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1400&q=88' },
+  { name:'Vina', color:'#edc3c7', x:37, y:64, size:106, image:'https://i.pravatar.cc/240?img=32', fresh:true, time:'6 min ago', caption:'Proof we actually left the group chat.', photo:'https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=1400&q=88' },
+  { name:'Leo', color:'#aabbd1', x:63, y:59, size:76, image:'https://i.pravatar.cc/240?img=11', time:'4 hours ago', caption:'Borrowed the good camera. Refusing to return it.', photo:'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=1400&q=88' },
+  { name:'Inez', color:'#d3b2c3', x:88, y:61, size:94, image:'https://i.pravatar.cc/240?img=44', time:'Saturday', caption:'Tiny dinner, enormous opinions.', photo:'https://images.unsplash.com/photo-1528605248644-14dd04022da1?auto=format&fit=crop&w=1400&q=88' },
+  { name:'Omar', color:'#a8c9a2', x:21, y:88, size:68, image:'https://i.pravatar.cc/240?img=8', time:'Monday', caption:'Took the long way home.', photo:'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=1400&q=88' },
+  { name:'June', color:'#d7c68d', x:76, y:86, size:72, image:'https://i.pravatar.cc/240?img=45', time:'Sunday', caption:'Soft launch of my new personality: outdoorsy.', photo:'https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1400&q=88' },
 ];
 
-const timelineStops = [
-  { year: 'Google', label: 'Google', href: '#top', short: 'G' },
-  ...storyBeats.map((item, index) => ({
-    year: item.year,
-    label: item.year,
-    href: `#chapter-${item.scene}`,
-    short: String(index + 1).padStart(2, '0'),
-  })),
+const memes = [
+  { label:'WTF', emoji:'😳', tone:'#f3c7bd' }, { label:'Crying', emoji:'😭', tone:'#bcd8e8' },
+  { label:'Proud', emoji:'🥹', tone:'#dce7a2' }, { label:'Suspicious', emoji:'🤨', tone:'#dfcfed' },
+  { label:'Dead', emoji:'💀', tone:'#ced0cc' }, { label:'Bro…', emoji:'🫠', tone:'#f3d5aa' },
+  { label:'Absolute cinema', emoji:'🎬', tone:'#e7b9cf' }, { label:'LMAO', emoji:'😂', tone:'#f4dc72' },
 ];
 
-function Ducky({ state = 'idle', label = 'Ducky', asset = '/ducky.svg' }: { state?: DuckState; label?: string; asset?: string }) {
+const notifications = [
+  { friend:friends[2], text:'liked your photo', mark:'❤️', time:'2m' },
+  { friend:friends[3], text:'dropped a meme on your photo', mark:'💀', time:'14m' },
+  { friend:friends[4], text:'posted something', mark:'', time:'31m' },
+  { friend:friends[1], text:'invited you to a circle', mark:'', time:'2h' },
+];
+
+function FloatingFriend({ friend, index, selected, pointer, onOpen }:{ friend:Friend; index:number; selected:boolean; pointer:{x:number;y:number}; onOpen:()=>void }) {
+  const dx = (pointer.x - friend.x / 100) * (index % 2 ? -7 : 6);
+  const dy = (pointer.y - friend.y / 100) * (index % 3 ? -6 : 8);
   return (
-    <div className={`ducky ducky--${state}`} role="img" aria-label={label}>
-      <img className="ducky-asset" src={asset} alt="" draggable="false" />
-    </div>
+    <motion.button
+      className={`friend${selected ? ' is-selected' : ''}`}
+      style={{ '--x':`${friend.x}%`, '--y':`${friend.y}%`, '--size':`${friend.size}px`, '--delay':`${index * -.72}s`, '--tone':friend.color } as CSSProperties}
+      initial={{ opacity:0, scale:.65 }} animate={{ opacity:selected ? 0 : 1, scale:1, x:dx, y:dy }}
+      transition={{ opacity:{duration:.25}, scale:{delay:.05*index,type:'spring',stiffness:110,damping:15}, x:{type:'spring',stiffness:50,damping:15}, y:{type:'spring',stiffness:50,damping:15} }}
+      whileHover={{ scale:1.1, zIndex:5 }} whileTap={{ scale:.96 }}
+      onClick={onOpen} aria-label={`Open ${friend.name}'s latest moment`}
+    >
+      <motion.span className={`portrait${friend.fresh ? ' is-fresh' : ''}`} layoutId={`avatar-${friend.name}`}><img src={friend.image} alt="" /></motion.span>
+      <b>{friend.name}</b>
+    </motion.button>
   );
 }
 
-function BigTechOffice() {
+function FriendSpace({ selected, onOpen }:{ selected:Friend|null; onOpen:(friend:Friend)=>void }) {
+  const [pointer,setPointer] = useState({x:.5,y:.5});
+  const frame = useRef<number|null>(null);
+  const move = (event:React.PointerEvent<HTMLElement>) => {
+    if (frame.current) cancelAnimationFrame(frame.current);
+    const { clientX,clientY,currentTarget } = event;
+    frame.current = requestAnimationFrame(() => {
+      const rect = currentTarget.getBoundingClientRect();
+      setPointer({x:(clientX-rect.left)/rect.width,y:(clientY-rect.top)/rect.height});
+    });
+  };
   return (
-    <div className="bigtech-world" aria-hidden="true">
-      <div className="server-wall">{Array.from({ length: 18 }, (_, i) => <span key={i}><i /></span>)}</div>
-      <div className="data-pipes"><i /><i /><i /><i /></div>
-      <div className="profile-machine"><b>PROFILE</b><span>BUILDING… FOR SOME REASON</span><i /></div>
-      <div className="photo-belt">{['▧', '▥', '▧', '▤', '▧'].map((item, i) => <span key={i}>{item}</span>)}</div>
-      <div className="google-badge">VISITOR<br /><b>VISHNU</b></div>
-    </div>
-  );
-}
-
-function StoryVisual({ scene }: { scene: SceneType }) {
-  if (scene === 'home') return <div className="prop-layer home-room" aria-hidden="true"><img className="home-ducky-scene" src="/ducky-home.png" alt="" draggable="false" /></div>;
-  if (scene === 'experiment') return <div className="prop-layer experiment-rig" aria-hidden="true"><img className="experiment-ducky-scene" src="/ducky-experiment.png" alt="" draggable="false" /></div>;
-  if (scene === 'photos') return <div className="prop-layer photos-reveal" aria-hidden="true"><img className="photos-ducky-scene" src="/ducky-photos.png" alt="" draggable="false" /></div>;
-  if (scene === 'bob') return <div className="prop-layer bob-arrives" aria-hidden="true"><img className="bob-ducky-scene" src="/ducky-bob.png" alt="" draggable="false" /></div>;
-  if (scene === 'auth') return <div className="prop-layer auth-morph" aria-hidden="true"><img className="auth-ducky-scene" src="/ducky-auth.png" alt="" draggable="false" /></div>;
-  if (scene === 'bigger') return <div className="prop-layer bigger-office" aria-hidden="true"><img className="team-ducky-scene" src="/ducky-team-transparent.png" alt="" draggable="false" /></div>;
-  if (scene === 'locker') return <div className="prop-layer vault-scene" aria-hidden="true"><img className="locker-ducky-scene" src="/ducky-locker.png" alt="" draggable="false" /></div>;
-  if (scene === 'open') return <div className="prop-layer open-company" aria-hidden="true"><img className="open-ducky-scene" src="/ducky-open.png" alt="" draggable="false" /></div>;
-  return <div className="prop-layer cooking-scene" aria-hidden="true"><img className="final-team-scene" src="/ducky-finale.png" alt="" draggable="false" /></div>;
-}
-
-function StorySection({ item, index }: { item: StoryBeat; index: number }) {
-  const layout = index % 2 === 0 ? 'left-copy' : 'right-copy';
-  return (
-    <section id={`chapter-${item.scene}`} className={`chapter milestone milestone--${item.scene}`} data-year={item.year} data-layout={layout} data-parallax-scene data-stretch-reveal>
-      <div className="scene milestone-stage">
-        <div className="milestone-copy" data-parallax="-72" data-parallax-x={index % 2 ? '20' : '-20'}>
-          <div className="milestone-copy-inner">
-            <span className="chapter-number">{String(index + 1).padStart(2, '0')}</span>
-            <p>{item.eyebrow}</p><h2>{item.title}</h2>
-            <p className="milestone-desc">{item.copy}</p>
-            {item.beats?.map((beat, beatIndex) => <p className={`story-beat story-beat--${beatIndex}`} key={beat}>{beat}</p>)}
-          </div>
-        </div>
-        <div className="milestone-props" data-parallax="-112" data-parallax-x="0"><StoryVisual scene={item.scene} /></div>
-      </div>
+    <section className={`orbital-field${selected ? ' is-muted' : ''}`} aria-label="Your close friends" onPointerMove={move}>
+      <span className="orbit orbit-one" /><span className="orbit orbit-two" />
+      {friends.map((friend,index)=><FloatingFriend friend={friend} index={index} selected={selected?.name===friend.name} pointer={pointer} onOpen={()=>onOpen(friend)} key={friend.name} />)}
     </section>
   );
 }
 
-export default function Home() {
-  const shellRef = useRef<HTMLElement>(null);
-  const [currentYear, setCurrentYear] = useState('Google');
-  const [timelineVisible, setTimelineVisible] = useState(false);
+function PrivacyIndicator() {
+  const [open,setOpen]=useState(false);
+  return <div className="privacy-wrap">
+    <button className="privacy" onClick={()=>setOpen(v=>!v)} aria-expanded={open}><Users size={15}/><span>Visible to 8 friends</span></button>
+    <AnimatePresence>{open && <motion.div className="privacy-pop" initial={{opacity:0,y:8,scale:.96}} animate={{opacity:1,y:0,scale:1}} exit={{opacity:0,y:5,scale:.97}}>
+      <div><LockKeyhole size={16}/><span><b>Your circle only</b><small>No sharing outside this group.</small></span></div>
+      <div className="privacy-faces">{friends.slice(0,8).map(friend=><img src={friend.image} alt={friend.name} title={friend.name} key={friend.name}/>)}</div>
+    </motion.div>}</AnimatePresence>
+  </div>;
+}
 
-  useEffect(() => {
-    const root = shellRef.current;
-    if (!root) return;
-    let frame = 0;
-    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const parallaxItems = Array.from(root.querySelectorAll<HTMLElement>('[data-parallax]'));
-    const parallaxScenes = Array.from(root.querySelectorAll<HTMLElement>('[data-parallax-scene]'));
-    const openingChapter = root.querySelector<HTMLElement>('.bigtech');
-    const update = () => {
-      const max = document.documentElement.scrollHeight - window.innerHeight;
-      root.style.setProperty('--page-progress', String(max ? window.scrollY / max : 0));
-      if (openingChapter) {
-        const openingRect = openingChapter.getBoundingClientRect();
-        const openingTravel = Math.max(1, openingRect.height - window.innerHeight);
-        const openingProgress = Math.max(0, Math.min(1, -openingRect.top / openingTravel));
-        const firstScrollProgress = Math.min(1, openingProgress / .22);
-        root.style.setProperty('--opening-duck-zoom', String(1.96 - firstScrollProgress * .96));
-        root.style.setProperty('--opening-duck-drop', `${10 - firstScrollProgress * 10}%`);
-        root.style.setProperty('--opening-duck-shift', `${-30 + firstScrollProgress * 50}%`);
-        root.style.setProperty('--opening-duck-mobile-shift', `${30 - firstScrollProgress * 10}%`);
-        root.style.setProperty('--ceo-callout-opacity', String(Math.max(0, 1 - firstScrollProgress * 1.6)));
-        root.style.setProperty('--ceo-callout-y', `${firstScrollProgress * -16}px`);
-        root.style.setProperty('--ceo-callout-scale', String(1 - firstScrollProgress * .08));
-        setTimelineVisible(openingProgress >= .08);
-      }
-      const viewportMiddle = window.innerHeight / 2;
-      parallaxScenes.forEach(scene => {
-        const rect = scene.getBoundingClientRect();
-        const shift = Math.max(-1, Math.min(1, (viewportMiddle - (rect.top + rect.height / 2)) / ((rect.height + window.innerHeight) / 2)));
-        const progress = Math.max(0, Math.min(1, (window.innerHeight - rect.top) / (rect.height + window.innerHeight)));
-        scene.style.setProperty('--scene-progress', String(progress));
-        scene.style.setProperty('--scene-bg-y', `${reducedMotion.matches ? 0 : shift * -44}px`);
-        if (scene.hasAttribute('data-stretch-reveal')) {
-          const rawReveal = Math.max(0, Math.min(1, (window.innerHeight - rect.top) / (window.innerHeight * .92)));
-          const reveal = reducedMotion.matches ? 1 : 1 - Math.pow(1 - rawReveal, 3);
-          scene.style.setProperty('--stretch-inset-y', `${(1 - reveal) * 48}%`);
-          scene.style.setProperty('--stretch-inset-x', `${(1 - reveal) * 7}%`);
-          scene.style.setProperty('--stretch-radius', `${(1 - reveal) * 72}px`);
-          scene.style.setProperty('--stretch-content-y', String(.56 + reveal * .44));
-          scene.style.setProperty('--stretch-content-opacity', String(Math.min(1, .2 + reveal * 1.2)));
-        }
-      });
-      if (!reducedMotion.matches) parallaxItems.forEach(item => {
-        const scene = item.closest<HTMLElement>('[data-parallax-scene]') || item;
-        const rect = scene.getBoundingClientRect();
-        const shift = Math.max(-1, Math.min(1, (viewportMiddle - (rect.top + rect.height / 2)) / ((rect.height + window.innerHeight) / 2)));
-        item.style.setProperty('--parallax-y', `${shift * Number(item.dataset.parallax || 0)}px`);
-        item.style.setProperty('--parallax-x', `${shift * Number(item.dataset.parallaxX || 0)}px`);
-      });
-      frame = 0;
-    };
-    const onScroll = () => { if (!frame) frame = requestAnimationFrame(update); };
-    const onPointer = (event: PointerEvent) => {
-      root.style.setProperty('--mx', String((event.clientX / window.innerWidth - .5) * 2));
-      root.style.setProperty('--my', String((event.clientY / window.innerHeight - .5) * 2));
-    };
-    const observer = new IntersectionObserver(entries => {
-      const visible = entries.filter(entry => entry.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-      if (visible) setCurrentYear((visible.target as HTMLElement).dataset.year || 'Today');
-    }, { threshold: [.25, .45, .7] });
-    root.querySelectorAll<HTMLElement>('[data-year]').forEach(el => observer.observe(el));
-    update(); window.addEventListener('scroll', onScroll, { passive: true }); window.addEventListener('pointermove', onPointer, { passive: true });
-    return () => { window.removeEventListener('scroll', onScroll); window.removeEventListener('pointermove', onPointer); observer.disconnect(); if (frame) cancelAnimationFrame(frame); };
-  }, []);
+function MemeReaction({ emoji,label,rotation=0,delay=0 }:{emoji:string;label:string;rotation?:number;delay?:number}) {
+  const [expanded,setExpanded]=useState(false);
+  return <motion.button className={`meme-reaction${expanded?' expanded':''}`} style={{'--rotate':`${rotation}deg`} as CSSProperties} initial={{opacity:0,y:-28,scale:.5,rotate:rotation-12}} animate={{opacity:1,y:0,scale:expanded?1.55:1,rotate:rotation}} transition={{delay,type:'spring',stiffness:260,damping:16}} onClick={()=>setExpanded(v=>!v)} aria-label={`${label} reaction${expanded?', collapse':', expand'}`}><span>{emoji}</span><b>{label}</b></motion.button>;
+}
 
-  return (
-    <main className="story-shell" ref={shellRef} id="top">
-      <nav className="wordmark" aria-label="Ente"><span className="wordmark-dot" />ente</nav>
-      <aside className="progress-ui" aria-label={`Ente journey, currently ${currentYear}`}><span>Google</span><div className="progress-track"><i /></div><b>{currentYear}</b><span>Today</span></aside>
-      <nav className={`journey-timeline${timelineVisible ? ' is-visible' : ''}`} aria-label="Jump to a chapter" aria-hidden={!timelineVisible}>
-        <span className="journey-timeline-caption" aria-hidden="true">Jump</span>
-        {timelineStops.map(stop => {
-          const active = currentYear === stop.year;
-          return (
-            <a
-              href={stop.href}
-              className={`journey-timeline-link${active ? ' is-active' : ''}`}
-              data-label={stop.label}
-              aria-label={`Jump to ${stop.label}`}
-              aria-current={active ? 'step' : undefined}
-              tabIndex={timelineVisible ? 0 : -1}
-              key={stop.href}
-            >
-              <span>{stop.short}</span>
-            </a>
-          );
-        })}
-      </nav>
+function MemePicker({ onPick, onClose }:{onPick:(meme:typeof memes[number])=>void;onClose:()=>void}) {
+  return <motion.div className="meme-picker" initial={{opacity:0,y:14,scale:.96}} animate={{opacity:1,y:0,scale:1}} exit={{opacity:0,y:8,scale:.96}}>
+    <div className="picker-head"><span><b>Drop a feeling</b><small>Say it without saying it.</small></span><button onClick={onClose} aria-label="Close meme picker"><X size={17}/></button></div>
+    <div className="meme-grid">{memes.map(meme=><button style={{'--meme-tone':meme.tone} as CSSProperties} onClick={()=>onPick(meme)} key={meme.label}><span>{meme.emoji}</span><b>{meme.label}</b></button>)}</div>
+  </motion.div>;
+}
 
-      <section className="chapter bigtech" data-year="Google" data-parallax-scene>
-        <div className="scene bigtech-scene">
-          <BigTechOffice />
-          <div className="bigtech-copy bigtech-copy--first" data-parallax="-82">
-            <p className="eyebrow">One duck. Several thousand servers.</p>
-            <h1><span>Vishnu worked at </span><strong>Google.</strong></h1>
-          </div>
-          <div className="bigtech-copy bigtech-copy--second" data-parallax="-48"><p>The more he learned about photo privacy, the less polite his nod became.</p><h2>So he left.</h2><small>Badge returned.<br />Side-eye retained.</small></div>
-          <div className="ceo-callout" aria-hidden="true"><span>our CEO</span><i /></div>
-          <div className="bigtech-duck" data-parallax="52" data-parallax-x="30"><Ducky state="inspected" asset="/ducky-big-tech.png" label="Ducky representing Vishnu wrapped in Big Tech" /></div>
-          <div className="scroll-cue" aria-hidden="true"><span>Scroll to resign dramatically</span><i /></div>
+function ReactionBar({ liked, setLiked, picker, setPicker, count }:{liked:boolean;setLiked:(v:boolean)=>void;picker:boolean;setPicker:(v:boolean)=>void;count:number}) {
+  return <div className="reaction-wrap">
+    <div className="reaction-bar">
+      <motion.button className={liked?'liked':''} onClick={()=>setLiked(!liked)} whileTap={{scale:.82}} aria-label={liked?'Unlike this moment':'Like this moment'}><Heart size={20} fill={liked?'currentColor':'none'}/><span>{liked?'Liked':'Like'}</span><small>{count}</small></motion.button>
+      <i />
+      <button onClick={()=>setPicker(!picker)} aria-expanded={picker}><SmilePlus size={20}/><span>Drop a meme</span></button>
+    </div>
+  </div>;
+}
+
+function PostViewer({ friend, onClose }:{friend:Friend;onClose:()=>void}) {
+  const [liked,setLiked]=useState(false); const [picker,setPicker]=useState(false);
+  const [dropped,setDropped]=useState<(typeof memes[number])[]>([]);
+  const pick=(meme:typeof memes[number])=>{ setDropped(current=>[...current,meme]); setPicker(false); };
+  return <motion.div className="viewer-layer" initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}}>
+    <motion.button className="viewer-backdrop" onClick={onClose} aria-label="Close moment" />
+    <motion.article className="post-viewer" initial={{opacity:0,y:36,scale:.96}} animate={{opacity:1,y:0,scale:1}} exit={{opacity:0,y:26,scale:.96}} transition={{type:'spring',stiffness:175,damping:23}}>
+      <header className="post-head">
+        <div className="post-person"><motion.span layoutId={`avatar-${friend.name}`} style={{background:friend.color}}><img src={friend.image} alt=""/></motion.span><p><b>{friend.name}</b><small>{friend.time}</small></p></div>
+        <button onClick={onClose} aria-label="Close moment"><X size={20}/></button>
+      </header>
+      <div className="post-photo-wrap">
+        <motion.img className="post-photo" src={friend.photo} alt={`${friend.name}'s latest moment`} initial={{scale:1.035}} animate={{scale:1}} transition={{duration:.65,ease:[.2,.8,.2,1]}}/>
+        <div className="photo-wash" />
+        <div className="sticker-zone">
+          <MemeReaction emoji="💀" label="Sam" rotation={-7}/><MemeReaction emoji="🥹" label="Maya" rotation={5} delay={.08}/><MemeReaction emoji="🎬" label="Noah" rotation={-2} delay={.16}/>
+          {dropped.map((meme,index)=><MemeReaction emoji={meme.emoji} label="You" rotation={index%2?7:-5} delay={0} key={`${meme.label}-${index}`}/>) }
         </div>
-      </section>
+      </div>
+      <div className="post-copy"><p>{friend.caption}</p><PrivacyIndicator/></div>
+      <ReactionBar liked={liked} setLiked={setLiked} picker={picker} setPicker={setPicker} count={23+(liked?1:0)}/>
+      <AnimatePresence>{picker&&<MemePicker onPick={pick} onClose={()=>setPicker(false)}/>}</AnimatePresence>
+    </motion.article>
+  </motion.div>;
+}
 
-      <div className="journey-intro" data-year="Home" data-parallax-scene><div data-parallax="-72"><p>Big office out. Family tech support in.</p><h2>One desk.<br />Unlimited feedback.</h2><span>↓</span></div></div>
-      {storyBeats.map((item, index) => <StorySection item={item} index={index} key={item.scene} />)}
+function NotificationPanel({ onClose }:{onClose:()=>void}) {
+  return <motion.aside className="notification-panel" initial={{opacity:0,y:-14,scale:.95}} animate={{opacity:1,y:0,scale:1}} exit={{opacity:0,y:-8,scale:.97}} transition={{type:'spring',stiffness:250,damping:22}}>
+    <div className="panel-head"><div><small>UPDATES</small><h2>While you were away</h2></div><button onClick={onClose} aria-label="Close notifications"><X size={17}/></button></div>
+    <div className="notification-list">{notifications.map((item,index)=><div className={index<2?'unread':''} key={item.friend.name}><img src={item.friend.image} alt=""/><p><b>{item.friend.name}</b> {item.text} {item.mark}<small>{item.time} ago</small></p></div>)}</div>
+    <p className="panel-foot"><LockKeyhole size={13}/> Only activity from your circle lives here.</p>
+  </motion.aside>;
+}
 
-      <footer className="story-footer"><span>Made in the open.</span><a href="#top" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>Cook again? ↑</a></footer>
-    </main>
-  );
+function PostComposer({ onClose, onPosted }:{onClose:()=>void;onPosted:()=>void}) {
+  const [preview,setPreview]=useState<string|null>(null); const [caption,setCaption]=useState('');
+  const [selected,setSelected]=useState(()=>friends.slice(0,8).map(friend=>friend.name));
+  const change=(event:ChangeEvent<HTMLInputElement>)=>{const file=event.target.files?.[0];if(file)setPreview(URL.createObjectURL(file));};
+  const toggle=(name:string)=>setSelected(v=>v.includes(name)?v.filter(item=>item!==name):[...v,name]);
+  return <motion.div className="modal-layer" initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}}>
+    <button className="modal-backdrop" onClick={onClose} aria-label="Close composer"/>
+    <motion.section className="composer" initial={{opacity:0,y:40,scale:.96}} animate={{opacity:1,y:0,scale:1}} exit={{opacity:0,y:20,scale:.97}} transition={{type:'spring',stiffness:190,damping:23}}>
+      <div className="composer-head"><span><small>A NEW MOMENT</small><h2>Share with your people</h2></span><button onClick={onClose} aria-label="Close"><X size={19}/></button></div>
+      <label className={`upload-zone${preview?' has-preview':''}`}>{preview?<img src={preview} alt="Your selected upload"/>:<><span><Upload size={22}/></span><b>Choose a photo</b><small>Something your people would want to see</small></>}<input type="file" accept="image/*" onChange={change}/></label>
+      <label className="caption-field"><span>Caption <small>optional</small></span><textarea value={caption} onChange={e=>setCaption(e.target.value)} maxLength={120} placeholder="What’s the story?"/><small>{caption.length}/120</small></label>
+      <div className="audience"><div><span><Users size={15}/> Who can see this?</span><small>{selected.length} friends</small></div><div className="audience-faces">{friends.map(friend=><button className={selected.includes(friend.name)?'active':''} onClick={()=>toggle(friend.name)} aria-label={`${selected.includes(friend.name)?'Remove':'Add'} ${friend.name}`} key={friend.name}><img src={friend.image} alt=""/><i><Check size={9}/></i><small>{friend.name}</small></button>)}</div></div>
+      <button className="share-button" onClick={onPosted} disabled={!preview||selected.length===0}><Send size={17}/> Share this moment</button>
+      <p className="composer-privacy"><LockKeyhole size={13}/> Encrypted in transit. Never public.</p>
+    </motion.section>
+  </motion.div>;
+}
+
+function InvitePanel({onClose}:{onClose:()=>void}) {
+  const [sent,setSent]=useState(false);
+  return <motion.div className="invite-card" initial={{opacity:0,y:8,scale:.96}} animate={{opacity:1,y:0,scale:1}} exit={{opacity:0,y:5,scale:.97}}>
+    <button className="mini-close" onClick={onClose}><X size={16}/></button><small>ONE MORE PERSON</small><h2>Who belongs here?</h2><p>Invites are personal. No public links, no random follows.</p>
+    <div className="invite-input"><input type="email" placeholder="their@email.com" aria-label="Friend's email"/><button onClick={()=>setSent(true)}>{sent?<Check size={17}/>:<Send size={17}/>}</button></div>{sent&&<motion.b initial={{opacity:0,y:4}} animate={{opacity:1,y:0}}>A quiet invite is on its way.</motion.b>}
+  </motion.div>;
+}
+
+export default function Home() {
+  const [selected,setSelected]=useState<Friend|null>(null); const [notificationsOpen,setNotificationsOpen]=useState(false);
+  const [composerOpen,setComposerOpen]=useState(false); const [inviteOpen,setInviteOpen]=useState(false); const [toast,setToast]=useState(false);
+  useEffect(()=>{const key=(event:KeyboardEvent)=>{if(event.key==='Escape'){setSelected(null);setNotificationsOpen(false);setComposerOpen(false);setInviteOpen(false);}};window.addEventListener('keydown',key);return()=>window.removeEventListener('keydown',key);},[]);
+  const backgroundLabel=useMemo(()=>selected?`${selected.name}'s moment is open`:'Your inner circle', [selected]);
+  const posted=()=>{setComposerOpen(false);setToast(true);window.setTimeout(()=>setToast(false),2600);};
+  return <main className="friend-space" aria-label={backgroundLabel}>
+    <header className="topbar"><a className="brand" href="#" aria-label="Kin home"><i/>kin</a><div className="top-actions"><p><span/> Your circle is private</p><button className="bell" onClick={()=>setNotificationsOpen(v=>!v)} aria-label="Open notifications" aria-expanded={notificationsOpen}><Bell size={19} strokeWidth={1.8}/><span/></button></div></header>
+    <section className={`space-copy${selected?' is-muted':''}`}><p>Your inner circle</p><h1>These are<br/>your people.</h1><button className="invite" onClick={()=>setInviteOpen(v=>!v)}><Plus size={16}/> invite someone</button><AnimatePresence>{inviteOpen&&<InvitePanel onClose={()=>setInviteOpen(false)}/>}</AnimatePresence></section>
+    <FriendSpace selected={selected} onOpen={friend=>{setSelected(friend);setNotificationsOpen(false);setInviteOpen(false);}}/>
+    <div className="you" aria-label="You"><span className="online"/><img src="https://i.pravatar.cc/160?img=68" alt=""/><span>You</span></div>
+    <button className="post-button" onClick={()=>setComposerOpen(true)} aria-label="Share a new moment"><Plus size={24}/><span className="button-hint">Share a moment</span></button>
+    <p className="privacy-note"><span>●</span> Private by default · just your people</p>
+    <AnimatePresence>{notificationsOpen&&<NotificationPanel onClose={()=>setNotificationsOpen(false)}/>}</AnimatePresence>
+    <AnimatePresence>{selected&&<PostViewer friend={selected} onClose={()=>setSelected(null)}/>}</AnimatePresence>
+    <AnimatePresence>{composerOpen&&<PostComposer onClose={()=>setComposerOpen(false)} onPosted={posted}/>}</AnimatePresence>
+    <AnimatePresence>{toast&&<motion.div className="toast" initial={{opacity:0,y:20,scale:.92}} animate={{opacity:1,y:0,scale:1}} exit={{opacity:0,y:12}}><Check size={16}/> Shared with your circle</motion.div>}</AnimatePresence>
+    <div className="ambient ambient-a"/><div className="ambient ambient-b"/>
+  </main>;
 }

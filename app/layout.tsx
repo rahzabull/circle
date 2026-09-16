@@ -1,31 +1,30 @@
 import type { Metadata } from 'next';
-import { Gochi_Hand, Outfit } from 'next/font/google';
+import { Manrope, Newsreader } from 'next/font/google';
 import './globals.css';
 
-const outfit = Outfit({
-  variable: '--font-outfit',
+const manrope = Manrope({
+  variable: '--font-manrope',
   subsets: ['latin'],
 });
 
-const gochiHand = Gochi_Hand({
-  variable: '--font-gochi-hand',
+const newsreader = Newsreader({
+  variable: '--font-newsreader',
   subsets: ['latin'],
-  weight: '400',
 });
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://meet-ducky-about-us.rahzabull.chatgpt.site'),
-  title: 'Meet Ducky — Our CEO',
-  description: 'The slightly ridiculous story of how Ducky built a private home for your digital life.',
+  title: 'Kin — These are your people',
+  description: 'A private, playful space for the people you are actually close to.',
   openGraph: {
-    title: 'Meet Ducky — Our CEO',
-    description: 'A private place for your digital life.',
+    title: 'Kin — These are your people',
+    description: 'A private, playful space for the people you are actually close to.',
     images: [{ url: '/og.png', width: 1729, height: 910, alt: 'Meet Ducky — Our CEO' }],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Meet Ducky — Our CEO',
-    description: 'A private place for your digital life.',
+    title: 'Kin — These are your people',
+    description: 'A private, playful space for the people you are actually close to.',
     images: ['/og.png'],
   },
 };
@@ -38,7 +37,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${outfit.variable} ${gochiHand.variable} antialiased`}
+        className={`${manrope.variable} ${newsreader.variable} antialiased`}
       >
         {children}
       </body>
