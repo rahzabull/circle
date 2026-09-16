@@ -4,7 +4,7 @@ import type { CSSProperties, ChangeEvent, PointerEvent as ReactPointerEvent } fr
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, animate, motion, motionValue, useMotionValue, useSpring } from 'framer-motion';
 import type { MotionValue } from 'framer-motion';
-import { Bell, Check, ChevronRight, Heart, LockKeyhole, Plus, Send, SmilePlus, Upload, Users, X } from 'lucide-react';
+import { Bell, Check, ChevronRight, Heart, LocateFixed, LockKeyhole, Plus, Send, SmilePlus, Upload, Users, X } from 'lucide-react';
 
 type Friend = {
   name: string; color: string; x: number; y: number; size: number; image: string;
@@ -58,11 +58,17 @@ function FloatingFriend({ friend, index, selected, offset, onHover, onOpen }:{ f
 function FriendSpace({ selected, onOpen, onUser }:{ selected:Friend|null; onOpen:(friend:Friend)=>void; onUser:()=>void }) {
   const worldX=useMotionValue(0); const worldY=useMotionValue(0);
   const smoothWorldX=useSpring(worldX,{stiffness:390,damping:40,mass:.92}); const smoothWorldY=useSpring(worldY,{stiffness:390,damping:40,mass:.92});
-  const [isDragging,setIsDragging]=useState(false);
+  const [isDragging,setIsDragging]=useState(false); const [hasMoved,setHasMoved]=useState(false);
+  const spaceRef=useRef<HTMLElement>(null); const sceneScale=useRef(1.4);
   const drag=useRef({active:false,moved:false,pointerId:-1,startX:0,startY:0,startWorldX:0,startWorldY:0,lastX:0,lastY:0,lastTime:0,velocityX:0,velocityY:0});
   const suppressClick=useRef(false); const hovered=useRef<number|null>(null);
   const momentum=useRef<{x?:ReturnType<typeof animate>;y?:ReturnType<typeof animate>}>({});
   const bubbleOffsets=useMemo<BubbleOffset[]>(()=>friends.map(()=>({x:motionValue(0),y:motionValue(0)})),[]);
+
+  useEffect(()=>{
+    const updateScale=()=>{const value=spaceRef.current?parseFloat(getComputedStyle(spaceRef.current).getPropertyValue('--scene-scale')):1.4;sceneScale.current=Number.isFinite(value)?value:1.4;};
+    updateScale();window.addEventListener('resize',updateScale);return()=>window.removeEventListener('resize',updateScale);
+  },[]);
 
   useEffect(()=>{
     const bodies=friends.map(()=>({x:0,y:0,vx:0,vy:0})); let frame=0; let last=performance.now();
@@ -73,27 +79,37 @@ function FriendSpace({ selected, onOpen, onUser }:{ selected:Friend|null; onOpen
         const amplitude=hovered.current===index?0.8:3.5;
         const targetX=Math.sin(now*.00034+index*1.71)*amplitude;
         const targetY=Math.cos(now*.00029+index*2.03)*amplitude;
-        force[index].x+=(targetX-bodies[index].x)*.026;
-        force[index].y+=(targetY-bodies[index].y)*.026;
+        force[index].x+=(targetX-bodies[index].x)*.018;
+        force[index].y+=(targetY-bodies[index].y)*.018;
       });
-      for(let a=0;a<friends.length;a++)for(let b=a+1;b<friends.length;b++){
-        const dx=(friends[b].x+bodies[b].x)-(friends[a].x+bodies[a].x);
-        const dy=(friends[b].y+bodies[b].y)-(friends[a].y+bodies[a].y);
-        const distance=Math.max(Math.hypot(dx,dy),.001); const minimum=(friends[a].size+friends[b].size)/2+8;
-        if(distance<minimum){const push=(minimum-distance)*.018;const nx=dx/distance;const ny=dy/distance;force[a].x-=nx*push;force[a].y-=ny*push;force[b].x+=nx*push;force[b].y+=ny*push;}
+      bodies.forEach((body,index)=>{
+        body.vx=(body.vx+force[index].x*step)*Math.pow(.87,step);body.vy=(body.vy+force[index].y*step)*Math.pow(.87,step);
+        body.x+=body.vx*step;body.y+=body.vy*step;
+      });
+      const scale=Math.max(sceneScale.current,.01);const playerX=-smoothWorldX.get()/scale;const playerY=-smoothWorldY.get()/scale;
+      for(let pass=0;pass<5;pass++){
+        for(let a=0;a<friends.length;a++)for(let b=a+1;b<friends.length;b++){
+          const dx=(friends[b].x+bodies[b].x)-(friends[a].x+bodies[a].x);const dy=(friends[b].y+bodies[b].y)-(friends[a].y+bodies[a].y);
+          const rawDistance=Math.hypot(dx,dy);const distance=Math.max(rawDistance,.001);const minimum=(friends[a].size+friends[b].size)/2+8;
+          if(distance<minimum){const nx=rawDistance<.001?Math.cos(a+b):dx/distance;const ny=rawDistance<.001?Math.sin(a+b):dy/distance;const correction=(minimum-distance)*.505;bodies[a].x-=nx*correction;bodies[a].y-=ny*correction;bodies[b].x+=nx*correction;bodies[b].y+=ny*correction;}
+        }
+        bodies.forEach((body,index)=>{
+          const dx=friendPositionX(index,body)-playerX;const dy=friendPositionY(index,body)-playerY;const rawDistance=Math.hypot(dx,dy);const distance=Math.max(rawDistance,.001);const minimum=(friends[index].size+110)/2+10;
+          if(distance<minimum){const angle=index/friends.length*Math.PI*2;const nx=rawDistance<.001?Math.cos(angle):dx/distance;const ny=rawDistance<.001?Math.sin(angle):dy/distance;const correction=minimum-distance;body.x+=nx*correction;body.y+=ny*correction;body.vx+=nx*correction*.025;body.vy+=ny*correction*.025;}
+        });
       }
       bodies.forEach((body,index)=>{
-        body.vx=(body.vx+force[index].x*step)*Math.pow(.86,step); body.vy=(body.vy+force[index].y*step)*Math.pow(.86,step);
-        body.x=Math.max(-4,Math.min(4,body.x+body.vx*step)); body.y=Math.max(-4,Math.min(4,body.y+body.vy*step));
         bubbleOffsets[index].x.set(body.x); bubbleOffsets[index].y.set(body.y);
       });
       frame=requestAnimationFrame(tick);
     };
+    const friendPositionX=(index:number,body:{x:number})=>friends[index].x+body.x;
+    const friendPositionY=(index:number,body:{y:number})=>friends[index].y+body.y;
     frame=requestAnimationFrame(tick); return()=>cancelAnimationFrame(frame);
-  },[bubbleOffsets]);
+  },[bubbleOffsets,smoothWorldX,smoothWorldY]);
 
   const pointerDown=(event:ReactPointerEvent<HTMLElement>)=>{
-    if(event.button!==0||selected||(event.target as HTMLElement).closest('.you'))return;
+    if(event.button!==0||selected||(event.target as HTMLElement).closest('.you,.reset-world'))return;
     momentum.current.x?.stop(); momentum.current.y?.stop();
     worldX.set(smoothWorldX.get());worldY.set(smoothWorldY.get());
     drag.current={active:true,moved:false,pointerId:event.pointerId,startX:event.clientX,startY:event.clientY,startWorldX:worldX.get(),startWorldY:worldY.get(),lastX:event.clientX,lastY:event.clientY,lastTime:event.timeStamp,velocityX:0,velocityY:0};
@@ -102,7 +118,7 @@ function FriendSpace({ selected, onOpen, onUser }:{ selected:Friend|null; onOpen
     const state=drag.current;if(!state.active||state.pointerId!==event.pointerId)return;
     const dx=event.clientX-state.startX;const dy=event.clientY-state.startY;
     if(!state.moved&&Math.hypot(dx,dy)<7)return;
-    if(!state.moved){state.moved=true;suppressClick.current=true;setIsDragging(true);event.currentTarget.setPointerCapture(event.pointerId);}
+    if(!state.moved){state.moved=true;suppressClick.current=true;setIsDragging(true);setHasMoved(true);event.currentTarget.setPointerCapture(event.pointerId);}
     const elapsed=Math.max(event.timeStamp-state.lastTime,8);
     state.velocityX=-(event.clientX-state.lastX)/elapsed*1000;state.velocityY=-(event.clientY-state.lastY)/elapsed*1000;
     state.lastX=event.clientX;state.lastY=event.clientY;state.lastTime=event.timeStamp;
@@ -118,14 +134,22 @@ function FriendSpace({ selected, onOpen, onUser }:{ selected:Friend|null; onOpen
       window.setTimeout(()=>{suppressClick.current=false;},0);
     }
   };
+  const resetWorld=()=>{
+    momentum.current.x?.stop();momentum.current.y?.stop();
+    const transition={type:'spring' as const,stiffness:72,damping:19,mass:1.15,restDelta:.25};
+    momentum.current.x=animate(worldX,0,transition);momentum.current.y=animate(worldY,0,transition);
+    let remaining=2;const complete=()=>{remaining-=1;if(remaining===0)setHasMoved(false);};
+    momentum.current.x.then(complete);momentum.current.y.then(complete);
+  };
   return (
-    <section className={`social-space orbital-field${selected ? ' is-muted' : ''}${isDragging?' is-dragging':''}`} aria-label="Your close friends" onPointerDown={pointerDown} onPointerMove={pointerMove} onPointerUp={pointerEnd} onPointerCancel={pointerEnd} onClickCapture={event=>{if(suppressClick.current){event.preventDefault();event.stopPropagation();}}}>
+    <section ref={spaceRef} className={`social-space orbital-field${selected ? ' is-muted' : ''}${isDragging?' is-dragging':''}`} aria-label="Your close friends" onPointerDown={pointerDown} onPointerMove={pointerMove} onPointerUp={pointerEnd} onPointerCancel={pointerEnd} onClickCapture={event=>{if(suppressClick.current){event.preventDefault();event.stopPropagation();}}}>
       <motion.div className="world-layer" style={{x:smoothWorldX,y:smoothWorldY}}>
         <div className="world-stage">
           {friends.map((friend,index)=><FloatingFriend friend={friend} index={index} selected={selected?.name===friend.name} offset={bubbleOffsets[index]} onHover={value=>{hovered.current=value;}} onOpen={()=>onOpen(friend)} key={friend.name} />)}
         </div>
       </motion.div>
       <div className="player-layer"><div className="player-anchor"><motion.button className="you" aria-label="Create a post" onClick={onUser} whileHover={{scale:1.045}} whileTap={{scale:.97}}><img src="https://i.pravatar.cc/240?img=68" alt=""/></motion.button></div></div>
+      <div className="reset-anchor"><AnimatePresence>{hasMoved&&<motion.button className="reset-world" onPointerDown={event=>event.stopPropagation()} onClick={resetWorld} initial={{opacity:0,y:10,scale:.92}} animate={{opacity:1,y:0,scale:1}} exit={{opacity:0,y:8,scale:.94}} whileHover={{y:-2}} whileTap={{scale:.96}}><LocateFixed size={15}/> Center</motion.button>}</AnimatePresence></div>
     </section>
   );
 }
