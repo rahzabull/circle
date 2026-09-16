@@ -46,7 +46,7 @@ function FloatingFriend({ friend, index, selected, onOpen }:{ friend:Friend; ind
       whileHover={{ scale:1.055, zIndex:5, transition:{type:'spring',stiffness:260,damping:24} }} whileTap={{ scale:.97 }}
       onClick={onOpen} aria-label={`Open ${friend.name}'s latest moment`}
     >
-      <span className="friend-float"><motion.span className="portrait" layoutId={`avatar-${friend.name}`}><img src={friend.image} alt="" />{(friend.fresh||friend.online)&&<i className={friend.fresh?'new':'online'}/>}</motion.span><b>{friend.name}</b></span>
+      <span className="friend-float"><motion.span className="portrait" layoutId={`avatar-${friend.name}`}><img src={friend.image} alt="" /></motion.span></span>
     </motion.button>
   );
 }
@@ -55,7 +55,7 @@ function FriendSpace({ selected, onOpen, onUser }:{ selected:Friend|null; onOpen
   return (
     <section className={`bubble-cluster orbital-field${selected ? ' is-muted' : ''}`} aria-label="Your close friends">
       {friends.map((friend,index)=><FloatingFriend friend={friend} index={index} selected={selected?.name===friend.name} onOpen={()=>onOpen(friend)} key={friend.name} />)}
-      <motion.button className="you" aria-label="Create a post" onClick={onUser} whileHover={{scale:1.045}} whileTap={{scale:.97}}><img src="https://i.pravatar.cc/240?img=68" alt=""/><b>You</b></motion.button>
+      <motion.button className="you" aria-label="Create a post" onClick={onUser} whileHover={{scale:1.045}} whileTap={{scale:.97}}><img src="https://i.pravatar.cc/240?img=68" alt=""/></motion.button>
     </section>
   );
 }
