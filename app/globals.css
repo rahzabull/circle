@@ -91,26 +91,22 @@
   .circle-count{padding:11px 13px}.circle-count span{display:none}.circle-count svg:last-child{margin-left:0}.post-action>b{display:none}.quick-invite{right:16px;top:74px;width:calc(100vw - 32px)}
 }
 
-/* Organic packed-bubble coordinates — deliberately non-radial */
-.orbital-field{inset:0;left:0;top:0;width:100vw;height:100svh;transform:none;transform-origin:50% 50%}
-.orbital-field.is-muted{transform:scale(.96);opacity:.1}
-.friend{left:calc(50% + var(--offset-x));top:calc(50% + var(--offset-y));width:var(--bubble-size);margin-left:calc(var(--bubble-size) / -2);margin-top:calc(var(--bubble-size) / -2);gap:0;transform-origin:50% calc(var(--bubble-size) / 2)}
-.friend .friend-float{display:flex;width:var(--bubble-size);flex-direction:column;align-items:center;gap:9px;animation:packed-bubble-float 9.5s ease-in-out var(--float-delay) infinite alternate;will-change:transform}
-.friend .portrait{width:var(--bubble-size);height:var(--bubble-size)}
-.friend .friend-float>b{padding:0;border-radius:0;background:none;color:#f7f6f2;font-size:13px;font-weight:560;line-height:1;text-shadow:0 2px 12px rgba(0,0,0,.65);box-shadow:none;backdrop-filter:none}
-.you{left:50%;top:50%;width:110px;height:110px;margin:-55px 0 0 -55px;padding:6px}
-.you>b{top:calc(100% + 10px);font-size:13px}
+/* Dense hand-packed bubble cluster */
+.bubble-cluster.orbital-field{--cluster-scale:1;inset:auto;left:50%;top:50%;width:600px;height:650px;transform:translate(-50%,-50%) scale(var(--cluster-scale));transform-origin:50% 50%}
+.bubble-cluster.orbital-field.is-muted{transform:translate(-50%,-50%) scale(var(--cluster-scale));opacity:.1}
+.bubble-cluster .friend{left:calc(50% + var(--offset-x));top:calc(48% + var(--offset-y));width:var(--bubble-size);margin-left:calc(var(--bubble-size) / -2);margin-top:calc(var(--bubble-size) / -2);gap:0;transform-origin:50% calc(var(--bubble-size) / 2)}
+.bubble-cluster .friend .friend-float{display:flex;width:var(--bubble-size);flex-direction:column;align-items:center;gap:9px;animation:packed-bubble-float 10.5s ease-in-out var(--float-delay) infinite alternate;will-change:transform}
+.bubble-cluster .friend .portrait{width:var(--bubble-size);height:var(--bubble-size)}
+.bubble-cluster .friend .friend-float>b{padding:0;border-radius:0;background:none;color:#f7f6f2;font-size:13px;font-weight:560;line-height:1;text-shadow:0 2px 12px rgba(0,0,0,.65);box-shadow:none;backdrop-filter:none}
+.bubble-cluster .you{left:50%;top:48%;width:110px;height:110px;margin:-55px 0 0 -55px;padding:6px}
+.bubble-cluster .you>b{top:calc(100% + 10px);font-size:13px}
 @keyframes packed-bubble-float{from{transform:translate3d(0,0,0)}to{transform:translate3d(var(--float-x),var(--float-y),0)}}
-@media(max-width:900px){
-  .friend{width:var(--bubble-size);margin-left:calc(var(--bubble-size) / -2);margin-top:calc(var(--bubble-size) / -2)}
-  .friend .portrait{width:var(--bubble-size);height:var(--bubble-size)}
-  .you{left:50%;top:50%;width:110px;height:110px;margin:-55px 0 0 -55px}
-}
+@media(max-width:700px){.bubble-cluster.orbital-field{--cluster-scale:.84}}
 @media(max-width:560px){
-  .orbital-field{inset:0;left:0;top:0;width:100vw;height:100svh;transform:none}
-  .orbital-field.is-muted{transform:scale(.96)}
-  .friend:nth-child(4),.friend:nth-child(7){display:flex}
-  .friend .friend-float>b{font-size:10px}
-  .you{left:50%;top:50%;width:110px;height:110px;margin:-55px 0 0 -55px}
+  .bubble-cluster.orbital-field{--cluster-scale:.7;inset:auto;left:50%;top:51%;width:600px;height:650px;transform:translate(-50%,-50%) scale(var(--cluster-scale))}
+  .bubble-cluster.orbital-field.is-muted{transform:translate(-50%,-50%) scale(var(--cluster-scale))}
+  .bubble-cluster .friend:nth-child(4),.bubble-cluster .friend:nth-child(7){display:flex}
+  .bubble-cluster .friend .friend-float>b{font-size:12px}
 }
-@media(prefers-reduced-motion:reduce){.friend .friend-float{animation:none}}
+@media(max-width:430px){.bubble-cluster.orbital-field{--cluster-scale:.6}}
+@media(prefers-reduced-motion:reduce){.bubble-cluster .friend .friend-float{animation:none}}
