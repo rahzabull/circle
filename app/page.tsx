@@ -4,7 +4,7 @@ import type { CSSProperties, ChangeEvent, PointerEvent as ReactPointerEvent } fr
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, animate, motion, motionValue, useMotionValue, useReducedMotion, useSpring } from 'framer-motion';
 import type { MotionStyle, MotionValue } from 'framer-motion';
-import { Bell, Camera, Check, ChevronRight, Heart, ImagePlus, LocateFixed, LockKeyhole, Mic, Pencil, Play, Plus, Send, SmilePlus, Trash2, Undo2, Upload, Users, X } from 'lucide-react';
+import { Bell, Camera, Check, ChevronRight, Heart, ImagePlus, LocateFixed, LockKeyhole, MessageCircleQuestion, Mic, Pencil, Play, Plus, Send, SmilePlus, Trash2, Undo2, Upload, Users, X } from 'lucide-react';
 
 type Friend = {
   name: string; color: string; x: number; y: number; size: number; image: string;
@@ -71,9 +71,14 @@ const initialNotifications:SocialNotification[]=[
 type BubbleOffset = { x:MotionValue<number>; y:MotionValue<number> };
 
 function AskChip({ask,placement='right',own=false,onOpen}:{ask:AskPrompt;placement?:'left'|'right'|'above';own?:boolean;onOpen:()=>void}){
-  return <motion.button className={`bubble-ask ask-${placement}${own?' player-ask':''}`} onPointerDown={event=>event.stopPropagation()} onClick={event=>{event.stopPropagation();onOpen();}} initial={{opacity:0,scale:.72,y:5}} animate={{opacity:1,scale:1,y:0}} whileHover={{scale:1.045,y:-2}} whileTap={{scale:.98}} aria-label={own?`View responses to your Ask: ${ask.text}`:`Reply to ${ask.sender}'s Ask: ${ask.text}`}>
-    <small>{own?'YOUR ASK':`${ask.sender.toUpperCase()} ASKS`}</small><span>{ask.text}</span><b>{own?`${ask.responses.length} ${ask.responses.length===1?'reply':'replies'}`:'Reply with a photo'}</b>
-  </motion.button>;
+  const [expanded,setExpanded]=useState(false);const popoverId=`ask-popover-${ask.id}`;const root=useRef<HTMLDivElement>(null);const trigger=useRef<HTMLButtonElement>(null);
+  useEffect(()=>{if(!expanded)return;const outside=(event:PointerEvent)=>{if(!root.current?.contains(event.target as Node))setExpanded(false);};const escape=(event:KeyboardEvent)=>{if(event.key==='Escape'){setExpanded(false);window.requestAnimationFrame(()=>trigger.current?.focus());}};document.addEventListener('pointerdown',outside,true);document.addEventListener('keydown',escape);return()=>{document.removeEventListener('pointerdown',outside,true);document.removeEventListener('keydown',escape);};},[expanded]);
+  return <motion.div ref={root} className={`ask-prompt ask-${placement}${own?' player-ask':''}${expanded?' is-open':''}`} onPointerDown={event=>event.stopPropagation()} onBlur={event=>{if(!event.currentTarget.contains(event.relatedTarget as Node))setExpanded(false);}} initial={{opacity:0,scale:.72,y:5}} animate={{opacity:1,scale:1,y:0}}>
+    <motion.button ref={trigger} className="ask-prompt-icon" onClick={event=>{event.stopPropagation();setExpanded(value=>!value);}} whileHover={{scale:1.08,y:-1}} whileTap={{scale:.94}} aria-label={own?`Open your Ask; ${ask.responses.length} ${ask.responses.length===1?'reply':'replies'}`:`Open ${ask.sender}'s Ask`} aria-expanded={expanded} aria-controls={popoverId}><MessageCircleQuestion size={17} strokeWidth={2.2}/>{own&&ask.responses.length>0&&<i>{ask.responses.length}</i>}</motion.button>
+    <AnimatePresence>{expanded&&<motion.div id={popoverId} className="ask-prompt-popover" initial={{opacity:0,scale:.9,y:4}} animate={{opacity:1,scale:1,y:0}} exit={{opacity:0,scale:.94,y:3}} transition={{duration:.16,ease:'easeOut'}}>
+      <small>{own?'YOUR ASK':`${ask.sender.toUpperCase()} ASKS`}</small><span>{ask.text}</span><button onClick={event=>{event.stopPropagation();setExpanded(false);onOpen();}}>{own?`View ${ask.responses.length} ${ask.responses.length===1?'reply':'replies'}`:'Reply with a photo'} <ChevronRight size={11}/></button>
+    </motion.div>}</AnimatePresence>
+  </motion.div>;
 }
 
 function KnockNudge({friend,activity,onSend,onDismiss,onImpact}:{friend:Friend;activity:ActivityState;onSend:()=>void;onDismiss:()=>void;onImpact:(active:boolean)=>void}){
