@@ -3,7 +3,7 @@
 import type { CSSProperties, ChangeEvent, PointerEvent as ReactPointerEvent } from 'react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, animate, motion, motionValue, useMotionValue, useSpring } from 'framer-motion';
-import type { MotionValue } from 'framer-motion';
+import type { MotionStyle, MotionValue } from 'framer-motion';
 import { Bell, Camera, Check, ChevronRight, Heart, ImagePlus, LocateFixed, LockKeyhole, Mic, Pencil, Play, Plus, Send, SmilePlus, Trash2, Undo2, Upload, Users, X } from 'lucide-react';
 
 type Friend = {
@@ -12,11 +12,12 @@ type Friend = {
 };
 
 type Knock = { id:string; from:string; to:string; createdAt:number; expiresAt:number; status:'waiting'|'answered' };
-type DailyPrompt = { id:string; question:string; answeredCount:number; totalCount:number };
-type PromptResponse = { friend:string; photo:string; caption:string };
+type AskResponse = { id:string; responder:string; image:string; sentAt:string };
+type AskPrompt = { id:string; sender:string; text:string; recipients:string[]; audienceLabel:string; createdAt:number; responses:AskResponse[] };
+type AskAudience = 'everyone'|'group'|'friends';
 type ReactionKind = 'meme'|'voice'|'doodle'|'selfie';
 type Reaction = { id:string; type:ReactionKind; label:string; emoji?:string; image?:string; duration?:string };
-type SocialNotification = { id:string; friend:Friend; text:string; mark:string; time:string; action:'knock'|'reaction'|'prompt' };
+type SocialNotification = { id:string; friend:Friend; text:string; mark:string; time:string; action:'knock'|'reaction'|'ask'|'ask-response'; askId?:string };
 
 const friends: Friend[] = [
   { name:'Maya', color:'#e7b6a3', x:-115, y:-66, size:130, image:'https://i.pravatar.cc/240?img=47', fresh:true, time:'18 min ago', caption:'We missed the sunset but found this tiny blue hour instead.', photo:'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1400&q=88' },
@@ -37,39 +38,52 @@ const memes = [
   { label:'Absolute cinema', emoji:'🎬', tone:'#e7b9cf' }, { label:'LMAO', emoji:'😂', tone:'#f4dc72' },
 ];
 
-const todayPrompt:DailyPrompt={id:'prompt-today',question:'Show what you’re doing right now.',answeredCount:6,totalCount:9};
-const promptResponses:PromptResponse[]=[
-  {friend:'Maya',photo:friends[0].photo,caption:'Blue hour from my window.'},{friend:'Noah',photo:friends[1].photo,caption:'Still at this table.'},{friend:'Ari',photo:friends[2].photo,caption:'The meeting is getting serious.'},
-  {friend:'Vina',photo:friends[4].photo,caption:'We escaped the group chat.'},{friend:'Leo',photo:friends[5].photo,caption:'Camera walk, obviously.'},{friend:'Inez',photo:friends[6].photo,caption:'Dinner debate in progress.'},
+const askGroups=[
+  {id:'inner',name:'Inner circle',members:['Maya','Noah','Vina','Leo','Inez']},
+  {id:'weekend',name:'Weekend crew',members:['Ari','Sam','Omar','June']},
+];
+const initialAsks:AskPrompt[]=[
+  {id:'ask-you-view',sender:'You',text:'Show me your view right now?',recipients:friends.map(friend=>friend.name),audienceLabel:'Everyone',createdAt:Date.now()-1800000,responses:[
+    {id:'response-maya',responder:'Maya',image:friends[0].photo,sentAt:'12m'},{id:'response-noah',responder:'Noah',image:friends[1].photo,sentAt:'8m'},{id:'response-inez',responder:'Inez',image:friends[6].photo,sentAt:'2m'},
+  ]},
+  {id:'ask-vina-desk',sender:'Vina',text:'Desk photo, right now?',recipients:['You','Maya','Noah','Leo'],audienceLabel:'Inner circle',createdAt:Date.now()-420000,responses:[]},
+  {id:'ask-leo-snack',sender:'Leo',text:'What are you snacking on?',recipients:['You','Ari','Sam','Inez'],audienceLabel:'4 friends',createdAt:Date.now()-720000,responses:[]},
 ];
 const initialKnocks:Knock[]=[{id:'knock-vina',from:'Vina',to:'You',createdAt:Date.now()-28000,expiresAt:Date.now()+272000,status:'waiting'}];
 const initialNotifications:SocialNotification[]=[
   {id:'n-knock',friend:friends[4],text:'knocked',mark:'👊',time:'2m',action:'knock'},
+  {id:'n-ask-response',friend:friends[6],text:'answered your Ask',mark:'📷',time:'2m',action:'ask-response',askId:'ask-you-view'},
+  {id:'n-ask',friend:friends[4],text:'asked “Desk photo, right now?”',mark:'↗',time:'7m',action:'ask',askId:'ask-vina-desk'},
   {id:'n-meme',friend:friends[1],text:'reacted with a meme',mark:'😂',time:'5m',action:'reaction'},
   {id:'n-voice',friend:friends[0],text:'sent you a voice reaction',mark:'🎤',time:'12m',action:'reaction'},
-  {id:'n-prompt',friend:friends[6],text:'6 friends answered today’s prompt',mark:'',time:'20m',action:'prompt'},
   {id:'n-selfie',friend:friends[5],text:'reacted with his face',mark:'🤳',time:'31m',action:'reaction'},
 ];
 
 type BubbleOffset = { x:MotionValue<number>; y:MotionValue<number> };
 
-function FloatingFriend({ friend, index, selected, offset, answeredPrompt, knocking, onHover, onOpen }:{ friend:Friend; index:number; selected:boolean; offset:BubbleOffset; answeredPrompt:boolean; knocking:boolean; onHover:(index:number|null)=>void; onOpen:()=>void }) {
+function AskChip({ask,placement='right',own=false,onOpen}:{ask:AskPrompt;placement?:'left'|'right'|'above';own?:boolean;onOpen:()=>void}){
+  return <motion.button className={`bubble-ask ask-${placement}${own?' player-ask':''}`} onPointerDown={event=>event.stopPropagation()} onClick={event=>{event.stopPropagation();onOpen();}} initial={{opacity:0,scale:.72,y:5}} animate={{opacity:1,scale:1,y:0}} whileHover={{scale:1.045,y:-2}} whileTap={{scale:.98}} aria-label={own?`View responses to your Ask: ${ask.text}`:`Reply to ${ask.sender}'s Ask: ${ask.text}`}>
+    <small>{own?'YOUR ASK':`${ask.sender.toUpperCase()} ASKS`}</small><span>{ask.text}</span><b>{own?`${ask.responses.length} ${ask.responses.length===1?'reply':'replies'}`:'Reply with a photo'}</b>
+  </motion.button>;
+}
+
+function FloatingFriend({ friend, index, selected, offset, ask, knocking, onHover, onOpen, onAsk }:{ friend:Friend; index:number; selected:boolean; offset:BubbleOffset; ask:AskPrompt|null; knocking:boolean; onHover:(index:number|null)=>void; onOpen:()=>void; onAsk:(ask:AskPrompt)=>void }) {
+  const placement:'left'|'right'|'above'=friend.y>100?'above':friend.x>25?'right':'left';
   return (
-    <motion.button
-      className={`friend ${friend.fresh || friend.online ? 'is-active' : 'is-inactive'}${selected ? ' is-selected' : ''}${answeredPrompt?' prompt-answered':''}${knocking?' is-knocking':''}`}
-      style={{ '--offset-x':`${friend.x}px`, '--offset-y':`${friend.y}px`, '--bubble-size':`${friend.size}px`, '--tone':friend.color, x:offset.x, y:offset.y } as CSSProperties}
+    <motion.div
+      className={`friend ${friend.fresh || friend.online ? 'is-active' : 'is-inactive'}${selected ? ' is-selected' : ''}${ask?' has-ask':''}${knocking?' is-knocking':''}`}
+      style={{ '--offset-x':`${friend.x}px`, '--offset-y':`${friend.y}px`, '--bubble-size':`${friend.size}px`, '--tone':friend.color, x:offset.x, y:offset.y } as MotionStyle}
       initial={{ opacity:0, scale:.82 }} animate={{ opacity:selected ? 0 : 1, scale:1 }}
       transition={{ opacity:{duration:.32,ease:'easeOut'}, scale:{delay:.035*index,type:'spring',stiffness:120,damping:20,mass:.8} }}
-      whileHover={{ scale:1.055, zIndex:5, transition:{type:'spring',stiffness:260,damping:24} }} whileTap={{ scale:.97 }}
       onHoverStart={()=>onHover(index)} onHoverEnd={()=>onHover(null)}
-      onClick={onOpen} aria-label={`Open ${friend.name}'s latest moment`}
     >
-      <span className="friend-float"><motion.span className="portrait" layoutId={`avatar-${friend.name}`}><img src={friend.image} alt="" />{answeredPrompt&&<i className="prompt-ring"/>}</motion.span><b>{friend.name}</b></span>
-    </motion.button>
+      <motion.button className="friend-profile" onClick={onOpen} aria-label={`Open ${friend.name}'s latest moment`} whileHover={{scale:1.055}} whileTap={{scale:.97}}><span className="friend-float"><motion.span className="portrait" layoutId={`avatar-${friend.name}`}><img src={friend.image} alt="" /></motion.span><b>{friend.name}</b></span></motion.button>
+      {ask&&<AskChip ask={ask} placement={placement} onOpen={()=>onAsk(ask)}/>}
+    </motion.div>
   );
 }
 
-function FriendSpace({ selected, answeredFriends, incomingKnock, onOpen, onUser }:{ selected:Friend|null; answeredFriends:Set<string>; incomingKnock:boolean; onOpen:(friend:Friend)=>void; onUser:()=>void }) {
+function FriendSpace({ selected, asks, incomingKnock, onOpen, onUser, onAsk, onOwnAsk, onCreateAsk }:{ selected:Friend|null; asks:AskPrompt[]; incomingKnock:boolean; onOpen:(friend:Friend)=>void; onUser:()=>void; onAsk:(ask:AskPrompt)=>void; onOwnAsk:(ask:AskPrompt)=>void; onCreateAsk:()=>void }) {
   const worldX=useMotionValue(0); const worldY=useMotionValue(0);
   const smoothWorldX=useSpring(worldX,{stiffness:390,damping:40,mass:.92}); const smoothWorldY=useSpring(worldY,{stiffness:390,damping:40,mass:.92});
   const [isDragging,setIsDragging]=useState(false); const [hasMoved,setHasMoved]=useState(false);
@@ -158,10 +172,10 @@ function FriendSpace({ selected, answeredFriends, incomingKnock, onOpen, onUser 
     <section ref={spaceRef} className={`social-space orbital-field${selected ? ' is-muted' : ''}${isDragging?' is-dragging':''}`} aria-label="Your close friends" onPointerDown={pointerDown} onPointerMove={pointerMove} onPointerUp={pointerEnd} onPointerCancel={pointerEnd} onClickCapture={event=>{if(suppressClick.current){event.preventDefault();event.stopPropagation();}}}>
       <motion.div className="world-layer" style={{x:smoothWorldX,y:smoothWorldY}}>
         <div className="world-stage">
-          {friends.map((friend,index)=><FloatingFriend friend={friend} index={index} selected={selected?.name===friend.name} offset={bubbleOffsets[index]} answeredPrompt={answeredFriends.has(friend.name)} knocking={incomingKnock&&friend.name==='Vina'} onHover={value=>{hovered.current=value;}} onOpen={()=>onOpen(friend)} key={friend.name} />)}
+          {friends.map((friend,index)=><FloatingFriend friend={friend} index={index} selected={selected?.name===friend.name} offset={bubbleOffsets[index]} ask={asks.find(ask=>ask.sender===friend.name&&ask.recipients.includes('You'))||null} knocking={incomingKnock&&friend.name==='Vina'} onHover={value=>{hovered.current=value;}} onOpen={()=>onOpen(friend)} onAsk={onAsk} key={friend.name} />)}
         </div>
       </motion.div>
-      <div className="player-layer"><div className="player-anchor"><motion.button className="you" aria-label="Create a post" onClick={onUser} whileHover={{scale:1.045}} whileTap={{scale:.97}}><img src="https://i.pravatar.cc/240?img=68" alt=""/></motion.button></div></div>
+      <div className="player-layer"><div className="player-anchor"><motion.button className="you" aria-label="Create a post" onClick={onUser} whileHover={{scale:1.045}} whileTap={{scale:.97}}><img src="https://i.pravatar.cc/240?img=68" alt=""/></motion.button>{asks.find(ask=>ask.sender==='You')&&<AskChip ask={asks.find(ask=>ask.sender==='You')!} placement="left" own onOpen={()=>onOwnAsk(asks.find(ask=>ask.sender==='You')!)}/>}<motion.button className="ask-create-trigger" onPointerDown={event=>event.stopPropagation()} onClick={onCreateAsk} whileHover={{scale:1.06}} whileTap={{scale:.95}} aria-label="Create an Ask"><Plus size={14}/> Ask</motion.button></div></div>
       <div className="reset-anchor"><AnimatePresence>{hasMoved&&<motion.button className="reset-world" aria-label="Return to center" title="Return to center" onPointerDown={event=>event.stopPropagation()} onClick={resetWorld} initial={{opacity:0,y:6,scale:.92}} animate={{opacity:1,y:0,scale:1}} exit={{opacity:0,scale:.9,transition:{duration:.12,ease:'easeOut'}}} transition={{duration:.16,ease:'easeOut'}} whileHover={{scale:1.06}} whileTap={{scale:.94}}><LocateFixed size={17}/></motion.button>}</AnimatePresence></div>
     </section>
   );
@@ -216,25 +230,24 @@ function DoodlePad({onSend,onClose}:{onSend:(image:string)=>void;onClose:()=>voi
   </motion.div>;
 }
 
-function PostViewer({ friend, promptResponse, onClose, onKnock, onNotify }:{friend:Friend;promptResponse:PromptResponse|null;onClose:()=>void;onKnock:(friend:Friend)=>void;onNotify:(text:string)=>void}) {
+function PostViewer({ friend, onClose, onKnock, onNotify }:{friend:Friend;onClose:()=>void;onKnock:(friend:Friend)=>void;onNotify:(text:string)=>void}) {
   const [liked,setLiked]=useState(false);const [reactionMenu,setReactionMenu]=useState(false);const [picker,setPicker]=useState(false);const [tool,setTool]=useState<'voice'|'doodle'|null>(null);const [knock,setKnock]=useState<'idle'|'confirm'|'sent'>('idle');
   const [reactions,setReactions]=useState<Reaction[]>([{id:'voice-maya',type:'voice',label:'Maya',duration:'0:03'},{id:'selfie-leo',type:'selfie',label:'Leo',image:friends[5].image}]);
   const addReaction=(reaction:Reaction)=>{setReactions(current=>[...current,reaction]);setReactionMenu(false);setTool(null);onNotify(`${reaction.type} reaction sent privately`);};
   const pick=(meme:typeof memes[number])=>{addReaction({id:`meme-${Date.now()}`,type:'meme',label:'You',emoji:meme.emoji});setPicker(false);};
-  const displayPhoto=promptResponse?.photo||friend.photo;const displayCaption=promptResponse?.caption||friend.caption;
   return <motion.div className="viewer-layer" initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}}>
     <motion.button className="viewer-backdrop" onClick={onClose} aria-label="Close moment" />
     <motion.article className="post-viewer" initial={{opacity:0,y:36,scale:.96}} animate={{opacity:1,y:0,scale:1}} exit={{opacity:0,y:26,scale:.96}} transition={{type:'spring',stiffness:175,damping:23}}>
       <header className="post-head">
-        <div className="post-person"><motion.span layoutId={`avatar-${friend.name}`} style={{background:friend.color}}><img src={friend.image} alt=""/></motion.span><p><b>{friend.name}</b><small>{promptResponse?'TODAY’S PROMPT':friend.time}</small></p></div>
+        <div className="post-person"><motion.span layoutId={`avatar-${friend.name}`} style={{background:friend.color}}><img src={friend.image} alt=""/></motion.span><p><b>{friend.name}</b><small>{friend.time}</small></p></div>
         <button onClick={onClose} aria-label="Close moment"><X size={20}/></button>
       </header>
       <div className="post-photo-wrap">
-        <motion.img className="post-photo" src={displayPhoto} alt={`${friend.name}'s latest moment`} initial={{scale:1.035}} animate={{scale:1}} transition={{duration:.65,ease:[.2,.8,.2,1]}}/>
+        <motion.img className="post-photo" src={friend.photo} alt={`${friend.name}'s latest moment`} initial={{scale:1.035}} animate={{scale:1}} transition={{duration:.65,ease:[.2,.8,.2,1]}}/>
         <div className="photo-wash" />
         <div className="reaction-objects">{reactions.map((reaction,index)=><ReactionObject reaction={reaction} index={index} key={reaction.id}/>)}</div>
       </div>
-      <div className="post-copy"><p>{displayCaption}</p><PrivacyIndicator/></div>
+      <div className="post-copy"><p>{friend.caption}</p><PrivacyIndicator/></div>
       <div className="post-actions-row"><button className="knock-action" onClick={()=>setKnock('confirm')}>Knock Knock 👊</button><button className="react-action" onClick={()=>setReactionMenu(v=>!v)}><SmilePlus size={17}/> React</button></div>
       <AnimatePresence>{reactionMenu&&<motion.div className="reaction-tray" initial={{opacity:0,y:7,scale:.96}} animate={{opacity:1,y:0,scale:1}} exit={{opacity:0,y:5,scale:.97}}>
         <button className={liked?'liked':''} onClick={()=>{setLiked(v=>!v);setReactionMenu(false);}}><Heart size={16} fill={liked?'currentColor':'none'}/><span>Like</span></button><button onClick={()=>{setPicker(true);setReactionMenu(false);}}><span>😂</span><b>Meme</b></button><button onClick={()=>{setTool('voice');setReactionMenu(false);}}><Mic size={16}/><span>Voice</span></button><button onClick={()=>{setTool('doodle');setReactionMenu(false);}}><Pencil size={16}/><span>Doodle</span></button><label className="reaction-upload"><Camera size={16}/><span>Selfie</span><input type="file" accept="image/*" onChange={event=>{const file=event.target.files?.[0];if(file)addReaction({id:`selfie-${Date.now()}`,type:'selfie',label:'You',image:URL.createObjectURL(file)});}}/></label>
@@ -248,13 +261,21 @@ function PostViewer({ friend, promptResponse, onClose, onKnock, onNotify }:{frie
   </motion.div>;
 }
 
-function DailyPromptCard({answered,onAnswer}:{answered:boolean;onAnswer:()=>void}){
-  return <motion.aside className={`daily-prompt${answered?' is-answered':''}`} initial={{opacity:0,y:12,scale:.95}} animate={{opacity:1,y:0,scale:1}} transition={{delay:.28,type:'spring',stiffness:170,damping:20}}><small>TODAY</small><p>{todayPrompt.question}</p><span>{answered?'Answers unlocked':`${todayPrompt.answeredCount}/${todayPrompt.totalCount} answered`}</span><button onClick={onAnswer}>{answered?'View answers':'Answer'}</button>{!answered&&<em>{todayPrompt.answeredCount} friends answered. Answer to see theirs.</em>}</motion.aside>;
+function AskComposer({onClose,onSend}:{onClose:()=>void;onSend:(text:string,recipients:string[],audienceLabel:string)=>void}){
+  const [text,setText]=useState('');const [audience,setAudience]=useState<AskAudience>('everyone');const [selectedGroups,setSelectedGroups]=useState<string[]>(['inner']);const [selectedFriends,setSelectedFriends]=useState<string[]>(['Maya','Vina']);
+  const recipients=useMemo(()=>{if(audience==='everyone')return friends.map(friend=>friend.name);if(audience==='group')return Array.from(new Set(askGroups.filter(group=>selectedGroups.includes(group.id)).flatMap(group=>group.members)));return selectedFriends;},[audience,selectedGroups,selectedFriends]);
+  const audienceLabel=audience==='everyone'?'Everyone':audience==='group'?(selectedGroups.length===1?askGroups.find(group=>group.id===selectedGroups[0])?.name||'Group':`${selectedGroups.length} groups`):`${selectedFriends.length} friends`;
+  const toggleGroup=(id:string)=>setSelectedGroups(current=>current.includes(id)?current.filter(item=>item!==id):[...current,id]);const toggleFriend=(name:string)=>setSelectedFriends(current=>current.includes(name)?current.filter(item=>item!==name):[...current,name]);
+  return <motion.div className="modal-layer" initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}}><button className="modal-backdrop" onClick={onClose}/><motion.section className="ask-composer" initial={{opacity:0,y:28,scale:.96}} animate={{opacity:1,y:0,scale:1}} exit={{opacity:0,y:18,scale:.97}}><button className="ritual-close" onClick={onClose} aria-label="Close Ask composer"><X size={17}/></button><small>CREATE AN ASK</small><h2>Ask your people something.</h2><label className="ask-question"><span>Your prompt</span><textarea autoFocus value={text} onChange={event=>setText(event.target.value)} maxLength={90} placeholder="Desk photo, right now?"/><b>{text.length}/90</b></label><div className="ask-audience"><span><Users size={14}/> Send to</span><div className="ask-audience-tabs">{(['everyone','group','friends'] as AskAudience[]).map(option=><button className={audience===option?'active':''} onClick={()=>setAudience(option)} key={option}>{option==='group'?'Groups':option[0].toUpperCase()+option.slice(1)}</button>)}</div>{audience==='group'&&<div className="ask-group-options">{askGroups.map(group=><button className={selectedGroups.includes(group.id)?'active':''} onClick={()=>toggleGroup(group.id)} key={group.id}><i>{selectedGroups.includes(group.id)&&<Check size={10}/>}</i><span><b>{group.name}</b><small>{group.members.length} people</small></span></button>)}</div>}{audience==='friends'&&<div className="ask-friend-options">{friends.map(friend=><button className={selectedFriends.includes(friend.name)?'active':''} onClick={()=>toggleFriend(friend.name)} key={friend.name}><img src={friend.image} alt=""/><i><Check size={9}/></i><small>{friend.name}</small></button>)}</div>}</div><div className="ask-send-summary"><LockKeyhole size={13}/><span>Only these {recipients.length} people can see and answer this Ask.</span></div><button className="ask-send" disabled={!text.trim()||recipients.length===0} onClick={()=>onSend(text.trim(),recipients,audienceLabel)}><Send size={15}/> Send Ask</button></motion.section></motion.div>;
 }
 
-function PromptAnswerModal({onClose,onAnswered}:{onClose:()=>void;onAnswered:()=>void}){
-  const [preview,setPreview]=useState<string|null>(null);
-  return <motion.div className="modal-layer" initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}}><button className="modal-backdrop" onClick={onClose}/><motion.section className="ritual-modal" initial={{opacity:0,y:28,scale:.96}} animate={{opacity:1,y:0,scale:1}} exit={{opacity:0,y:18,scale:.97}}><button className="ritual-close" onClick={onClose}><X size={17}/></button><small>TODAY’S PROMPT</small><h2>{todayPrompt.question}</h2><label className={`ritual-upload${preview?' has-preview':''}`}>{preview?<img src={preview} alt="Your prompt answer"/>:<><ImagePlus size={24}/><b>Choose a photo</b></>}<input type="file" accept="image/*" onChange={event=>{const file=event.target.files?.[0];if(file)setPreview(URL.createObjectURL(file));}}/></label><p className="ritual-lock"><LockKeyhole size={13}/> Answer to unlock your friends’ responses.</p><button className="ritual-send" disabled={!preview} onClick={onAnswered}><Send size={15}/> Share answer</button></motion.section></motion.div>;
+function AskReplyModal({ask,onClose,onSend}:{ask:AskPrompt;onClose:()=>void;onSend:(image:string)=>void}){
+  const existing=ask.responses.find(response=>response.responder==='You');const [preview,setPreview]=useState<string|null>(existing?.image||null);const sender=friends.find(friend=>friend.name===ask.sender);
+  return <motion.div className="modal-layer" initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}}><button className="modal-backdrop" onClick={onClose}/><motion.section className="ritual-modal ask-reply" initial={{opacity:0,y:28,scale:.96}} animate={{opacity:1,y:0,scale:1}} exit={{opacity:0,y:18,scale:.97}}><button className="ritual-close" onClick={onClose} aria-label="Close Ask"><X size={17}/></button><div className="ask-sender">{sender&&<img src={sender.image} alt=""/>}<span><small>{ask.sender.toUpperCase()} ASKS</small><b>{ask.text}</b></span></div><label className={`ritual-upload${preview?' has-preview':''}`}>{preview?<img src={preview} alt="Your Ask response"/>:<><ImagePlus size={24}/><b>Reply with a photo</b><small>Fresh from your camera or library</small></>}<input type="file" accept="image/*" onChange={event=>{const file=event.target.files?.[0];if(file)setPreview(URL.createObjectURL(file));}}/></label><button className="ask-camera-mock" onClick={()=>setPreview('https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=900&q=88')}><Camera size={15}/> Take photo <small>mock</small></button><p className="ritual-lock"><LockKeyhole size={13}/> Only {ask.sender} will see your reply.</p><button className="ritual-send" disabled={!preview} onClick={()=>preview&&onSend(preview)}><Send size={15}/> {existing?'Update reply':'Send photo'}</button></motion.section></motion.div>;
+}
+
+function AskResponsesModal({ask,onClose}:{ask:AskPrompt;onClose:()=>void}){
+  return <motion.div className="modal-layer" initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}}><button className="modal-backdrop" onClick={onClose}/><motion.section className="ask-responses" initial={{opacity:0,y:28,scale:.96}} animate={{opacity:1,y:0,scale:1}} exit={{opacity:0,y:18,scale:.97}}><button className="ritual-close" onClick={onClose} aria-label="Close responses"><X size={17}/></button><small>YOUR ASK · {ask.audienceLabel.toUpperCase()}</small><h2>{ask.text}</h2><div className="response-summary"><span>{ask.responses.length} {ask.responses.length===1?'response':'responses'}</span><i>{ask.recipients.length} asked</i></div>{ask.responses.length?<div className="ask-response-grid">{ask.responses.map(response=>{const responder=friends.find(friend=>friend.name===response.responder);return <article key={response.id}><img src={response.image} alt={`${response.responder}'s response`}/><footer>{responder&&<img src={responder.image} alt=""/>}<span><b>{response.responder}</b><small>{response.sentAt} ago</small></span></footer></article>;})}</div>:<div className="ask-empty"><Camera size={25}/><b>No replies yet</b><span>Your Ask is floating beside you. Replies will land here.</span></div>}<p><LockKeyhole size={13}/> Responses are private to you.</p></motion.section></motion.div>;
 }
 
 function KnockReplyModal({knock,onClose,onSent}:{knock:Knock;onClose:()=>void;onSent:()=>void}){
@@ -267,7 +288,7 @@ function KnockReplyModal({knock,onClose,onSent}:{knock:Knock;onClose:()=>void;on
 function NotificationPanel({ items,onSelect,onClose }:{items:SocialNotification[];onSelect:(item:SocialNotification)=>void;onClose:()=>void}) {
   return <motion.aside className="notification-panel" initial={{opacity:0,y:-14,scale:.95}} animate={{opacity:1,y:0,scale:1}} exit={{opacity:0,y:-8,scale:.97}} transition={{type:'spring',stiffness:250,damping:22}}>
     <div className="panel-head"><div><small>UPDATES</small><h2>While you were away</h2></div><button onClick={onClose} aria-label="Close notifications"><X size={17}/></button></div>
-    <div className="notification-list">{items.map((item,index)=><button className={index<2?'unread':''} onClick={()=>onSelect(item)} key={item.id}><img src={item.friend.image} alt=""/><p><b>{item.friend.name}</b> {item.text} {item.mark}<small>{item.time} ago</small></p>{item.action==='knock'&&<em>Reply</em>}</button>)}</div>
+    <div className="notification-list">{items.map((item,index)=><button className={index<2?'unread':''} onClick={()=>onSelect(item)} key={item.id}><img src={item.friend.image} alt=""/><p><b>{item.friend.name}</b> {item.text} {item.mark}<small>{item.time} ago</small></p>{item.action==='knock'&&<em>Reply</em>}{item.action==='ask'&&<em>Answer</em>}{item.action==='ask-response'&&<em>View</em>}</button>)}</div>
     <p className="panel-foot"><LockKeyhole size={13}/> Only activity from your circle lives here.</p>
   </motion.aside>;
 }
@@ -293,26 +314,30 @@ function PostComposer({ onClose, onPosted }:{onClose:()=>void;onPosted:()=>void}
 export default function Home() {
   const [selected,setSelected]=useState<Friend|null>(null); const [notificationsOpen,setNotificationsOpen]=useState(false);
   const [composerOpen,setComposerOpen]=useState(false); const [toast,setToast]=useState<string|null>(null); const [inviteOpen,setInviteOpen]=useState(false);
-  const [knocks,setKnocks]=useState<Knock[]>(initialKnocks);const [knockReplyOpen,setKnockReplyOpen]=useState(false);const [promptOpen,setPromptOpen]=useState(false);const [promptAnswered,setPromptAnswered]=useState(false);const [selectedPrompt,setSelectedPrompt]=useState<PromptResponse|null>(null);const [socialNotifications,setSocialNotifications]=useState(initialNotifications);
-  const toastTimer=useRef<number|undefined>(undefined);const incomingKnock=knocks.find(knock=>knock.to==='You'&&knock.status==='waiting')||null;const answeredFriends=useMemo(()=>new Set(promptResponses.map(response=>response.friend)),[]);
+  const [knocks,setKnocks]=useState<Knock[]>(initialKnocks);const [knockReplyOpen,setKnockReplyOpen]=useState(false);const [asks,setAsks]=useState<AskPrompt[]>(initialAsks);const [askComposerOpen,setAskComposerOpen]=useState(false);const [replyAsk,setReplyAsk]=useState<AskPrompt|null>(null);const [responsesAsk,setResponsesAsk]=useState<AskPrompt|null>(null);const [socialNotifications,setSocialNotifications]=useState(initialNotifications);
+  const toastTimer=useRef<number|undefined>(undefined);const incomingKnock=knocks.find(knock=>knock.to==='You'&&knock.status==='waiting')||null;
   const showToast=(message:string)=>{setToast(message);if(toastTimer.current)window.clearTimeout(toastTimer.current);toastTimer.current=window.setTimeout(()=>setToast(null),2600);};
-  useEffect(()=>{const key=(event:KeyboardEvent)=>{if(event.key==='Escape'){setSelected(null);setNotificationsOpen(false);setComposerOpen(false);setInviteOpen(false);setKnockReplyOpen(false);setPromptOpen(false);}};window.addEventListener('keydown',key);return()=>{window.removeEventListener('keydown',key);if(toastTimer.current)window.clearTimeout(toastTimer.current);};},[]);
+  useEffect(()=>{const key=(event:KeyboardEvent)=>{if(event.key==='Escape'){setSelected(null);setNotificationsOpen(false);setComposerOpen(false);setInviteOpen(false);setKnockReplyOpen(false);setAskComposerOpen(false);setReplyAsk(null);setResponsesAsk(null);}};window.addEventListener('keydown',key);return()=>{window.removeEventListener('keydown',key);if(toastTimer.current)window.clearTimeout(toastTimer.current);};},[]);
   const backgroundLabel=useMemo(()=>selected?`${selected.name}'s moment is open`:'Your inner circle', [selected]);
   const posted=()=>{setComposerOpen(false);showToast('Shared with your circle');};
-  const openFriend=(friend:Friend)=>{setSelectedPrompt(promptAnswered?promptResponses.find(response=>response.friend===friend.name)||null:null);setSelected(friend);setNotificationsOpen(false);};
-  const selectNotification=(item:SocialNotification)=>{setNotificationsOpen(false);if(item.action==='knock')setKnockReplyOpen(true);else if(item.action==='prompt'){if(promptAnswered)showToast('Tap a ringed friend to see their answer');else setPromptOpen(true);}else openFriend(item.friend);};
+  const openFriend=(friend:Friend)=>{setSelected(friend);setNotificationsOpen(false);};
+  const openAsk=(ask:AskPrompt)=>{setNotificationsOpen(false);if(ask.sender==='You')setResponsesAsk(ask);else setReplyAsk(ask);};
+  const selectNotification=(item:SocialNotification)=>{setNotificationsOpen(false);if(item.action==='knock')setKnockReplyOpen(true);else if(item.action==='ask'||item.action==='ask-response'){const ask=asks.find(candidate=>candidate.id===item.askId);if(ask)openAsk(ask);}else openFriend(item.friend);};
   const sendKnock=(friend:Friend)=>{setSocialNotifications(current=>[{id:`sent-${Date.now()}`,friend,text:'you knocked',mark:'👊',time:'now',action:'knock'},...current]);showToast(`Knocked on ${friend.name}`);};
+  const sendAsk=(text:string,recipients:string[],audienceLabel:string)=>{const ask:AskPrompt={id:`ask-you-${Date.now()}`,sender:'You',text,recipients,audienceLabel,createdAt:Date.now(),responses:[]};setAsks(current=>[ask,...current.filter(item=>item.sender!=='You')]);setAskComposerOpen(false);showToast(`Ask sent to ${recipients.length} ${recipients.length===1?'friend':'friends'}`);};
+  const replyToAsk=(ask:AskPrompt,image:string)=>{setAsks(current=>current.map(item=>item.id===ask.id?{...item,responses:[...item.responses.filter(response=>response.responder!=='You'),{id:`response-you-${Date.now()}`,responder:'You',image,sentAt:'now'}]}:item));setReplyAsk(null);showToast(`Photo sent privately to ${ask.sender}`);};
   return <main className="friend-space" aria-label={backgroundLabel}>
     <header className="circle-header"><div><h1>Circle</h1><p>Your people. Closer.</p></div><nav><button className="bell" onClick={()=>setNotificationsOpen(v=>!v)} aria-label="Open notifications" aria-expanded={notificationsOpen}><Bell size={21} strokeWidth={1.8}/><span/></button><button className="header-invite" onClick={()=>setInviteOpen(v=>!v)}><Plus size={17}/> Invite</button></nav></header>
-    <FriendSpace selected={selected} answeredFriends={answeredFriends} incomingKnock={Boolean(incomingKnock)} onOpen={openFriend} onUser={()=>setComposerOpen(true)}/>
-    <DailyPromptCard answered={promptAnswered} onAnswer={()=>{if(promptAnswered)showToast('Tap a ringed friend to see their answer');else setPromptOpen(true);}}/>
+    <FriendSpace selected={selected} asks={asks} incomingKnock={Boolean(incomingKnock)} onOpen={openFriend} onUser={()=>setComposerOpen(true)} onAsk={openAsk} onOwnAsk={setResponsesAsk} onCreateAsk={()=>setAskComposerOpen(true)}/>
     <button className="circle-count"><Users size={19}/><span>9 close friends</span><ChevronRight size={16}/></button>
     <button className="post-action" onClick={()=>setComposerOpen(true)}><span><Plus size={30}/></span><b>Post</b></button>
     <AnimatePresence>{inviteOpen&&<motion.aside className="quick-invite" initial={{opacity:0,y:-10,scale:.96}} animate={{opacity:1,y:0,scale:1}} exit={{opacity:0,y:-6,scale:.97}}><button onClick={()=>setInviteOpen(false)} aria-label="Close invite"><X size={16}/></button><small>INVITE TO YOUR CIRCLE</small><h2>Someone missing?</h2><div><input type="email" aria-label="Email address" placeholder="friend@email.com"/><button onClick={()=>setInviteOpen(false)}><Send size={16}/></button></div></motion.aside>}</AnimatePresence>
     <AnimatePresence>{notificationsOpen&&<NotificationPanel items={socialNotifications} onSelect={selectNotification} onClose={()=>setNotificationsOpen(false)}/>}</AnimatePresence>
-    <AnimatePresence>{selected&&<PostViewer friend={selected} promptResponse={selectedPrompt} onClose={()=>{setSelected(null);setSelectedPrompt(null);}} onKnock={sendKnock} onNotify={showToast}/>}</AnimatePresence>
+    <AnimatePresence>{selected&&<PostViewer friend={selected} onClose={()=>setSelected(null)} onKnock={sendKnock} onNotify={showToast}/>}</AnimatePresence>
     <AnimatePresence>{composerOpen&&<PostComposer onClose={()=>setComposerOpen(false)} onPosted={posted}/>}</AnimatePresence>
-    <AnimatePresence>{promptOpen&&<PromptAnswerModal onClose={()=>setPromptOpen(false)} onAnswered={()=>{setPromptAnswered(true);setPromptOpen(false);showToast('Your answer is live — friends unlocked');}}/>}</AnimatePresence>
+    <AnimatePresence>{askComposerOpen&&<AskComposer onClose={()=>setAskComposerOpen(false)} onSend={sendAsk}/>}</AnimatePresence>
+    <AnimatePresence>{replyAsk&&<AskReplyModal ask={asks.find(ask=>ask.id===replyAsk.id)||replyAsk} onClose={()=>setReplyAsk(null)} onSend={image=>replyToAsk(replyAsk,image)}/>}</AnimatePresence>
+    <AnimatePresence>{responsesAsk&&<AskResponsesModal ask={asks.find(ask=>ask.id===responsesAsk.id)||responsesAsk} onClose={()=>setResponsesAsk(null)}/>}</AnimatePresence>
     <AnimatePresence>{knockReplyOpen&&incomingKnock&&<KnockReplyModal knock={incomingKnock} onClose={()=>setKnockReplyOpen(false)} onSent={()=>{setKnocks(current=>current.map(knock=>knock.id===incomingKnock.id?{...knock,status:'answered'}:knock));setKnockReplyOpen(false);showToast(`Sent to ${incomingKnock.from}`);}}/>}</AnimatePresence>
     <AnimatePresence>{toast&&<motion.div className="toast" initial={{opacity:0,y:20,scale:.92}} animate={{opacity:1,y:0,scale:1}} exit={{opacity:0,y:12}}><Check size={16}/>{toast}</motion.div>}</AnimatePresence>
     <div className="ambient ambient-a"/><div className="ambient ambient-b"/>
