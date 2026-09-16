@@ -1,8 +1,9 @@
 'use client';
 
-import type { CSSProperties, ChangeEvent } from 'react';
-import { useEffect, useMemo, useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import type { CSSProperties, ChangeEvent, PointerEvent as ReactPointerEvent } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { AnimatePresence, animate, motion, motionValue, useMotionValue, useSpring } from 'framer-motion';
+import type { MotionValue } from 'framer-motion';
 import { Bell, Check, ChevronRight, Heart, LockKeyhole, Plus, Send, SmilePlus, Upload, Users, X } from 'lucide-react';
 
 type Friend = {
@@ -36,26 +37,95 @@ const notifications = [
   { friend:friends[1], text:'invited you to a circle', mark:'', time:'2h' },
 ];
 
-function FloatingFriend({ friend, index, selected, onOpen }:{ friend:Friend; index:number; selected:boolean; onOpen:()=>void }) {
+type BubbleOffset = { x:MotionValue<number>; y:MotionValue<number> };
+
+function FloatingFriend({ friend, index, selected, offset, onHover, onOpen }:{ friend:Friend; index:number; selected:boolean; offset:BubbleOffset; onHover:(index:number|null)=>void; onOpen:()=>void }) {
   return (
     <motion.button
       className={`friend ${friend.fresh || friend.online ? 'is-active' : 'is-inactive'}${selected ? ' is-selected' : ''}`}
-      style={{ '--offset-x':`${friend.x}px`, '--offset-y':`${friend.y}px`, '--bubble-size':`${friend.size}px`, '--tone':friend.color, '--float-x':`${index % 2 ? -4 : 4}px`, '--float-y':`${index % 3 ? 4 : -3}px`, '--float-delay':`${index * -.83}s` } as CSSProperties}
+      style={{ '--offset-x':`${friend.x}px`, '--offset-y':`${friend.y}px`, '--bubble-size':`${friend.size}px`, '--tone':friend.color, x:offset.x, y:offset.y } as CSSProperties}
       initial={{ opacity:0, scale:.82 }} animate={{ opacity:selected ? 0 : 1, scale:1 }}
       transition={{ opacity:{duration:.32,ease:'easeOut'}, scale:{delay:.035*index,type:'spring',stiffness:120,damping:20,mass:.8} }}
       whileHover={{ scale:1.055, zIndex:5, transition:{type:'spring',stiffness:260,damping:24} }} whileTap={{ scale:.97 }}
+      onHoverStart={()=>onHover(index)} onHoverEnd={()=>onHover(null)}
       onClick={onOpen} aria-label={`Open ${friend.name}'s latest moment`}
     >
-      <span className="friend-float"><motion.span className="portrait" layoutId={`avatar-${friend.name}`}><img src={friend.image} alt="" /></motion.span></span>
+      <span className="friend-float"><motion.span className="portrait" layoutId={`avatar-${friend.name}`}><img src={friend.image} alt="" /></motion.span><b>{friend.name}</b></span>
     </motion.button>
   );
 }
 
 function FriendSpace({ selected, onOpen, onUser }:{ selected:Friend|null; onOpen:(friend:Friend)=>void; onUser:()=>void }) {
+  const worldX=useMotionValue(0); const worldY=useMotionValue(0);
+  const smoothWorldX=useSpring(worldX,{stiffness:390,damping:40,mass:.92}); const smoothWorldY=useSpring(worldY,{stiffness:390,damping:40,mass:.92});
+  const [isDragging,setIsDragging]=useState(false);
+  const drag=useRef({active:false,moved:false,pointerId:-1,startX:0,startY:0,startWorldX:0,startWorldY:0,lastX:0,lastY:0,lastTime:0,velocityX:0,velocityY:0});
+  const suppressClick=useRef(false); const hovered=useRef<number|null>(null);
+  const momentum=useRef<{x?:ReturnType<typeof animate>;y?:ReturnType<typeof animate>}>({});
+  const bubbleOffsets=useMemo<BubbleOffset[]>(()=>friends.map(()=>({x:motionValue(0),y:motionValue(0)})),[]);
+
+  useEffect(()=>{
+    const bodies=friends.map(()=>({x:0,y:0,vx:0,vy:0})); let frame=0; let last=performance.now();
+    const tick=(now:number)=>{
+      const step=Math.min((now-last)/16.667,2); last=now;
+      const force=friends.map(()=>({x:0,y:0}));
+      friends.forEach((_,index)=>{
+        const amplitude=hovered.current===index?0.8:3.5;
+        const targetX=Math.sin(now*.00034+index*1.71)*amplitude;
+        const targetY=Math.cos(now*.00029+index*2.03)*amplitude;
+        force[index].x+=(targetX-bodies[index].x)*.026;
+        force[index].y+=(targetY-bodies[index].y)*.026;
+      });
+      for(let a=0;a<friends.length;a++)for(let b=a+1;b<friends.length;b++){
+        const dx=(friends[b].x+bodies[b].x)-(friends[a].x+bodies[a].x);
+        const dy=(friends[b].y+bodies[b].y)-(friends[a].y+bodies[a].y);
+        const distance=Math.max(Math.hypot(dx,dy),.001); const minimum=(friends[a].size+friends[b].size)/2+8;
+        if(distance<minimum){const push=(minimum-distance)*.018;const nx=dx/distance;const ny=dy/distance;force[a].x-=nx*push;force[a].y-=ny*push;force[b].x+=nx*push;force[b].y+=ny*push;}
+      }
+      bodies.forEach((body,index)=>{
+        body.vx=(body.vx+force[index].x*step)*Math.pow(.86,step); body.vy=(body.vy+force[index].y*step)*Math.pow(.86,step);
+        body.x=Math.max(-4,Math.min(4,body.x+body.vx*step)); body.y=Math.max(-4,Math.min(4,body.y+body.vy*step));
+        bubbleOffsets[index].x.set(body.x); bubbleOffsets[index].y.set(body.y);
+      });
+      frame=requestAnimationFrame(tick);
+    };
+    frame=requestAnimationFrame(tick); return()=>cancelAnimationFrame(frame);
+  },[bubbleOffsets]);
+
+  const pointerDown=(event:ReactPointerEvent<HTMLElement>)=>{
+    if(event.button!==0||selected||(event.target as HTMLElement).closest('.you'))return;
+    momentum.current.x?.stop(); momentum.current.y?.stop();
+    worldX.set(smoothWorldX.get());worldY.set(smoothWorldY.get());
+    drag.current={active:true,moved:false,pointerId:event.pointerId,startX:event.clientX,startY:event.clientY,startWorldX:worldX.get(),startWorldY:worldY.get(),lastX:event.clientX,lastY:event.clientY,lastTime:event.timeStamp,velocityX:0,velocityY:0};
+  };
+  const pointerMove=(event:ReactPointerEvent<HTMLElement>)=>{
+    const state=drag.current;if(!state.active||state.pointerId!==event.pointerId)return;
+    const dx=event.clientX-state.startX;const dy=event.clientY-state.startY;
+    if(!state.moved&&Math.hypot(dx,dy)<7)return;
+    if(!state.moved){state.moved=true;suppressClick.current=true;setIsDragging(true);event.currentTarget.setPointerCapture(event.pointerId);}
+    const elapsed=Math.max(event.timeStamp-state.lastTime,8);
+    state.velocityX=-(event.clientX-state.lastX)/elapsed*1000;state.velocityY=-(event.clientY-state.lastY)/elapsed*1000;
+    state.lastX=event.clientX;state.lastY=event.clientY;state.lastTime=event.timeStamp;
+    worldX.set(state.startWorldX-dx);worldY.set(state.startWorldY-dy);
+  };
+  const pointerEnd=(event:ReactPointerEvent<HTMLElement>)=>{
+    const state=drag.current;if(!state.active||state.pointerId!==event.pointerId)return;
+    state.active=false;
+    if(state.moved){
+      setIsDragging(false);
+      momentum.current.x=animate(worldX,worldX.get(),{type:'inertia',velocity:state.velocityX,power:.22,timeConstant:620,restDelta:.4});
+      momentum.current.y=animate(worldY,worldY.get(),{type:'inertia',velocity:state.velocityY,power:.22,timeConstant:620,restDelta:.4});
+      window.setTimeout(()=>{suppressClick.current=false;},0);
+    }
+  };
   return (
-    <section className={`bubble-cluster orbital-field${selected ? ' is-muted' : ''}`} aria-label="Your close friends">
-      {friends.map((friend,index)=><FloatingFriend friend={friend} index={index} selected={selected?.name===friend.name} onOpen={()=>onOpen(friend)} key={friend.name} />)}
-      <motion.button className="you" aria-label="Create a post" onClick={onUser} whileHover={{scale:1.045}} whileTap={{scale:.97}}><img src="https://i.pravatar.cc/240?img=68" alt=""/></motion.button>
+    <section className={`social-space orbital-field${selected ? ' is-muted' : ''}${isDragging?' is-dragging':''}`} aria-label="Your close friends" onPointerDown={pointerDown} onPointerMove={pointerMove} onPointerUp={pointerEnd} onPointerCancel={pointerEnd} onClickCapture={event=>{if(suppressClick.current){event.preventDefault();event.stopPropagation();}}}>
+      <motion.div className="world-layer" style={{x:smoothWorldX,y:smoothWorldY}}>
+        <div className="world-stage">
+          {friends.map((friend,index)=><FloatingFriend friend={friend} index={index} selected={selected?.name===friend.name} offset={bubbleOffsets[index]} onHover={value=>{hovered.current=value;}} onOpen={()=>onOpen(friend)} key={friend.name} />)}
+        </div>
+      </motion.div>
+      <div className="player-layer"><div className="player-anchor"><motion.button className="you" aria-label="Create a post" onClick={onUser} whileHover={{scale:1.045}} whileTap={{scale:.97}}><img src="https://i.pravatar.cc/240?img=68" alt=""/></motion.button></div></div>
     </section>
   );
 }
