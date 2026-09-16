@@ -1,6 +1,6 @@
 'use client';
 
-import type { CSSProperties, ChangeEvent, PointerEvent as ReactPointerEvent } from 'react';
+import type { CSSProperties, ChangeEvent, FormEvent, PointerEvent as ReactPointerEvent } from 'react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, animate, motion, motionValue, useMotionValue, useSpring } from 'framer-motion';
 import type { MotionValue } from 'framer-motion';
@@ -39,26 +39,31 @@ const notifications = [
 
 type BubbleOffset = { x:MotionValue<number>; y:MotionValue<number> };
 
-function FloatingFriend({ friend, index, selected, offset, onHover, onOpen }:{ friend:Friend; index:number; selected:boolean; offset:BubbleOffset; onHover:(index:number|null)=>void; onOpen:()=>void }) {
+function FloatingFriend({ friend, index, selected, offset, onHover, onOpen, onPrivateShare }:{ friend:Friend; index:number; selected:boolean; offset:BubbleOffset; onHover:(index:number|null)=>void; onOpen:()=>void; onPrivateShare:(file:File)=>void }) {
   return (
-    <motion.button
+    <motion.div
       className={`friend ${friend.fresh || friend.online ? 'is-active' : 'is-inactive'}${selected ? ' is-selected' : ''}`}
       style={{ '--offset-x':`${friend.x}px`, '--offset-y':`${friend.y}px`, '--bubble-size':`${friend.size}px`, '--tone':friend.color, x:offset.x, y:offset.y } as CSSProperties}
       initial={{ opacity:0, scale:.82 }} animate={{ opacity:selected ? 0 : 1, scale:1 }}
       transition={{ opacity:{duration:.32,ease:'easeOut'}, scale:{delay:.035*index,type:'spring',stiffness:120,damping:20,mass:.8} }}
-      whileHover={{ scale:1.055, zIndex:5, transition:{type:'spring',stiffness:260,damping:24} }} whileTap={{ scale:.97 }}
+      whileHover={{ scale:1.055, zIndex:5, transition:{type:'spring',stiffness:260,damping:24} }}
       onHoverStart={()=>onHover(index)} onHoverEnd={()=>onHover(null)}
-      onClick={onOpen} aria-label={`Open ${friend.name}'s latest moment`}
     >
-      <span className="friend-float"><motion.span className="portrait" layoutId={`avatar-${friend.name}`}><img src={friend.image} alt="" /></motion.span><b>{friend.name}</b></span>
-    </motion.button>
+      <motion.button className="friend-open" onClick={onOpen} whileTap={{scale:.97}} aria-label={`Open ${friend.name}'s latest moment`}>
+        <span className="friend-float"><motion.span className="portrait" layoutId={`avatar-${friend.name}`}><img src={friend.image} alt="" /></motion.span><b>{friend.name}</b></span>
+      </motion.button>
+      <label className="quick-share" title={`Send a private photo to ${friend.name}`} onPointerDown={event=>event.stopPropagation()}>
+        <Plus size={14}/><input type="file" accept="image/*" aria-label={`Send a private photo to ${friend.name}`} onChange={event=>{const file=event.target.files?.[0];if(file)onPrivateShare(file);event.target.value='';}}/>
+      </label>
+    </motion.div>
   );
 }
 
-function FriendSpace({ selected, onOpen, onUser }:{ selected:Friend|null; onOpen:(friend:Friend)=>void; onUser:()=>void }) {
+function FriendSpace({ selected, onOpen, onUser, onPrivateShare }:{ selected:Friend|null; onOpen:(friend:Friend)=>void; onUser:()=>void; onPrivateShare:(friend:Friend,file:File)=>void }) {
   const worldX=useMotionValue(0); const worldY=useMotionValue(0);
   const smoothWorldX=useSpring(worldX,{stiffness:390,damping:40,mass:.92}); const smoothWorldY=useSpring(worldY,{stiffness:390,damping:40,mass:.92});
   const [isDragging,setIsDragging]=useState(false); const [hasMoved,setHasMoved]=useState(false);
+  const [note,setNote]=useState('desk photo guys');const [noteDraft,setNoteDraft]=useState(note);const [editingNote,setEditingNote]=useState(false);
   const spaceRef=useRef<HTMLElement>(null); const sceneScale=useRef(1.4);
   const drag=useRef({active:false,moved:false,pointerId:-1,startX:0,startY:0,startWorldX:0,startWorldY:0,lastX:0,lastY:0,lastTime:0,velocityX:0,velocityY:0});
   const suppressClick=useRef(false); const hovered=useRef<number|null>(null);
@@ -109,7 +114,7 @@ function FriendSpace({ selected, onOpen, onUser }:{ selected:Friend|null; onOpen
   },[bubbleOffsets,smoothWorldX,smoothWorldY]);
 
   const pointerDown=(event:ReactPointerEvent<HTMLElement>)=>{
-    if(event.button!==0||selected||(event.target as HTMLElement).closest('.you,.reset-world'))return;
+    if(event.button!==0||selected||(event.target as HTMLElement).closest('.you,.reset-world,.quick-share,.player-note,.note-editor'))return;
     momentum.current.x?.stop(); momentum.current.y?.stop();
     worldX.set(smoothWorldX.get());worldY.set(smoothWorldY.get());
     drag.current={active:true,moved:false,pointerId:event.pointerId,startX:event.clientX,startY:event.clientY,startWorldX:worldX.get(),startWorldY:worldY.get(),lastX:event.clientX,lastY:event.clientY,lastTime:event.timeStamp,velocityX:0,velocityY:0};
@@ -141,14 +146,20 @@ function FriendSpace({ selected, onOpen, onUser }:{ selected:Friend|null; onOpen
     let remaining=2;const complete=()=>{remaining-=1;if(remaining===0)setHasMoved(false);};
     momentum.current.x.then(complete);momentum.current.y.then(complete);
   };
+  const saveNote=(event?:FormEvent)=>{event?.preventDefault();setNote(noteDraft.trim());setEditingNote(false);};
   return (
     <section ref={spaceRef} className={`social-space orbital-field${selected ? ' is-muted' : ''}${isDragging?' is-dragging':''}`} aria-label="Your close friends" onPointerDown={pointerDown} onPointerMove={pointerMove} onPointerUp={pointerEnd} onPointerCancel={pointerEnd} onClickCapture={event=>{if(suppressClick.current){event.preventDefault();event.stopPropagation();}}}>
       <motion.div className="world-layer" style={{x:smoothWorldX,y:smoothWorldY}}>
         <div className="world-stage">
-          {friends.map((friend,index)=><FloatingFriend friend={friend} index={index} selected={selected?.name===friend.name} offset={bubbleOffsets[index]} onHover={value=>{hovered.current=value;}} onOpen={()=>onOpen(friend)} key={friend.name} />)}
+          {friends.map((friend,index)=><FloatingFriend friend={friend} index={index} selected={selected?.name===friend.name} offset={bubbleOffsets[index]} onHover={value=>{hovered.current=value;}} onOpen={()=>onOpen(friend)} onPrivateShare={file=>onPrivateShare(friend,file)} key={friend.name} />)}
         </div>
       </motion.div>
-      <div className="player-layer"><div className="player-anchor"><motion.button className="you" aria-label="Create a post" onClick={onUser} whileHover={{scale:1.045}} whileTap={{scale:.97}}><img src="https://i.pravatar.cc/240?img=68" alt=""/></motion.button></div></div>
+      <div className="player-layer"><div className="player-anchor">
+        <div className="player-note-wrap" onPointerDown={event=>event.stopPropagation()}>
+          <AnimatePresence mode="wait">{editingNote?<motion.form className="note-editor" key="editor" onSubmit={saveNote} initial={{opacity:0,scale:.94}} animate={{opacity:1,scale:1}} exit={{opacity:0,scale:.96}}><input autoFocus maxLength={36} value={noteDraft} placeholder="Write a note" aria-label="Your note" onChange={event=>setNoteDraft(event.target.value)} onBlur={()=>saveNote()}/></motion.form>:<motion.button className="player-note" key="note" onClick={()=>{setNoteDraft(note);setEditingNote(true);}} initial={{opacity:0,y:4}} animate={{opacity:1,y:0}} exit={{opacity:0,y:-3}}>{note||'Write a note'}</motion.button>}</AnimatePresence>
+        </div>
+        <motion.button className="you" aria-label="Create a post" onClick={onUser} whileHover={{scale:1.045}} whileTap={{scale:.97}}><img src="https://i.pravatar.cc/240?img=68" alt=""/></motion.button>
+      </div></div>
       <div className="reset-anchor"><AnimatePresence>{hasMoved&&<motion.button className="reset-world" aria-label="Return to center" title="Return to center" onPointerDown={event=>event.stopPropagation()} onClick={resetWorld} initial={{opacity:0,y:10,scale:.92}} animate={{opacity:1,y:0,scale:1}} exit={{opacity:0,y:8,scale:.94}} whileHover={{scale:1.06}} whileTap={{scale:.94}}><LocateFixed size={17}/></motion.button>}</AnimatePresence></div>
     </section>
   );
@@ -242,12 +253,19 @@ function PostComposer({ onClose, onPosted }:{onClose:()=>void;onPosted:()=>void}
 export default function Home() {
   const [selected,setSelected]=useState<Friend|null>(null); const [notificationsOpen,setNotificationsOpen]=useState(false);
   const [composerOpen,setComposerOpen]=useState(false); const [toast,setToast]=useState(false); const [inviteOpen,setInviteOpen]=useState(false);
+  const [privateShare,setPrivateShare]=useState<{friend:string;preview:string}|null>(null);const privateTimer=useRef<number|undefined>(undefined);const privatePreview=useRef<string|null>(null);
   useEffect(()=>{const key=(event:KeyboardEvent)=>{if(event.key==='Escape'){setSelected(null);setNotificationsOpen(false);setComposerOpen(false);setInviteOpen(false);}};window.addEventListener('keydown',key);return()=>window.removeEventListener('keydown',key);},[]);
+  useEffect(()=>()=>{if(privateTimer.current)window.clearTimeout(privateTimer.current);if(privatePreview.current)URL.revokeObjectURL(privatePreview.current);},[]);
   const backgroundLabel=useMemo(()=>selected?`${selected.name}'s moment is open`:'Your inner circle', [selected]);
   const posted=()=>{setComposerOpen(false);setToast(true);window.setTimeout(()=>setToast(false),2600);};
+  const sharePrivately=(friend:Friend,file:File)=>{
+    if(privateTimer.current)window.clearTimeout(privateTimer.current);if(privatePreview.current)URL.revokeObjectURL(privatePreview.current);
+    const preview=URL.createObjectURL(file);privatePreview.current=preview;setPrivateShare({friend:friend.name,preview});
+    privateTimer.current=window.setTimeout(()=>{setPrivateShare(null);if(privatePreview.current){URL.revokeObjectURL(privatePreview.current);privatePreview.current=null;}},3200);
+  };
   return <main className="friend-space" aria-label={backgroundLabel}>
     <header className="circle-header"><div><h1>Circle</h1><p>Your people. Closer.</p></div><nav><button className="bell" onClick={()=>setNotificationsOpen(v=>!v)} aria-label="Open notifications" aria-expanded={notificationsOpen}><Bell size={21} strokeWidth={1.8}/><span/></button><button className="header-invite" onClick={()=>setInviteOpen(v=>!v)}><Plus size={17}/> Invite</button></nav></header>
-    <FriendSpace selected={selected} onOpen={friend=>{setSelected(friend);setNotificationsOpen(false);}} onUser={()=>setComposerOpen(true)}/>
+    <FriendSpace selected={selected} onOpen={friend=>{setSelected(friend);setNotificationsOpen(false);}} onUser={()=>setComposerOpen(true)} onPrivateShare={sharePrivately}/>
     <button className="circle-count"><Users size={19}/><span>9 close friends</span><ChevronRight size={16}/></button>
     <button className="post-action" onClick={()=>setComposerOpen(true)}><span><Plus size={30}/></span><b>Post</b></button>
     <AnimatePresence>{inviteOpen&&<motion.aside className="quick-invite" initial={{opacity:0,y:-10,scale:.96}} animate={{opacity:1,y:0,scale:1}} exit={{opacity:0,y:-6,scale:.97}}><button onClick={()=>setInviteOpen(false)} aria-label="Close invite"><X size={16}/></button><small>INVITE TO YOUR CIRCLE</small><h2>Someone missing?</h2><div><input type="email" aria-label="Email address" placeholder="friend@email.com"/><button onClick={()=>setInviteOpen(false)}><Send size={16}/></button></div></motion.aside>}</AnimatePresence>
@@ -255,6 +273,7 @@ export default function Home() {
     <AnimatePresence>{selected&&<PostViewer friend={selected} onClose={()=>setSelected(null)}/>}</AnimatePresence>
     <AnimatePresence>{composerOpen&&<PostComposer onClose={()=>setComposerOpen(false)} onPosted={posted}/>}</AnimatePresence>
     <AnimatePresence>{toast&&<motion.div className="toast" initial={{opacity:0,y:20,scale:.92}} animate={{opacity:1,y:0,scale:1}} exit={{opacity:0,y:12}}><Check size={16}/> Shared with your circle</motion.div>}</AnimatePresence>
+    <AnimatePresence>{privateShare&&<motion.div className="toast private-share-toast" initial={{opacity:0,y:20,scale:.92}} animate={{opacity:1,y:0,scale:1}} exit={{opacity:0,y:12}}><img src={privateShare.preview} alt=""/><span><b>Sent to {privateShare.friend}</b><small>Only {privateShare.friend} can see it</small></span><LockKeyhole size={14}/></motion.div>}</AnimatePresence>
     <div className="ambient ambient-a"/><div className="ambient ambient-b"/>
   </main>;
 }
