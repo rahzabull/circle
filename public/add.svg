@@ -1,6 +1,6 @@
 <svg width="130" height="130" viewBox="0 0 130 130" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <circle cx="65" cy="65" r="65" fill="#8A2EFA" style="fill:#8A2EFA;fill:color(display-p3 0.5422 0.1823 0.9821);fill-opacity:1;"/>
-  <path d="M54.5389 6.33788C34.1292 9.33862 -5.80281 37.8457 31.0234 40.8464C67.8496 43.8471 98.0204 1.83677 54.5389 6.33788Z" fill="#D9D9D9" fill-opacity="0.14" style="fill:#D9D9D9;fill:color(display-p3 0.8510 0.8510 0.8510);fill-opacity:0.14;"/>
-  <rect x="55" y="28" width="21" height="75" rx="10.5" fill="white" style="fill:white;fill-opacity:1;"/>
-  <rect x="103" y="55" width="21" height="75" rx="10.5" transform="rotate(90 103 55)" fill="white" style="fill:white;fill-opacity:1;"/>
+<circle cx="65" cy="65" r="65" fill="#8A2EFA" style="fill:#8A2EFA;fill:color(display-p3 0.5422 0.1823 0.9821);fill-opacity:1;"/>
+<path d="M54.5389 6.33788C34.1292 9.33862 -5.80281 37.8457 31.0234 40.8464C67.8496 43.8471 98.0204 1.83677 54.5389 6.33788Z" fill="#D9D9D9" fill-opacity="0.14" style="fill:#D9D9D9;fill:color(display-p3 0.8510 0.8510 0.8510);fill-opacity:0.14;"/>
+<rect x="55" y="28" width="21" height="75" rx="10.5" fill="white" style="fill:white;fill-opacity:1;"/>
+<rect x="103" y="55" width="21" height="75" rx="10.5" transform="rotate(90 103 55)" fill="white" style="fill:white;fill-opacity:1;"/>
 </svg>
