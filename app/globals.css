@@ -51,6 +51,7 @@
 
 /* Wide circle composition */
 .friend-space{background:radial-gradient(circle at 50% 48%,rgba(255,255,255,.1),transparent 19%),radial-gradient(circle at 50% 46%,#202120 0,#151615 48%,#101110 100%)}
+.friend-space::before{content:'';position:absolute;z-index:0;inset:0;background:url('/circle-space-bg.png') center/cover no-repeat;opacity:.5;pointer-events:none}
 .circle-header{position:absolute;z-index:25;top:0;left:0;right:0;display:flex;align-items:flex-start;justify-content:space-between;padding:28px 34px;color:#f8f7f3}
 .circle-header h1{margin:0;font-size:28px;font-weight:780;letter-spacing:-.045em;line-height:1}
 .circle-header p{margin:8px 0 0;color:#919391;font-size:13px;letter-spacing:-.01em}
