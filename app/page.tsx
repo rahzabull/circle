@@ -3,7 +3,7 @@
 import type { CSSProperties, ChangeEvent } from 'react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Bell, Check, Heart, ImagePlus, LockKeyhole, Plus, Send, SmilePlus, Upload, Users, X } from 'lucide-react';
+import { Bell, Check, Heart, LockKeyhole, Send, SmilePlus, Upload, Users, X } from 'lucide-react';
 
 type Friend = {
   name: string; color: string; x: number; y: number; size: number; image: string;
@@ -11,15 +11,15 @@ type Friend = {
 };
 
 const friends: Friend[] = [
-  { name:'Maya', color:'#e7b6a3', x:18, y:28, size:116, image:'https://i.pravatar.cc/240?img=47', fresh:true, time:'18 min ago', caption:'We missed the sunset but found this tiny blue hour instead.', photo:'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1400&q=88' },
-  { name:'Noah', color:'#a8c5bb', x:45, y:19, size:88, image:'https://i.pravatar.cc/240?img=12', time:'Yesterday', caption:'Found a table for eight. You know what that means.', photo:'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=1400&q=88' },
-  { name:'Ari', color:'#d8c4a0', x:74, y:28, size:126, image:'https://i.pravatar.cc/240?img=49', fresh:true, time:'42 min ago', caption:'A very serious morning meeting.', photo:'https://images.unsplash.com/photo-1499209974431-9dddcece7f88?auto=format&fit=crop&w=1400&q=88' },
-  { name:'Sam', color:'#b6b8cc', x:9, y:62, size:82, image:'https://i.pravatar.cc/240?img=5', time:'2 days ago', caption:'No plans. Perfect day.', photo:'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1400&q=88' },
-  { name:'Vina', color:'#edc3c7', x:37, y:64, size:106, image:'https://i.pravatar.cc/240?img=32', fresh:true, time:'6 min ago', caption:'Proof we actually left the group chat.', photo:'https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=1400&q=88' },
-  { name:'Leo', color:'#aabbd1', x:63, y:59, size:76, image:'https://i.pravatar.cc/240?img=11', time:'4 hours ago', caption:'Borrowed the good camera. Refusing to return it.', photo:'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=1400&q=88' },
-  { name:'Inez', color:'#d3b2c3', x:88, y:61, size:94, image:'https://i.pravatar.cc/240?img=44', time:'Saturday', caption:'Tiny dinner, enormous opinions.', photo:'https://images.unsplash.com/photo-1528605248644-14dd04022da1?auto=format&fit=crop&w=1400&q=88' },
-  { name:'Omar', color:'#a8c9a2', x:21, y:88, size:68, image:'https://i.pravatar.cc/240?img=8', time:'Monday', caption:'Took the long way home.', photo:'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=1400&q=88' },
-  { name:'June', color:'#d7c68d', x:76, y:86, size:72, image:'https://i.pravatar.cc/240?img=45', time:'Sunday', caption:'Soft launch of my new personality: outdoorsy.', photo:'https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1400&q=88' },
+  { name:'Maya', color:'#e7b6a3', x:37, y:37, size:126, image:'https://i.pravatar.cc/240?img=47', fresh:true, time:'18 min ago', caption:'We missed the sunset but found this tiny blue hour instead.', photo:'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1400&q=88' },
+  { name:'Noah', color:'#a8c5bb', x:18, y:22, size:92, image:'https://i.pravatar.cc/240?img=12', time:'Yesterday', caption:'Found a table for eight. You know what that means.', photo:'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=1400&q=88' },
+  { name:'Ari', color:'#d8c4a0', x:62, y:35, size:112, image:'https://i.pravatar.cc/240?img=49', fresh:true, time:'42 min ago', caption:'A very serious morning meeting.', photo:'https://images.unsplash.com/photo-1499209974431-9dddcece7f88?auto=format&fit=crop&w=1400&q=88' },
+  { name:'Sam', color:'#b6b8cc', x:82, y:19, size:82, image:'https://i.pravatar.cc/240?img=5', time:'2 days ago', caption:'No plans. Perfect day.', photo:'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1400&q=88' },
+  { name:'Vina', color:'#edc3c7', x:64, y:62, size:120, image:'https://i.pravatar.cc/240?img=32', fresh:true, time:'6 min ago', caption:'Proof we actually left the group chat.', photo:'https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=1400&q=88' },
+  { name:'Leo', color:'#aabbd1', x:88, y:51, size:76, image:'https://i.pravatar.cc/240?img=11', time:'4 hours ago', caption:'Borrowed the good camera. Refusing to return it.', photo:'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=1400&q=88' },
+  { name:'Inez', color:'#d3b2c3', x:84, y:82, size:98, image:'https://i.pravatar.cc/240?img=44', time:'Saturday', caption:'Tiny dinner, enormous opinions.', photo:'https://images.unsplash.com/photo-1528605248644-14dd04022da1?auto=format&fit=crop&w=1400&q=88' },
+  { name:'Omar', color:'#a8c9a2', x:18, y:76, size:72, image:'https://i.pravatar.cc/240?img=8', time:'Monday', caption:'Took the long way home.', photo:'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=1400&q=88' },
+  { name:'June', color:'#d7c68d', x:38, y:75, size:88, image:'https://i.pravatar.cc/240?img=45', time:'Sunday', caption:'Soft launch of my new personality: outdoorsy.', photo:'https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1400&q=88' },
 ];
 
 const memes = [
@@ -41,15 +41,14 @@ function FloatingFriend({ friend, index, selected, pointer, onOpen }:{ friend:Fr
   const dy = (pointer.y - friend.y / 100) * (index % 3 ? -6 : 8);
   return (
     <motion.button
-      className={`friend${selected ? ' is-selected' : ''}`}
+      className={`friend ${friend.fresh ? 'is-active' : 'is-inactive'}${selected ? ' is-selected' : ''}`}
       style={{ '--x':`${friend.x}%`, '--y':`${friend.y}%`, '--size':`${friend.size}px`, '--delay':`${index * -.72}s`, '--tone':friend.color } as CSSProperties}
       initial={{ opacity:0, scale:.65 }} animate={{ opacity:selected ? 0 : 1, scale:1, x:dx, y:dy }}
       transition={{ opacity:{duration:.25}, scale:{delay:.05*index,type:'spring',stiffness:110,damping:15}, x:{type:'spring',stiffness:50,damping:15}, y:{type:'spring',stiffness:50,damping:15} }}
       whileHover={{ scale:1.1, zIndex:5 }} whileTap={{ scale:.96 }}
       onClick={onOpen} aria-label={`Open ${friend.name}'s latest moment`}
     >
-      <motion.span className={`portrait${friend.fresh ? ' is-fresh' : ''}`} layoutId={`avatar-${friend.name}`}><img src={friend.image} alt="" /></motion.span>
-      <b>{friend.name}</b>
+      <motion.span className="portrait" layoutId={`avatar-${friend.name}`}><img src={friend.image} alt="" /></motion.span>
     </motion.button>
   );
 }
@@ -67,7 +66,6 @@ function FriendSpace({ selected, onOpen }:{ selected:Friend|null; onOpen:(friend
   };
   return (
     <section className={`orbital-field${selected ? ' is-muted' : ''}`} aria-label="Your close friends" onPointerMove={move}>
-      <span className="orbit orbit-one" /><span className="orbit orbit-two" />
       {friends.map((friend,index)=><FloatingFriend friend={friend} index={index} selected={selected?.name===friend.name} pointer={pointer} onOpen={()=>onOpen(friend)} key={friend.name} />)}
     </section>
   );
@@ -158,27 +156,16 @@ function PostComposer({ onClose, onPosted }:{onClose:()=>void;onPosted:()=>void}
   </motion.div>;
 }
 
-function InvitePanel({onClose}:{onClose:()=>void}) {
-  const [sent,setSent]=useState(false);
-  return <motion.div className="invite-card" initial={{opacity:0,y:8,scale:.96}} animate={{opacity:1,y:0,scale:1}} exit={{opacity:0,y:5,scale:.97}}>
-    <button className="mini-close" onClick={onClose}><X size={16}/></button><small>ONE MORE PERSON</small><h2>Who belongs here?</h2><p>Invites are personal. No public links, no random follows.</p>
-    <div className="invite-input"><input type="email" placeholder="their@email.com" aria-label="Friend's email"/><button onClick={()=>setSent(true)}>{sent?<Check size={17}/>:<Send size={17}/>}</button></div>{sent&&<motion.b initial={{opacity:0,y:4}} animate={{opacity:1,y:0}}>A quiet invite is on its way.</motion.b>}
-  </motion.div>;
-}
-
 export default function Home() {
   const [selected,setSelected]=useState<Friend|null>(null); const [notificationsOpen,setNotificationsOpen]=useState(false);
-  const [composerOpen,setComposerOpen]=useState(false); const [inviteOpen,setInviteOpen]=useState(false); const [toast,setToast]=useState(false);
-  useEffect(()=>{const key=(event:KeyboardEvent)=>{if(event.key==='Escape'){setSelected(null);setNotificationsOpen(false);setComposerOpen(false);setInviteOpen(false);}};window.addEventListener('keydown',key);return()=>window.removeEventListener('keydown',key);},[]);
+  const [composerOpen,setComposerOpen]=useState(false); const [toast,setToast]=useState(false);
+  useEffect(()=>{const key=(event:KeyboardEvent)=>{if(event.key==='Escape'){setSelected(null);setNotificationsOpen(false);setComposerOpen(false);}};window.addEventListener('keydown',key);return()=>window.removeEventListener('keydown',key);},[]);
   const backgroundLabel=useMemo(()=>selected?`${selected.name}'s moment is open`:'Your inner circle', [selected]);
   const posted=()=>{setComposerOpen(false);setToast(true);window.setTimeout(()=>setToast(false),2600);};
   return <main className="friend-space" aria-label={backgroundLabel}>
-    <header className="topbar"><a className="brand" href="#" aria-label="Kin home"><i/>kin</a><div className="top-actions"><p><span/> Your circle is private</p><button className="bell" onClick={()=>setNotificationsOpen(v=>!v)} aria-label="Open notifications" aria-expanded={notificationsOpen}><Bell size={19} strokeWidth={1.8}/><span/></button></div></header>
-    <section className={`space-copy${selected?' is-muted':''}`}><p>Your inner circle</p><h1>These are<br/>your people.</h1><button className="invite" onClick={()=>setInviteOpen(v=>!v)}><Plus size={16}/> invite someone</button><AnimatePresence>{inviteOpen&&<InvitePanel onClose={()=>setInviteOpen(false)}/>}</AnimatePresence></section>
-    <FriendSpace selected={selected} onOpen={friend=>{setSelected(friend);setNotificationsOpen(false);setInviteOpen(false);}}/>
-    <div className="you" aria-label="You"><span className="online"/><img src="https://i.pravatar.cc/160?img=68" alt=""/><span>You</span></div>
-    <button className="post-button" onClick={()=>setComposerOpen(true)} aria-label="Share a new moment"><Plus size={24}/><span className="button-hint">Share a moment</span></button>
-    <p className="privacy-note"><span>●</span> Private by default · just your people</p>
+    <header className="topbar"><button className="bell" onClick={()=>setNotificationsOpen(v=>!v)} aria-label="Open notifications" aria-expanded={notificationsOpen}><Bell size={19} strokeWidth={1.8}/><span/></button></header>
+    <FriendSpace selected={selected} onOpen={friend=>{setSelected(friend);setNotificationsOpen(false);}}/>
+    <motion.button className="you" aria-label="Create a post" onClick={()=>setComposerOpen(true)} whileHover={{scale:1.06}} whileTap={{scale:.96}}><img src="https://i.pravatar.cc/240?img=68" alt=""/></motion.button>
     <AnimatePresence>{notificationsOpen&&<NotificationPanel onClose={()=>setNotificationsOpen(false)}/>}</AnimatePresence>
     <AnimatePresence>{selected&&<PostViewer friend={selected} onClose={()=>setSelected(null)}/>}</AnimatePresence>
     <AnimatePresence>{composerOpen&&<PostComposer onClose={()=>setComposerOpen(false)} onPosted={posted}/>}</AnimatePresence>

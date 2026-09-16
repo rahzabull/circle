@@ -13,3 +13,38 @@
 @media(max-width:800px){.topbar{padding:19px 20px}.top-actions>p{display:none}.space-copy{left:23px;top:96px;width:auto;transform:none}.space-copy.is-muted{transform:translateY(-12px) scale(.96)}.space-copy>p{margin-bottom:9px}.space-copy h1{font-size:48px}.invite{margin-top:16px}.orbital-field{inset:30vh -8vw 9vh -8vw}.orbit-one{width:80%}.orbit-two{width:112%}.friend{--size:72px!important}.friend:nth-of-type(4),.friend:nth-of-type(8){display:none}.you{left:20px;bottom:20px}.post-button{right:20px;bottom:20px}.privacy-note{display:none}.notification-panel{top:76px;right:16px}.post-viewer{padding:11px;border-radius:26px}.post-photo-wrap{aspect-ratio:.94}.post-copy{align-items:center;padding:13px 2px 10px}.post-copy>p{font-size:16px}.privacy span{display:none}.viewer-layer,.modal-layer{padding:10px}.reaction-bar{padding-top:8px}.meme-picker{position:fixed;left:16px;right:16px;bottom:90px;width:auto;transform:none}.meme-reaction:nth-child(3){display:none}.composer{padding:19px}.upload-zone{min-height:170px}.upload-zone.has-preview img{height:190px}.audience-faces{overflow-x:auto;justify-content:flex-start;padding-bottom:4px}.audience-faces button{min-width:48px}.invite-card{position:fixed;left:16px;right:16px;top:auto;bottom:93px;width:auto}.toast{bottom:95px}}
 @media(max-width:390px){.friend:nth-of-type(6){display:none}.space-copy h1{font-size:43px}.post-person>span{width:38px;height:38px}.post-copy>p{max-width:245px}.topbar .brand{font-size:18px}}
 @media(prefers-reduced-motion:reduce){.friend{animation:none}*{scroll-behavior:auto!important;transition-duration:.01ms!important;animation-duration:.01ms!important;animation-iteration-count:1!important}}
+
+/* Constellation home — activity pulls people inward */
+.friend-space{background:#20211f;color:#f5f4ef}
+.friend-space::after{opacity:.1}
+.ambient,.space-copy,.privacy-note,.post-button{display:none}
+.topbar{justify-content:flex-end;padding:28px 32px}
+.bell{width:44px;height:44px;border:0;background:transparent;color:#f4f3ee;box-shadow:none;backdrop-filter:none}
+.bell:hover{background:rgba(255,255,255,.07)}
+.bell>span{right:7px;top:7px;border-color:#20211f;background:#ff5964}
+.orbital-field{inset:auto;left:50%;top:50%;width:min(980px,100vw);height:min(800px,100svh);transform:translate(-50%,-50%)}
+.orbital-field.is-muted{transform:translate(-50%,-50%) scale(.91);opacity:.1}
+.friend{gap:0}
+.friend .portrait{padding:0;border:0;background:#d7d7d5;box-shadow:0 14px 42px rgba(0,0,0,.28)}
+.friend .portrait::after{display:none}
+.friend.is-active .portrait{box-shadow:0 18px 55px rgba(0,0,0,.4),0 0 0 2px rgba(255,255,255,.2)}
+.friend.is-active img{filter:saturate(.92) contrast(1.02)}
+.friend.is-inactive img{filter:grayscale(1) contrast(.88) brightness(.68);opacity:.86}
+.friend.is-inactive .portrait{box-shadow:0 12px 35px rgba(0,0,0,.2)}
+.friend:hover .portrait{box-shadow:0 22px 60px rgba(0,0,0,.48),0 0 0 3px rgba(255,255,255,.3)}
+.you{left:50%;top:50%;bottom:auto;width:122px;height:122px;margin:-61px 0 0 -61px;padding:7px;border:0;border-radius:50%;background:#ff5964;box-shadow:0 22px 62px rgba(0,0,0,.44),0 0 0 2px rgba(255,89,100,.22);cursor:pointer}
+.you img{width:100%;height:100%;border-radius:50%;filter:saturate(.82) contrast(1.02)}
+.notification-panel{color:var(--ink)}
+
+@media(max-width:800px){
+  .topbar{padding:18px 20px}
+  .orbital-field{inset:auto;left:50%;top:50%;width:100vw;height:min(680px,86svh);transform:translate(-50%,-50%)}
+  .orbital-field.is-muted{transform:translate(-50%,-50%) scale(.91)}
+  .friend:nth-of-type(4),.friend:nth-of-type(8){display:flex}
+  .you{width:108px;height:108px;margin:-54px 0 0 -54px;padding:6px}
+}
+@media(max-width:480px){
+  .orbital-field{width:112vw;height:620px}
+  .friend:nth-of-type(6){display:flex}
+  .friend:nth-child(2){--size:108px!important}.friend:nth-child(3){--size:76px!important}.friend:nth-child(4){--size:92px!important}.friend:nth-child(5){--size:68px!important}.friend:nth-child(6){--size:102px!important}.friend:nth-child(7){--size:70px!important}.friend:nth-child(8){--size:82px!important}.friend:nth-child(9){--size:66px!important}.friend:nth-child(10){--size:72px!important}
+}
