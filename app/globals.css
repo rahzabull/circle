@@ -32,7 +32,7 @@
 .friend.is-inactive img{filter:grayscale(1) contrast(.88) brightness(.68);opacity:.86}
 .friend.is-inactive .portrait{box-shadow:0 12px 35px rgba(0,0,0,.2)}
 .friend:hover .portrait{box-shadow:0 22px 60px rgba(0,0,0,.48),0 0 0 3px rgba(255,255,255,.3)}
-.you{left:50%;top:50%;bottom:auto;width:122px;height:122px;margin:-61px 0 0 -61px;padding:7px;border:0;border-radius:50%;background:#ff5964;box-shadow:0 22px 62px rgba(0,0,0,.44),0 0 0 2px rgba(255,89,100,.22);cursor:pointer}
+.you{left:50%;top:50%;bottom:auto;width:122px;height:122px;margin:-61px 0 0 -61px;padding:7px;border:0;border-radius:50%;background:#fff;box-shadow:0 22px 62px rgba(0,0,0,.44),0 0 0 2px rgba(255,255,255,.3);cursor:pointer}
 .you img{width:100%;height:100%;border-radius:50%;filter:saturate(.82) contrast(1.02)}
 .notification-panel{color:var(--ink)}
 
@@ -50,7 +50,7 @@
 }
 
 /* Wide circle composition */
-.friend-space{background:radial-gradient(circle at 50% 48%,rgba(255,78,86,.12),transparent 19%),radial-gradient(circle at 50% 46%,#202120 0,#151615 48%,#101110 100%)}
+.friend-space{background:radial-gradient(circle at 50% 48%,rgba(255,255,255,.1),transparent 19%),radial-gradient(circle at 50% 46%,#202120 0,#151615 48%,#101110 100%)}
 .circle-header{position:absolute;z-index:25;top:0;left:0;right:0;display:flex;align-items:flex-start;justify-content:space-between;padding:28px 34px;color:#f8f7f3}
 .circle-header h1{margin:0;font-size:28px;font-weight:780;letter-spacing:-.045em;line-height:1}
 .circle-header p{margin:8px 0 0;color:#919391;font-size:13px;letter-spacing:-.01em}
@@ -66,7 +66,7 @@
 .friend .portrait>i.new{background:#ff5c64}.friend .portrait>i.online{background:#67c85b}
 .friend.is-inactive img{filter:grayscale(1) saturate(0) contrast(1.05) brightness(.56);opacity:.8}
 .friend.is-inactive .portrait{border-color:rgba(255,255,255,.12);box-shadow:0 10px 30px rgba(0,0,0,.18)}
-.you{left:50%;top:48%;width:174px;height:174px;margin:-87px 0 0 -87px;padding:7px;overflow:visible;background:#ff5b63;box-shadow:0 0 0 1px rgba(255,92,100,.8),0 0 28px rgba(255,67,78,.42),0 0 72px rgba(255,67,78,.24),0 24px 68px rgba(0,0,0,.48)}
+.you{left:50%;top:48%;width:174px;height:174px;margin:-87px 0 0 -87px;padding:7px;overflow:visible;background:#fff;box-shadow:0 0 0 1px rgba(255,255,255,.92),0 0 28px rgba(255,255,255,.36),0 0 72px rgba(255,255,255,.2),0 24px 68px rgba(0,0,0,.48)}
 .you img{width:100%;height:100%;flex:none;border-radius:50%}
 .you>b{position:absolute;top:calc(100% + 12px);left:50%;color:#f8f7f3;font-size:15px;font-weight:580;white-space:nowrap;transform:translateX(-50%)}
 .circle-count{position:absolute;z-index:20;left:34px;bottom:34px;display:flex;align-items:center;gap:14px;padding:13px 17px;border:1px solid rgba(255,255,255,.1);border-radius:999px;background:rgba(255,255,255,.025);color:#f2f2ef;cursor:pointer;transition:background .25s ease,border-color .25s ease}
@@ -108,7 +108,8 @@
 .player-anchor .you{position:relative;left:auto;top:auto;width:110px;height:110px;margin:0;padding:6px;pointer-events:auto}
 .reset-anchor{position:fixed;z-index:19;left:calc(50% + 57px);top:calc(50% - 57px);transform:translate(-50%,-50%);pointer-events:none}
 .reset-world,.ask-create-trigger{display:grid;place-items:center;width:42px;height:42px;padding:0;border:1px solid rgba(255,255,255,.14);border-radius:50%;background:rgba(38,39,39,.88);color:#f7f6f2;box-shadow:0 12px 32px rgba(0,0,0,.32);backdrop-filter:blur(14px);cursor:pointer;pointer-events:auto}
-.reset-world:hover{background:rgba(53,54,54,.94);border-color:rgba(255,255,255,.24)}.ask-create-trigger{background:#ff5b63;border-color:rgba(255,255,255,.25)}.ask-create-trigger:hover{background:#ff7077;border-color:rgba(255,255,255,.4)}
+.reset-world:hover{background:rgba(53,54,54,.94);border-color:rgba(255,255,255,.24)}
+.ask-create-trigger,.ask-create-trigger:hover{border:0;background:transparent url('/add.svg') center/100% 100% no-repeat;color:transparent;backdrop-filter:none}
 @media(max-width:700px){.social-space.orbital-field{--scene-scale:1.176}.reset-anchor{left:calc(50% + 48px);top:calc(50% - 48px)}}
 @media(max-width:560px){
   .social-space.orbital-field{--scene-scale:.98}
