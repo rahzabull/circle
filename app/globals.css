@@ -48,3 +48,45 @@
   .friend:nth-of-type(6){display:flex}
   .friend:nth-child(1){--size:124px!important}.friend:nth-child(2){--size:88px!important}.friend:nth-child(3){--size:108px!important}.friend:nth-child(4){--size:88px!important}.friend:nth-child(5){--size:126px!important}.friend:nth-child(6){--size:86px!important}.friend:nth-child(7){--size:128px!important}.friend:nth-child(8){--size:104px!important}.friend:nth-child(9){--size:86px!important}
 }
+
+/* Wide circle composition */
+.friend-space{background:radial-gradient(circle at 50% 48%,rgba(255,78,86,.12),transparent 19%),radial-gradient(circle at 50% 46%,#202120 0,#151615 48%,#101110 100%)}
+.circle-header{position:absolute;z-index:25;top:0;left:0;right:0;display:flex;align-items:flex-start;justify-content:space-between;padding:28px 34px;color:#f8f7f3}
+.circle-header h1{margin:0;font-size:28px;font-weight:780;letter-spacing:-.045em;line-height:1}
+.circle-header p{margin:8px 0 0;color:#919391;font-size:13px;letter-spacing:-.01em}
+.circle-header nav{display:flex;align-items:center;gap:18px}
+.header-invite{display:flex;align-items:center;gap:8px;padding:13px 22px;border:1px solid rgba(255,255,255,.09);border-radius:999px;background:rgba(255,255,255,.065);color:#f8f7f3;font-weight:750;cursor:pointer;box-shadow:inset 0 1px rgba(255,255,255,.04);transition:background .25s ease,transform .25s ease}
+.header-invite:hover{background:rgba(255,255,255,.11);transform:translateY(-1px)}
+.circle-header .bell{width:42px;height:42px}
+.orbital-field{left:50%;top:50%;width:min(920px,72vw);height:min(690px,76svh)}
+.friend{gap:9px}
+.friend>b{padding:0;border-radius:0;background:none;color:#f7f6f2;font-size:13px;font-weight:560;line-height:1;text-shadow:0 2px 12px rgba(0,0,0,.65);box-shadow:none;backdrop-filter:none}
+.friend .portrait{border:1px solid rgba(255,255,255,.32)}
+.friend .portrait>i{position:absolute;right:5%;top:5%;display:block;width:16px;height:16px;border:2px solid #171817;border-radius:50%;box-shadow:0 4px 12px rgba(0,0,0,.35)}
+.friend .portrait>i.new{background:#ff5c64}.friend .portrait>i.online{background:#67c85b}
+.friend.is-inactive img{filter:grayscale(.55) saturate(.55) contrast(.94) brightness(.82);opacity:.94}
+.you{left:50%;top:48%;width:174px;height:174px;margin:-87px 0 0 -87px;padding:7px;overflow:visible;background:#ff5b63;box-shadow:0 0 0 1px rgba(255,92,100,.8),0 0 28px rgba(255,67,78,.42),0 0 72px rgba(255,67,78,.24),0 24px 68px rgba(0,0,0,.48)}
+.you img{width:100%;height:100%;flex:none;border-radius:50%}
+.you>b{position:absolute;top:calc(100% + 12px);left:50%;color:#f8f7f3;font-size:15px;font-weight:580;white-space:nowrap;transform:translateX(-50%)}
+.circle-count{position:absolute;z-index:20;left:34px;bottom:34px;display:flex;align-items:center;gap:14px;padding:13px 17px;border:1px solid rgba(255,255,255,.1);border-radius:999px;background:rgba(255,255,255,.025);color:#f2f2ef;cursor:pointer;transition:background .25s ease,border-color .25s ease}
+.circle-count:hover{border-color:rgba(255,255,255,.18);background:rgba(255,255,255,.06)}
+.circle-count span{font-size:12px}.circle-count svg:last-child{margin-left:8px;color:#8d908e}
+.post-action{position:absolute;z-index:20;right:43px;bottom:29px;display:flex;flex-direction:column;align-items:center;gap:10px;border:0;background:none;color:#f5f4f1;cursor:pointer}
+.post-action>span{display:grid;place-items:center;width:64px;height:64px;border-radius:50%;background:#292a30;box-shadow:0 16px 36px rgba(0,0,0,.3);transition:transform .25s cubic-bezier(.2,.8,.2,1),background .25s ease}
+.post-action:hover>span{background:#35363d;transform:translateY(-3px)}.post-action>b{font-size:12px;font-weight:600}
+.quick-invite{position:absolute;z-index:50;right:34px;top:88px;width:300px;padding:20px;border:1px solid rgba(255,255,255,.1);border-radius:22px;background:rgba(34,35,34,.96);color:#f7f6f2;box-shadow:0 28px 80px rgba(0,0,0,.45);backdrop-filter:blur(20px)}
+.quick-invite>button{position:absolute;right:12px;top:12px;display:grid;place-items:center;width:30px;height:30px;border:0;border-radius:50%;background:rgba(255,255,255,.07);color:white;cursor:pointer}.quick-invite>small{color:#8f9290;font-size:8px;font-weight:800;letter-spacing:.13em}.quick-invite h2{margin:4px 0 15px;font-family:var(--font-newsreader),Georgia,serif;font-size:23px;font-weight:500}.quick-invite>div{display:flex;padding:4px;border:1px solid rgba(255,255,255,.1);border-radius:999px;background:rgba(255,255,255,.04)}.quick-invite input{min-width:0;flex:1;padding:8px 10px;border:0;outline:0;background:transparent;color:white;font-size:11px}.quick-invite>div button{display:grid;place-items:center;width:33px;height:33px;border:0;border-radius:50%;background:#ff5b63;color:white;cursor:pointer}
+
+@media(max-width:900px){
+  .circle-header{padding:20px}.circle-header h1{font-size:24px}.circle-header p{font-size:11px}.header-invite{padding:10px 15px;font-size:12px}
+  .orbital-field{top:51%;width:92vw;height:min(650px,70svh)}
+  .friend:nth-child(1){--size:112px!important}.friend:nth-child(2){--size:76px!important}.friend:nth-child(3){--size:106px!important}.friend:nth-child(4){--size:70px!important}.friend:nth-child(5){--size:105px!important}.friend:nth-child(6){--size:104px!important}.friend:nth-child(7){--size:70px!important}.friend:nth-child(8){--size:104px!important}.friend:nth-child(9){--size:98px!important}
+  .you{width:132px;height:132px;margin:-66px 0 0 -66px}.circle-count{left:20px;bottom:22px}.post-action{right:24px;bottom:18px}.post-action>span{width:56px;height:56px}
+}
+@media(max-width:560px){
+  .circle-header nav{gap:6px}.header-invite{width:42px;height:42px;justify-content:center;padding:0}.header-invite svg{margin:0}.header-invite{font-size:0}
+  .orbital-field{top:52%;width:104vw;height:min(580px,70svh)}
+  .friend>b{font-size:10px}.friend:nth-child(4),.friend:nth-child(7){display:none}
+  .you{top:50%;width:108px;height:108px;margin:-54px 0 0 -54px}.you>b{font-size:12px;top:calc(100% + 8px)}
+  .circle-count{padding:11px 13px}.circle-count span{display:none}.circle-count svg:last-child{margin-left:0}.post-action>b{display:none}.quick-invite{right:16px;top:74px;width:calc(100vw - 32px)}
+}
