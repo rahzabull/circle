@@ -1,7 +1,7 @@
 'use client';
 
 import type { CSSProperties, ChangeEvent } from 'react';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Bell, Check, Heart, LockKeyhole, Send, SmilePlus, Upload, Users, X } from 'lucide-react';
 
@@ -11,15 +11,15 @@ type Friend = {
 };
 
 const friends: Friend[] = [
-  { name:'Maya', color:'#e7b6a3', x:37, y:37, size:126, image:'https://i.pravatar.cc/240?img=47', fresh:true, time:'18 min ago', caption:'We missed the sunset but found this tiny blue hour instead.', photo:'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1400&q=88' },
-  { name:'Noah', color:'#a8c5bb', x:18, y:22, size:92, image:'https://i.pravatar.cc/240?img=12', time:'Yesterday', caption:'Found a table for eight. You know what that means.', photo:'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=1400&q=88' },
-  { name:'Ari', color:'#d8c4a0', x:62, y:35, size:112, image:'https://i.pravatar.cc/240?img=49', fresh:true, time:'42 min ago', caption:'A very serious morning meeting.', photo:'https://images.unsplash.com/photo-1499209974431-9dddcece7f88?auto=format&fit=crop&w=1400&q=88' },
-  { name:'Sam', color:'#b6b8cc', x:82, y:19, size:82, image:'https://i.pravatar.cc/240?img=5', time:'2 days ago', caption:'No plans. Perfect day.', photo:'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1400&q=88' },
-  { name:'Vina', color:'#edc3c7', x:64, y:62, size:120, image:'https://i.pravatar.cc/240?img=32', fresh:true, time:'6 min ago', caption:'Proof we actually left the group chat.', photo:'https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=1400&q=88' },
-  { name:'Leo', color:'#aabbd1', x:88, y:51, size:76, image:'https://i.pravatar.cc/240?img=11', time:'4 hours ago', caption:'Borrowed the good camera. Refusing to return it.', photo:'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=1400&q=88' },
-  { name:'Inez', color:'#d3b2c3', x:84, y:82, size:98, image:'https://i.pravatar.cc/240?img=44', time:'Saturday', caption:'Tiny dinner, enormous opinions.', photo:'https://images.unsplash.com/photo-1528605248644-14dd04022da1?auto=format&fit=crop&w=1400&q=88' },
-  { name:'Omar', color:'#a8c9a2', x:18, y:76, size:72, image:'https://i.pravatar.cc/240?img=8', time:'Monday', caption:'Took the long way home.', photo:'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=1400&q=88' },
-  { name:'June', color:'#d7c68d', x:38, y:75, size:88, image:'https://i.pravatar.cc/240?img=45', time:'Sunday', caption:'Soft launch of my new personality: outdoorsy.', photo:'https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1400&q=88' },
+  { name:'Maya', color:'#e7b6a3', x:24, y:35, size:124, image:'https://i.pravatar.cc/240?img=47', fresh:true, time:'18 min ago', caption:'We missed the sunset but found this tiny blue hour instead.', photo:'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1400&q=88' },
+  { name:'Noah', color:'#a8c5bb', x:50, y:16, size:88, image:'https://i.pravatar.cc/240?img=12', time:'Yesterday', caption:'Found a table for eight. You know what that means.', photo:'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=1400&q=88' },
+  { name:'Ari', color:'#d8c4a0', x:78, y:29, size:108, image:'https://i.pravatar.cc/240?img=49', fresh:true, time:'42 min ago', caption:'A very serious morning meeting.', photo:'https://images.unsplash.com/photo-1499209974431-9dddcece7f88?auto=format&fit=crop&w=1400&q=88' },
+  { name:'Sam', color:'#b6b8cc', x:-5, y:44, size:88, image:'https://i.pravatar.cc/240?img=5', time:'2 days ago', caption:'No plans. Perfect day.', photo:'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1400&q=88' },
+  { name:'Vina', color:'#edc3c7', x:89, y:52, size:126, image:'https://i.pravatar.cc/240?img=32', fresh:true, time:'6 min ago', caption:'Proof we actually left the group chat.', photo:'https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=1400&q=88' },
+  { name:'Leo', color:'#aabbd1', x:106, y:74, size:86, image:'https://i.pravatar.cc/240?img=11', time:'4 hours ago', caption:'Borrowed the good camera. Refusing to return it.', photo:'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=1400&q=88' },
+  { name:'Inez', color:'#d3b2c3', x:67, y:77, size:128, image:'https://i.pravatar.cc/240?img=44', time:'Saturday', caption:'Tiny dinner, enormous opinions.', photo:'https://images.unsplash.com/photo-1528605248644-14dd04022da1?auto=format&fit=crop&w=1400&q=88' },
+  { name:'Omar', color:'#a8c9a2', x:24, y:65, size:104, image:'https://i.pravatar.cc/240?img=8', time:'Monday', caption:'Took the long way home.', photo:'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=1400&q=88' },
+  { name:'June', color:'#d7c68d', x:33, y:88, size:86, image:'https://i.pravatar.cc/240?img=45', time:'Sunday', caption:'Soft launch of my new personality: outdoorsy.', photo:'https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1400&q=88' },
 ];
 
 const memes = [
@@ -36,16 +36,14 @@ const notifications = [
   { friend:friends[1], text:'invited you to a circle', mark:'', time:'2h' },
 ];
 
-function FloatingFriend({ friend, index, selected, pointer, onOpen }:{ friend:Friend; index:number; selected:boolean; pointer:{x:number;y:number}; onOpen:()=>void }) {
-  const dx = (pointer.x - friend.x / 100) * (index % 2 ? -7 : 6);
-  const dy = (pointer.y - friend.y / 100) * (index % 3 ? -6 : 8);
+function FloatingFriend({ friend, index, selected, onOpen }:{ friend:Friend; index:number; selected:boolean; onOpen:()=>void }) {
   return (
     <motion.button
       className={`friend ${friend.fresh ? 'is-active' : 'is-inactive'}${selected ? ' is-selected' : ''}`}
-      style={{ '--x':`${friend.x}%`, '--y':`${friend.y}%`, '--size':`${friend.size}px`, '--delay':`${index * -.72}s`, '--tone':friend.color } as CSSProperties}
-      initial={{ opacity:0, scale:.65 }} animate={{ opacity:selected ? 0 : 1, scale:1, x:dx, y:dy }}
-      transition={{ opacity:{duration:.25}, scale:{delay:.05*index,type:'spring',stiffness:110,damping:15}, x:{type:'spring',stiffness:50,damping:15}, y:{type:'spring',stiffness:50,damping:15} }}
-      whileHover={{ scale:1.1, zIndex:5 }} whileTap={{ scale:.96 }}
+      style={{ '--x':`${friend.x}%`, '--y':`${friend.y}%`, '--size':`${friend.size}px`, '--tone':friend.color } as CSSProperties}
+      initial={{ opacity:0, scale:.82 }} animate={{ opacity:selected ? 0 : 1, scale:1 }}
+      transition={{ opacity:{duration:.32,ease:'easeOut'}, scale:{delay:.035*index,type:'spring',stiffness:120,damping:20,mass:.8} }}
+      whileHover={{ scale:1.055, zIndex:5, transition:{type:'spring',stiffness:260,damping:24} }} whileTap={{ scale:.97 }}
       onClick={onOpen} aria-label={`Open ${friend.name}'s latest moment`}
     >
       <motion.span className="portrait" layoutId={`avatar-${friend.name}`}><img src={friend.image} alt="" /></motion.span>
@@ -54,19 +52,9 @@ function FloatingFriend({ friend, index, selected, pointer, onOpen }:{ friend:Fr
 }
 
 function FriendSpace({ selected, onOpen }:{ selected:Friend|null; onOpen:(friend:Friend)=>void }) {
-  const [pointer,setPointer] = useState({x:.5,y:.5});
-  const frame = useRef<number|null>(null);
-  const move = (event:React.PointerEvent<HTMLElement>) => {
-    if (frame.current) cancelAnimationFrame(frame.current);
-    const { clientX,clientY,currentTarget } = event;
-    frame.current = requestAnimationFrame(() => {
-      const rect = currentTarget.getBoundingClientRect();
-      setPointer({x:(clientX-rect.left)/rect.width,y:(clientY-rect.top)/rect.height});
-    });
-  };
   return (
-    <section className={`orbital-field${selected ? ' is-muted' : ''}`} aria-label="Your close friends" onPointerMove={move}>
-      {friends.map((friend,index)=><FloatingFriend friend={friend} index={index} selected={selected?.name===friend.name} pointer={pointer} onOpen={()=>onOpen(friend)} key={friend.name} />)}
+    <section className={`orbital-field${selected ? ' is-muted' : ''}`} aria-label="Your close friends">
+      {friends.map((friend,index)=><FloatingFriend friend={friend} index={index} selected={selected?.name===friend.name} onOpen={()=>onOpen(friend)} key={friend.name} />)}
     </section>
   );
 }
