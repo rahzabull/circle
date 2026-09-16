@@ -138,8 +138,7 @@ function FriendSpace({ selected, onOpen, onUser }:{ selected:Friend|null; onOpen
     momentum.current.x?.stop();momentum.current.y?.stop();
     const transition={type:'spring' as const,stiffness:72,damping:19,mass:1.15,restDelta:.25};
     momentum.current.x=animate(worldX,0,transition);momentum.current.y=animate(worldY,0,transition);
-    let remaining=2;const complete=()=>{remaining-=1;if(remaining===0)setHasMoved(false);};
-    momentum.current.x.then(complete);momentum.current.y.then(complete);
+    setHasMoved(false);
   };
   return (
     <section ref={spaceRef} className={`social-space orbital-field${selected ? ' is-muted' : ''}${isDragging?' is-dragging':''}`} aria-label="Your close friends" onPointerDown={pointerDown} onPointerMove={pointerMove} onPointerUp={pointerEnd} onPointerCancel={pointerEnd} onClickCapture={event=>{if(suppressClick.current){event.preventDefault();event.stopPropagation();}}}>
@@ -149,7 +148,7 @@ function FriendSpace({ selected, onOpen, onUser }:{ selected:Friend|null; onOpen
         </div>
       </motion.div>
       <div className="player-layer"><div className="player-anchor"><motion.button className="you" aria-label="Create a post" onClick={onUser} whileHover={{scale:1.045}} whileTap={{scale:.97}}><img src="https://i.pravatar.cc/240?img=68" alt=""/></motion.button></div></div>
-      <div className="reset-anchor"><AnimatePresence>{hasMoved&&<motion.button className="reset-world" aria-label="Return to center" title="Return to center" onPointerDown={event=>event.stopPropagation()} onClick={resetWorld} initial={{opacity:0,y:10,scale:.92}} animate={{opacity:1,y:0,scale:1}} exit={{opacity:0,y:8,scale:.94}} whileHover={{scale:1.06}} whileTap={{scale:.94}}><LocateFixed size={17}/></motion.button>}</AnimatePresence></div>
+      <div className="reset-anchor"><AnimatePresence>{hasMoved&&<motion.button className="reset-world" aria-label="Return to center" title="Return to center" onPointerDown={event=>event.stopPropagation()} onClick={resetWorld} initial={{opacity:0,y:6,scale:.92}} animate={{opacity:1,y:0,scale:1}} exit={{opacity:0,scale:.9,transition:{duration:.12,ease:'easeOut'}}} transition={{duration:.16,ease:'easeOut'}} whileHover={{scale:1.06}} whileTap={{scale:.94}}><LocateFixed size={17}/></motion.button>}</AnimatePresence></div>
     </section>
   );
 }
