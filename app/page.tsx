@@ -149,7 +149,7 @@ function FriendSpace({ selected, onOpen, onUser }:{ selected:Friend|null; onOpen
         </div>
       </motion.div>
       <div className="player-layer"><div className="player-anchor"><motion.button className="you" aria-label="Create a post" onClick={onUser} whileHover={{scale:1.045}} whileTap={{scale:.97}}><img src="https://i.pravatar.cc/240?img=68" alt=""/></motion.button></div></div>
-      <div className="reset-anchor"><AnimatePresence>{hasMoved&&<motion.button className="reset-world" onPointerDown={event=>event.stopPropagation()} onClick={resetWorld} initial={{opacity:0,y:10,scale:.92}} animate={{opacity:1,y:0,scale:1}} exit={{opacity:0,y:8,scale:.94}} whileHover={{y:-2}} whileTap={{scale:.96}}><LocateFixed size={15}/> Center</motion.button>}</AnimatePresence></div>
+      <div className="reset-anchor"><AnimatePresence>{hasMoved&&<motion.button className="reset-world" aria-label="Return to center" title="Return to center" onPointerDown={event=>event.stopPropagation()} onClick={resetWorld} initial={{opacity:0,y:10,scale:.92}} animate={{opacity:1,y:0,scale:1}} exit={{opacity:0,y:8,scale:.94}} whileHover={{scale:1.06}} whileTap={{scale:.94}}><LocateFixed size={17}/></motion.button>}</AnimatePresence></div>
     </section>
   );
 }
