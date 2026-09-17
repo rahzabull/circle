@@ -12,12 +12,12 @@ export default function FloatingAstronaut(){
 
   useEffect(()=>{
     if(reduceMotion)return;
-    const finishFirst=window.setTimeout(()=>setPhase('waiting'),7_600);
+    const finishFirst=window.setTimeout(()=>setPhase('waiting'),9_000);
     const startSecond=window.setTimeout(()=>{
       setHorizontalDirection(Math.random()<.5?1:-1);
       setPhase('horizontal');
-    },17_600);
-    const finishSecond=window.setTimeout(()=>setPhase('done'),25_000);
+    },19_000);
+    const finishSecond=window.setTimeout(()=>setPhase('done'),26_400);
     return()=>{
       window.clearTimeout(finishFirst);
       window.clearTimeout(startSecond);
@@ -27,7 +27,7 @@ export default function FloatingAstronaut(){
 
   if(reduceMotion||phase==='waiting'||phase==='done')return null;
   const horizontal=phase==='horizontal';
-  const duration=horizontal?7.2:7.4;
+  const duration=horizontal?7.2:8.8;
   const movingRight=horizontalDirection===1;
   const startLeft=horizontal?(movingRight?'-28vw':'112vw'):'20vw';
   const endLeft=horizontal?(movingRight?'112vw':'-28vw'):'68vw';
