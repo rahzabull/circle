@@ -141,12 +141,12 @@ function FloatingFriend({ friend, index, selected, offset, ask, activity, knockN
   const beginHold=(event:ReactPointerEvent<HTMLButtonElement>)=>{
     if(event.button!==0||!canReceiveKnock(activity))return;
     const pointerId=event.pointerId;clearHold();holdState.current={pointerId,startX:event.clientX,startY:event.clientY,triggered:false};
-    holdTimer.current=window.setTimeout(()=>{const state=holdState.current;if(!state||state.pointerId!==pointerId)return;state.triggered=true;onRevealActions(friend);},460);
+    holdTimer.current=window.setTimeout(()=>{const state=holdState.current;if(!state||state.pointerId!==pointerId)return;state.triggered=true;suppressOpenUntil.current=performance.now()+1000;onRevealActions(friend);},460);
   };
-  const moveHold=(event:ReactPointerEvent<HTMLButtonElement>)=>{const state=holdState.current;if(!state||state.pointerId!==event.pointerId)return;if(Math.hypot(event.clientX-state.startX,event.clientY-state.startY)>=7){clearHold();onDismissActions();}};
+  const moveHold=(event:ReactPointerEvent<HTMLButtonElement>)=>{const state=holdState.current;if(!state||state.pointerId!==event.pointerId||state.triggered)return;const threshold=event.pointerType==='touch'?14:7;if(Math.hypot(event.clientX-state.startX,event.clientY-state.startY)>=threshold){suppressOpenUntil.current=performance.now()+300;clearHold();}};
   const endHold=(event:ReactPointerEvent<HTMLButtonElement>)=>{const state=holdState.current;if(!state||state.pointerId!==event.pointerId)return;if(state.triggered)suppressOpenUntil.current=performance.now()+500;clearHold();};
-  const cancelHold=()=>{clearHold();onDismissActions();};
-  const openProfile=(event:ReactMouseEvent<HTMLButtonElement>)=>{if(performance.now()<suppressOpenUntil.current){event.preventDefault();event.stopPropagation();return;}onOpen();};
+  const cancelHold=()=>{clearHold();};
+  const openProfile=(event:ReactMouseEvent<HTMLButtonElement>)=>{if(actionsOpen||performance.now()<suppressOpenUntil.current){event.preventDefault();event.stopPropagation();return;}onOpen();};
   return (
     <motion.div
       className={`friend activity-${activity} ${activity==='active'||activity==='recentlyActive'?'is-active':'is-inactive'}${selected ? ' is-selected' : ''}${ask?' has-ask':''}${knockNudge?' has-knock':''}${actionsOpen?' has-profile-actions':''}`}
@@ -257,7 +257,7 @@ function FriendSpace({ selected, asks, activityOverrides, nudgeFriend, actionFri
   };
   const pointerDown=(event:ReactPointerEvent<HTMLElement>)=>{
     const target=event.target as HTMLElement;if(!target.closest('.profile-actions'))onDismissActions();
-    if(event.button!==0||selected||target.closest('.you,.profile-actions'))return;
+    if(event.button!==0||selected||target.closest('.you,.friend-profile,.profile-actions'))return;
     momentum.current.x?.stop(); momentum.current.y?.stop();
     worldX.set(smoothWorldX.get());worldY.set(smoothWorldY.get());
     drag.current={active:true,moved:false,pointerId:event.pointerId,startX:event.clientX,startY:event.clientY,startWorldX:worldX.get(),startWorldY:worldY.get()};
