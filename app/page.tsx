@@ -83,14 +83,13 @@ function AskChip({ask,placement='right',onOpen}:{ask:AskPrompt;placement?:'left'
 }
 
 function KnockNudge({friend,activity,onSend,onDismiss,onImpact}:{friend:Friend;activity:ActivityState;onSend:()=>void;onDismiss:()=>void;onImpact:(active:boolean)=>void}){
-  const [stage,setStage]=useState<'suggested'|'confirm'|'sending'|'sent'>('suggested');const timers=useRef<number[]>([]);const reduceMotion=useReducedMotion();
+  const [stage,setStage]=useState<'suggested'|'sending'|'sent'>('suggested');const timers=useRef<number[]>([]);const reduceMotion=useReducedMotion();
   useEffect(()=>()=>{timers.current.forEach(timer=>window.clearTimeout(timer));onImpact(false);},[onImpact]);
-  const send=()=>{setStage('sending');onImpact(true);onSend();timers.current.push(window.setTimeout(()=>{onImpact(false);setStage('sent');},850),window.setTimeout(onDismiss,3000));};
-  return <motion.div className={`knock-nudge is-${stage}`} onPointerDown={event=>event.stopPropagation()} initial={{opacity:0,scale:.78,y:5}} animate={{opacity:1,scale:1,y:0}} exit={{opacity:0,scale:.85,y:4}} role="status" aria-live="polite">
-    {stage==='suggested'&&<motion.button className="knock-fist" onClick={()=>setStage('confirm')} animate={reduceMotion?{}:{y:[0,0,4,0,0],rotate:[0,0,-10,4,0]}} transition={reduceMotion?{duration:0}:{duration:1.05,repeat:Infinity,repeatDelay:3.6}} aria-label={`Knock on ${friend.name}; ${activity}`} aria-expanded="false">👊</motion.button>}
-    {stage==='confirm'&&<><span><b>Haven’t heard from {friend.name} in a bit.</b><small>One Knock per day.</small></span><button className="knock-send" onClick={send}>Knock 👊</button></>}
-    {stage==='sending'&&<><motion.span className="knock-fist knocking" animate={reduceMotion?{}:{y:[0,13,-1,11,0],rotate:[0,-12,4,-10,0]}} transition={reduceMotion?{duration:0}:{duration:.78,ease:'easeInOut'}}>👊</motion.span><span><b>Knock, knock…</b><small>Disturbing {friend.name} gently.</small></span></>}
-    {stage==='sent'&&<span className="knock-done"><b>We’ve disturbed {friend.name}. 👊</b><small>Now we wait.</small></span>}
+  const send=()=>{setStage('sending');onImpact(true);onSend();timers.current.push(window.setTimeout(()=>{onImpact(false);setStage('sent');},700),window.setTimeout(onDismiss,1750));};
+  return <motion.div className={`knock-nudge is-${stage}`} onPointerDown={event=>event.stopPropagation()} initial={{opacity:0,scale:.78,y:5}} animate={{opacity:1,scale:1,y:0}} exit={{opacity:0,scale:.85,y:4}} role="status" aria-live="polite" aria-label={stage==='sending'?`Knocking on ${friend.name}`:stage==='sent'?`Knocked on ${friend.name}`:undefined}>
+    {stage==='suggested'&&<motion.button className="knock-fist" onClick={send} animate={reduceMotion?{}:{y:[0,0,4,0,0],rotate:[0,0,-10,4,0]}} transition={reduceMotion?{duration:0}:{duration:1.05,repeat:Infinity,repeatDelay:3.6}} aria-label={`Knock on ${friend.name}; ${activity}`}>👊</motion.button>}
+    {stage==='sending'&&<motion.span className="knock-fist knocking" animate={reduceMotion?{}:{y:[0,13,-1,11,0],rotate:[0,-12,4,-10,0]}} transition={reduceMotion?{duration:0}:{duration:.68,ease:'easeInOut'}} aria-hidden="true">👊</motion.span>}
+    {stage==='sent'&&<motion.span className="knock-fist knock-sent" initial={{scale:.86}} animate={{scale:1}} transition={{type:'spring',stiffness:320,damping:16}} aria-hidden="true">👊</motion.span>}
   </motion.div>;
 }
 
