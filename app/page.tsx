@@ -126,9 +126,13 @@ function FriendSpace({ selected, asks, activityOverrides, nudgeFriend, incomingK
   const suppressClick=useRef(false); const hovered=useRef<number|null>(null);
   const momentum=useRef<{x?:ReturnType<typeof animate>;y?:ReturnType<typeof animate>}>({});
   const bubbleOffsets=useMemo<BubbleOffset[]>(()=>friends.map(()=>({x:motionValue(0),y:motionValue(0)})),[]);
+  const askOwnerIndices=useRef<number[]>(friends.reduce<number[]>((indices,friend,index)=>{if(asks.some(ask=>ask.sender===friend.name&&ask.recipients.includes('You')))indices.push(index);return indices;},[]));
+  const askMetrics=useRef({size:34,inset:25,top:-8});
+
+  useEffect(()=>{askOwnerIndices.current=friends.reduce<number[]>((indices,friend,index)=>{if(asks.some(ask=>ask.sender===friend.name&&ask.recipients.includes('You')))indices.push(index);return indices;},[]);},[asks]);
 
   useEffect(()=>{
-    const updateScale=()=>{const value=spaceRef.current?parseFloat(getComputedStyle(spaceRef.current).getPropertyValue('--scene-scale')):1.4;sceneScale.current=Number.isFinite(value)?value:1.4;};
+    const updateScale=()=>{const styles=spaceRef.current?getComputedStyle(spaceRef.current):null;const scale=styles?parseFloat(styles.getPropertyValue('--scene-scale')):1.4;const size=styles?parseFloat(styles.getPropertyValue('--ask-icon-size')):34;const inset=styles?parseFloat(styles.getPropertyValue('--ask-icon-inset')):25;const top=styles?parseFloat(styles.getPropertyValue('--ask-icon-top')):-8;sceneScale.current=Number.isFinite(scale)?scale:1.4;askMetrics.current={size:Number.isFinite(size)?size:34,inset:Number.isFinite(inset)?inset:25,top:Number.isFinite(top)?top:-8};};
     updateScale();window.addEventListener('resize',updateScale);return()=>window.removeEventListener('resize',updateScale);
   },[]);
 
@@ -159,6 +163,21 @@ function FriendSpace({ selected, asks, activityOverrides, nudgeFriend, incomingK
           const dx=friendPositionX(index,body)-playerX;const dy=friendPositionY(index,body)-playerY;const rawDistance=Math.hypot(dx,dy);const distance=Math.max(rawDistance,.001);const minimum=(friends[index].size+110)/2+10;
           if(distance<minimum){const angle=index/friends.length*Math.PI*2;const nx=rawDistance<.001?Math.cos(angle):dx/distance;const ny=rawDistance<.001?Math.sin(angle):dy/distance;const correction=minimum-distance;body.x+=nx*correction;body.y+=ny*correction;body.vx+=nx*correction*.025;body.vy+=ny*correction*.025;}
         });
+        const iconRadius=askMetrics.current.size/2;
+        askOwnerIndices.current.forEach(owner=>{
+          let iconX=askPositionX(owner);let iconY=askPositionY(owner);
+          friends.forEach((friend,index)=>{
+            if(index===owner)return;
+            const dx=friendPositionX(index,bodies[index])-iconX;const dy=friendPositionY(index,bodies[index])-iconY;const rawDistance=Math.hypot(dx,dy);const distance=Math.max(rawDistance,.001);const minimum=iconRadius+friend.size/2+8;
+            if(distance<minimum){const nx=rawDistance<.001?Math.cos(owner+index):dx/distance;const ny=rawDistance<.001?Math.sin(owner+index):dy/distance;const correction=(minimum-distance)*.505;bodies[owner].x-=nx*correction;bodies[owner].y-=ny*correction;bodies[index].x+=nx*correction;bodies[index].y+=ny*correction;bodies[owner].vx-=nx*correction*.018;bodies[owner].vy-=ny*correction*.018;bodies[index].vx+=nx*correction*.018;bodies[index].vy+=ny*correction*.018;iconX-=nx*correction;iconY-=ny*correction;}
+          });
+          const playerDx=iconX-playerX;const playerDy=iconY-playerY;const rawPlayerDistance=Math.hypot(playerDx,playerDy);const playerDistance=Math.max(rawPlayerDistance,.001);const playerMinimum=iconRadius+55+8;
+          if(playerDistance<playerMinimum){const nx=rawPlayerDistance<.001?Math.SQRT1_2:playerDx/playerDistance;const ny=rawPlayerDistance<.001?-Math.SQRT1_2:playerDy/playerDistance;const correction=playerMinimum-playerDistance;bodies[owner].x+=nx*correction;bodies[owner].y+=ny*correction;bodies[owner].vx+=nx*correction*.02;bodies[owner].vy+=ny*correction*.02;}
+        });
+        for(let a=0;a<askOwnerIndices.current.length;a++)for(let b=a+1;b<askOwnerIndices.current.length;b++){
+          const ownerA=askOwnerIndices.current[a];const ownerB=askOwnerIndices.current[b];const dx=askPositionX(ownerB)-askPositionX(ownerA);const dy=askPositionY(ownerB)-askPositionY(ownerA);const rawDistance=Math.hypot(dx,dy);const distance=Math.max(rawDistance,.001);const minimum=iconRadius*2+8;
+          if(distance<minimum){const nx=rawDistance<.001?Math.SQRT1_2:dx/distance;const ny=rawDistance<.001?Math.SQRT1_2:dy/distance;const correction=(minimum-distance)*.505;bodies[ownerA].x-=nx*correction;bodies[ownerA].y-=ny*correction;bodies[ownerB].x+=nx*correction;bodies[ownerB].y+=ny*correction;}
+        }
       }
       bodies.forEach((body,index)=>{
         bubbleOffsets[index].x.set(body.x); bubbleOffsets[index].y.set(body.y);
@@ -167,6 +186,8 @@ function FriendSpace({ selected, asks, activityOverrides, nudgeFriend, incomingK
     };
     const friendPositionX=(index:number,body:{x:number})=>friends[index].x+body.x;
     const friendPositionY=(index:number,body:{y:number})=>friends[index].y+body.y;
+    const askPositionX=(index:number)=>friendPositionX(index,bodies[index])+friends[index].size/2-askMetrics.current.inset+askMetrics.current.size/2;
+    const askPositionY=(index:number)=>friendPositionY(index,bodies[index])-friends[index].size/2+askMetrics.current.top+askMetrics.current.size/2;
     frame=requestAnimationFrame(tick); return()=>cancelAnimationFrame(frame);
   },[bubbleOffsets,smoothWorldX,smoothWorldY]);
 
