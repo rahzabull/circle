@@ -309,7 +309,7 @@ function FriendSpace({ selected, asks, activityOverrides, nudgeFriend, actionFri
           </motion.div>
         </div>
       </motion.div>
-      <div className="player-layer"><div className="player-anchor"><motion.button className="you" aria-label="Open your profile feed" onClick={onUser} whileHover={{scale:1.045}} whileTap={{scale:.97}}><img className="you-avatar" src={currentUser.image} alt=""/><img className="player-crown" src="/crown.png" alt="" aria-hidden="true" draggable={false}/></motion.button><AnimatePresence>{canAddFriend&&<motion.button className="add-person-bubble player-add-person" onPointerDown={event=>event.stopPropagation()} onClick={onAddFriend} initial={{opacity:0,scale:.75}} animate={{opacity:1,scale:1}} exit={{opacity:0,scale:.7}} whileHover={{scale:1.07}} whileTap={{scale:.92}} aria-label="Add a person to your Circle"><Plus size={26} strokeWidth={2.1}/></motion.button>}</AnimatePresence></div></div>
+      <div className="player-layer"><div className="player-anchor"><motion.button className="you" aria-label="Open your profile feed" onClick={onUser} whileHover={{scale:1.045}} whileTap={{scale:.97}}><img className="you-avatar" src={currentUser.image} alt=""/><img className="player-crown" src="/crown.png" alt="" aria-hidden="true" draggable={false}/></motion.button><AnimatePresence>{canAddFriend&&<motion.button className="add-person-bubble player-add-person" onPointerDown={event=>event.stopPropagation()} onClick={onAddFriend} initial={{opacity:0,scale:.75}} animate={{opacity:1,scale:1}} exit={{opacity:0,scale:.7}} whileTap={{scale:.94}} aria-label="Add a person to your Circle"><Plus size={26} strokeWidth={2.1}/></motion.button>}</AnimatePresence></div></div>
     </section>
   );
 }
