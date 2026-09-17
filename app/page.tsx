@@ -92,16 +92,12 @@ function KnockNudge({friend,activity,onSend,onDismiss,onImpact}:{friend:Friend;a
   </motion.div>;
 }
 
-function IncomingKnockChip({knock,onRespond}:{knock:Knock;onRespond:()=>void}){
-  return <div className="incoming-knock-anchor"><motion.button className="incoming-knock-chip" onPointerDown={event=>event.stopPropagation()} onClick={event=>{event.stopPropagation();onRespond();}} initial={{opacity:0,scale:.72,y:6}} animate={{opacity:1,scale:1,y:0}} whileHover={{scale:1.04,y:-2}} whileTap={{scale:.97}} aria-label={`Respond to ${knock.from}'s Knock`}><span>👊</span><b>{knock.from} knocked</b><small>Respond</small></motion.button></div>;
-}
-
-function FloatingFriend({ friend, index, selected, offset, ask, activity, knockNudge, incomingKnock, onHover, onOpen, onAsk, onKnock, onDismissKnock, onRespondKnock }:{ friend:Friend; index:number; selected:boolean; offset:BubbleOffset; ask:AskPrompt|null; activity:ActivityState; knockNudge:boolean; incomingKnock:Knock|null; onHover:(index:number|null)=>void; onOpen:()=>void; onAsk:(ask:AskPrompt)=>void; onKnock:(friend:Friend)=>void; onDismissKnock:()=>void; onRespondKnock:(knock:Knock)=>void }) {
+function FloatingFriend({ friend, index, selected, offset, ask, activity, knockNudge, onHover, onOpen, onAsk, onKnock, onDismissKnock }:{ friend:Friend; index:number; selected:boolean; offset:BubbleOffset; ask:AskPrompt|null; activity:ActivityState; knockNudge:boolean; onHover:(index:number|null)=>void; onOpen:()=>void; onAsk:(ask:AskPrompt)=>void; onKnock:(friend:Friend)=>void; onDismissKnock:()=>void }) {
   const placement:'left'|'right'|'above'=friend.x>25?'right':friend.x<-25?'left':friend.y>100?'above':'left';
   const [knockImpact,setKnockImpact]=useState(false);const reduceMotion=useReducedMotion();
   return (
     <motion.div
-      className={`friend activity-${activity} ${activity==='active'||activity==='recentlyActive'?'is-active':'is-inactive'}${selected ? ' is-selected' : ''}${ask?' has-ask':''}${knockNudge||incomingKnock?' has-knock':''}`}
+      className={`friend activity-${activity} ${activity==='active'||activity==='recentlyActive'?'is-active':'is-inactive'}${selected ? ' is-selected' : ''}${ask?' has-ask':''}${knockNudge?' has-knock':''}`}
       style={{ '--offset-x':`${friend.x}px`, '--offset-y':`${friend.y}px`, '--bubble-size':`${friend.size}px`, '--tone':friend.color, x:offset.x, y:offset.y } as MotionStyle}
       initial={{ opacity:0, scale:.82 }} animate={{ opacity:selected ? 0 : 1, scale:1 }}
       transition={{ opacity:{duration:.32,ease:'easeOut'}, scale:{delay:.035*index,type:'spring',stiffness:120,damping:20,mass:.8} }}
@@ -110,12 +106,11 @@ function FloatingFriend({ friend, index, selected, offset, ask, activity, knockN
       <motion.button className="friend-profile" onClick={onOpen} aria-label={`Open ${friend.name}'s latest moment`} whileHover={{scale:1.055}} whileTap={{scale:.97}}><span className="friend-float"><motion.span className="portrait" layoutId={`avatar-${friend.name}`} animate={!reduceMotion&&knockImpact?{x:[0,3,-2,2,0],rotate:[0,2,-2,1,0]}:{x:0,rotate:0}} transition={{duration:reduceMotion?0:.72,type:'spring',stiffness:260,damping:13}}><img src={friend.image} alt="" /></motion.span><b>{friend.name}</b></span></motion.button>
       {ask&&<AskChip ask={ask} placement={placement} onOpen={()=>onAsk(ask)}/>}
       <AnimatePresence>{knockNudge&&<KnockNudge friend={friend} activity={activity} onSend={()=>onKnock(friend)} onDismiss={onDismissKnock} onImpact={setKnockImpact}/>}</AnimatePresence>
-      {incomingKnock&&<IncomingKnockChip knock={incomingKnock} onRespond={()=>onRespondKnock(incomingKnock)}/>}
     </motion.div>
   );
 }
 
-function FriendSpace({ selected, asks, activityOverrides, nudgeFriend, incomingKnocks, onOpen, onUser, onAsk, onKnock, onDismissKnock, onRespondKnock }:{ selected:Friend|null; asks:AskPrompt[]; activityOverrides:Record<string,ActivityOverride>; nudgeFriend:string|null; incomingKnocks:Knock[]; onOpen:(friend:Friend)=>void; onUser:()=>void; onAsk:(ask:AskPrompt)=>void; onKnock:(friend:Friend)=>void; onDismissKnock:()=>void; onRespondKnock:(knock:Knock)=>void }) {
+function FriendSpace({ selected, asks, activityOverrides, nudgeFriend, onOpen, onUser, onAsk, onKnock, onDismissKnock }:{ selected:Friend|null; asks:AskPrompt[]; activityOverrides:Record<string,ActivityOverride>; nudgeFriend:string|null; onOpen:(friend:Friend)=>void; onUser:()=>void; onAsk:(ask:AskPrompt)=>void; onKnock:(friend:Friend)=>void; onDismissKnock:()=>void }) {
   const worldX=useMotionValue(0); const worldY=useMotionValue(0);
   const smoothWorldX=useSpring(worldX,{stiffness:390,damping:40,mass:.92}); const smoothWorldY=useSpring(worldY,{stiffness:390,damping:40,mass:.92});
   const [isDragging,setIsDragging]=useState(false); const [hasMoved,setHasMoved]=useState(false);
@@ -230,7 +225,7 @@ function FriendSpace({ selected, asks, activityOverrides, nudgeFriend, incomingK
     <section ref={spaceRef} className={`social-space orbital-field${selected ? ' is-muted' : ''}${isDragging?' is-dragging':''}`} aria-label="Your close friends" onPointerDown={pointerDown} onPointerMove={pointerMove} onPointerUp={pointerEnd} onPointerCancel={pointerEnd} onClickCapture={event=>{if(suppressClick.current){event.preventDefault();event.stopPropagation();}}}>
       <motion.div className="world-layer" style={{x:smoothWorldX,y:smoothWorldY}}>
         <div className="world-stage">
-          {friends.map((friend,index)=><FloatingFriend friend={friend} index={index} selected={selected?.name===friend.name} offset={bubbleOffsets[index]} ask={asks.find(ask=>ask.sender===friend.name&&ask.recipients.includes('You'))||null} activity={getActivityState(friend,activityOverrides[friend.name])} knockNudge={nudgeFriend===friend.name} incomingKnock={incomingKnocks.find(knock=>knock.from===friend.name)||null} onHover={value=>{hovered.current=value;}} onOpen={()=>onOpen(friend)} onAsk={onAsk} onKnock={onKnock} onDismissKnock={onDismissKnock} onRespondKnock={onRespondKnock} key={friend.name} />)}
+          {friends.map((friend,index)=><FloatingFriend friend={friend} index={index} selected={selected?.name===friend.name} offset={bubbleOffsets[index]} ask={asks.find(ask=>ask.sender===friend.name&&ask.recipients.includes('You'))||null} activity={getActivityState(friend,activityOverrides[friend.name])} knockNudge={nudgeFriend===friend.name} onHover={value=>{hovered.current=value;}} onOpen={()=>onOpen(friend)} onAsk={onAsk} onKnock={onKnock} onDismissKnock={onDismissKnock} key={friend.name} />)}
         </div>
       </motion.div>
       <div className="player-layer"><div className="player-anchor"><motion.button className="you" aria-label="Create a post" onClick={onUser} whileHover={{scale:1.045}} whileTap={{scale:.97}}><img src="https://i.pravatar.cc/240?img=68" alt=""/></motion.button></div></div>
@@ -400,7 +395,7 @@ export default function Home() {
   const replyToAsk=(ask:AskPrompt,image:string)=>{setAsks(current=>current.map(item=>item.id===ask.id?{...item,responses:[...item.responses.filter(response=>response.responder!=='You'),{id:`response-you-${Date.now()}`,responder:'You',image,sentAt:'now'}]}:item));setReplyAsk(null);showToast(`Photo sent privately to ${ask.sender}`);};
   return <main className="friend-space" aria-label={backgroundLabel}>
     <header className="circle-header"><div><h1>Circle</h1><p>Your people. Closer.</p></div><nav><button ref={knockInboxRef} className="knock-inbox-trigger" onClick={()=>{setKnocksOpen(value=>!value);setNotificationsOpen(false);}} aria-label={knocksOpen?'Close Knocks':'Open Knocks'} aria-expanded={knocksOpen} aria-controls="knock-inbox"><span>👊</span><b>Knock</b>{incomingKnocks.length>0&&<i>{incomingKnocks.length}</i>}</button><button ref={bellRef} className="bell" onClick={()=>{setNotificationsOpen(value=>!value);setKnocksOpen(false);}} aria-label={notificationsOpen?'Close notifications':'Open notifications'} aria-expanded={notificationsOpen}><Bell size={21} strokeWidth={1.8}/><span/></button></nav></header>
-    <FriendSpace selected={selected} asks={asks} activityOverrides={activityOverrides} nudgeFriend={nudgeFriend} incomingKnocks={incomingKnocks} onOpen={openFriend} onUser={()=>setComposerOpen(true)} onAsk={openAsk} onKnock={sendKnock} onDismissKnock={()=>setNudgeFriend(null)} onRespondKnock={knock=>setKnockComposerId(knock.id)}/>
+    <FriendSpace selected={selected} asks={asks} activityOverrides={activityOverrides} nudgeFriend={nudgeFriend} onOpen={openFriend} onUser={()=>setComposerOpen(true)} onAsk={openAsk} onKnock={sendKnock} onDismissKnock={()=>setNudgeFriend(null)}/>
     <button ref={inviteTriggerRef} className="circle-count" onClick={()=>setInviteOpen(v=>!v)} aria-label="Add people to your circle" aria-expanded={inviteOpen} aria-controls="quick-invite"><Users size={19}/><span>9 close friends</span><Plus size={17}/></button>
     <AnimatePresence>{inviteOpen&&<motion.aside id="quick-invite" className="quick-invite" initial={{opacity:0,y:10,scale:.96}} animate={{opacity:1,y:0,scale:1}} exit={{opacity:0,y:6,scale:.97}}><button ref={inviteCloseRef} onClick={()=>setInviteOpen(false)} aria-label="Close invite"><X size={16}/></button><small>INVITE TO YOUR CIRCLE</small><h2>Someone missing?</h2><div><input type="email" aria-label="Email address" placeholder="friend@email.com"/><button onClick={()=>setInviteOpen(false)} aria-label="Send invite"><Send size={16}/></button></div></motion.aside>}</AnimatePresence>
     <button className="post-action" onClick={()=>setComposerOpen(true)}><span><Plus size={30}/></span><b>Post</b></button>
