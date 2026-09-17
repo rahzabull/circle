@@ -95,7 +95,7 @@ function KnockNudge({friend,activity,onSend,onDismiss,onImpact}:{friend:Friend;a
 }
 
 function IncomingKnockChip({knock,onRespond}:{knock:Knock;onRespond:()=>void}){
-  return <motion.button className="incoming-knock-chip" onPointerDown={event=>event.stopPropagation()} onClick={event=>{event.stopPropagation();onRespond();}} initial={{opacity:0,scale:.72,y:6}} animate={{opacity:1,scale:1,y:0}} whileHover={{scale:1.04,y:-2}} whileTap={{scale:.97}} aria-label={`Respond to ${knock.from}'s Knock`}><span>👊</span><b>{knock.from} knocked</b><small>Respond</small></motion.button>;
+  return <div className="incoming-knock-anchor"><motion.button className="incoming-knock-chip" onPointerDown={event=>event.stopPropagation()} onClick={event=>{event.stopPropagation();onRespond();}} initial={{opacity:0,scale:.72,y:6}} animate={{opacity:1,scale:1,y:0}} whileHover={{scale:1.04,y:-2}} whileTap={{scale:.97}} aria-label={`Respond to ${knock.from}'s Knock`}><span>👊</span><b>{knock.from} knocked</b><small>Respond</small></motion.button></div>;
 }
 
 function FloatingFriend({ friend, index, selected, offset, ask, activity, knockNudge, incomingKnock, onHover, onOpen, onAsk, onKnock, onDismissKnock, onRespondKnock }:{ friend:Friend; index:number; selected:boolean; offset:BubbleOffset; ask:AskPrompt|null; activity:ActivityState; knockNudge:boolean; incomingKnock:Knock|null; onHover:(index:number|null)=>void; onOpen:()=>void; onAsk:(ask:AskPrompt)=>void; onKnock:(friend:Friend)=>void; onDismissKnock:()=>void; onRespondKnock:(knock:Knock)=>void }) {
