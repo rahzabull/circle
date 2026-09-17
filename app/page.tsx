@@ -1,7 +1,7 @@
 'use client';
 
 import type { CSSProperties, ChangeEvent, FormEvent, MouseEvent as ReactMouseEvent, PointerEvent as ReactPointerEvent } from 'react';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, animate, motion, motionValue, useMotionValue, useReducedMotion, useSpring, useTransform } from 'framer-motion';
 import type { MotionStyle, MotionValue } from 'framer-motion';
 import { Bell, Camera, Check, ChevronRight, Heart, ImagePlus, LockKeyhole, MessageCircleQuestion, Mic, Play, Plus, Send, SmilePlus, Upload, UserRound, Users, X } from 'lucide-react';
@@ -37,6 +37,7 @@ const ADD_FRIEND_BUBBLE={x:-173,y:151,size:64} as const;
 const currentUser={id:'you',name:'You',image:'https://i.pravatar.cc/240?img=68',color:'#ff5b63'} as const;
 const getActivityState=(friend:Friend,override?:ActivityOverride):ActivityState=>{const latest=Math.max(override?.lastActiveAt??friend.lastActiveAt,override?.lastPostedAt??friend.lastPostedAt);const age=(override?Date.now():prototypeNow)-latest;if(age<=ACTIVITY_THRESHOLDS.active)return'active';if(age<=ACTIVITY_THRESHOLDS.recentlyActive)return'recentlyActive';if(age<=ACTIVITY_THRESHOLDS.quiet)return'quiet';return'inactive';};
 const canReceiveKnock=(state:ActivityState)=>state==='quiet'||state==='inactive';
+const getIceLevel=(friend:Friend,activity:ActivityState)=>{if(!canReceiveKnock(activity))return 0;const age=prototypeNow-Math.max(friend.lastActiveAt,friend.lastPostedAt);if(activity==='quiet')return Math.min(.58,.3+Math.max(0,age-DAY)/(3*DAY)*.28);return Math.min(.94,.64+Math.max(0,age-5*DAY)/(9*DAY)*.3);};
 const ACTIVITY_VISUAL_RULES:Record<ActivityState,{scale:number;min:number;max:number;separation:number}>={active:{scale:1.04,min:112,max:138,separation:0},recentlyActive:{scale:.92,min:94,max:108,separation:8},quiet:{scale:.78,min:74,max:88,separation:18},inactive:{scale:.72,min:60,max:70,separation:28}};
 const getActivityVisual=(friend:Friend,activity:ActivityState):ActivityVisual=>{const rule=ACTIVITY_VISUAL_RULES[activity];return{activity,size:Math.round(Math.min(rule.max,Math.max(rule.min,friend.size*rule.scale))),separation:rule.separation};};
 
@@ -141,7 +142,8 @@ function ProfileActions({friend,onKnock,onKick,onDismiss,onImpact}:{friend:Frien
 
 function FloatingFriend({ friend, index, selected, offset, orbitCounterRotation, ask, askNow, activity, knockNudge, actionsOpen, onHover, onOpen, onAsk, onKnock, onRevealActions, onDismissKnock, onDismissActions, onKick }:{ friend:Friend; index:number; selected:boolean; offset:BubbleOffset; orbitCounterRotation:MotionValue<number>; ask:AskPrompt|null; askNow:number|null; activity:ActivityState; knockNudge:boolean; actionsOpen:boolean; onHover:(index:number|null)=>void; onOpen:()=>void; onAsk:(ask:AskPrompt)=>void; onKnock:(friend:Friend)=>boolean; onRevealActions:(friend:Friend)=>void; onDismissKnock:()=>void; onDismissActions:()=>void; onKick:(friend:Friend)=>void }) {
   const placement:'left'|'right'|'above'=friend.x>25?'right':friend.x<-25?'left':friend.y>100?'above':'left';
-  const [knockImpact,setKnockImpact]=useState(false);const reduceMotion=useReducedMotion();
+  const [knockImpact,setKnockImpact]=useState(false);const [iceDropped,setIceDropped]=useState(false);const reduceMotion=useReducedMotion();const iceLevel=getIceLevel(friend,activity);
+  const handleImpact=useCallback((active:boolean)=>{setKnockImpact(active);if(active)setIceDropped(true);},[]);
   const holdTimer=useRef<number|undefined>(undefined);const holdState=useRef<{pointerId:number;startX:number;startY:number;triggered:boolean}|null>(null);const suppressOpenUntil=useRef(0);
   useEffect(()=>()=>{if(holdTimer.current)window.clearTimeout(holdTimer.current);},[]);
   const clearHold=()=>{if(holdTimer.current)window.clearTimeout(holdTimer.current);holdTimer.current=undefined;holdState.current=null;};
@@ -156,17 +158,17 @@ function FloatingFriend({ friend, index, selected, offset, orbitCounterRotation,
   const openProfile=(event:ReactMouseEvent<HTMLButtonElement>)=>{if(actionsOpen||performance.now()<suppressOpenUntil.current){event.preventDefault();event.stopPropagation();return;}onOpen();};
   return (
     <motion.div
-      className={`friend activity-${activity} ${activity==='active'||activity==='recentlyActive'?'is-active':'is-inactive'}${selected ? ' is-selected' : ''}${ask?' has-ask':''}${knockNudge?' has-knock':''}${actionsOpen?' has-profile-actions':''}`}
-      style={{ '--offset-x':`${friend.x}px`, '--offset-y':`${friend.y}px`, '--bubble-size':offset.size, '--tone':friend.color, x:offset.x, y:offset.y, rotate:orbitCounterRotation } as MotionStyle}
+      className={`friend activity-${activity} ${activity==='active'||activity==='recentlyActive'?'is-active':'is-inactive'}${selected ? ' is-selected' : ''}${ask?' has-ask':''}${knockNudge?' has-knock':''}${actionsOpen?' has-profile-actions':''}${iceDropped?' ice-dropped':''}${knockImpact?' is-thawing':''}`}
+      style={{ '--offset-x':`${friend.x}px`, '--offset-y':`${friend.y}px`, '--bubble-size':offset.size, '--tone':friend.color, '--ice-level':iceLevel, x:offset.x, y:offset.y, rotate:orbitCounterRotation } as MotionStyle}
       initial={{ opacity:0, scale:.82 }} animate={{ opacity:selected ? 0 : 1, scale:1 }}
       exit={{opacity:0,scale:.68,transition:{duration:.22,ease:'easeIn'}}}
       transition={{ opacity:{duration:.32,ease:'easeOut'}, scale:{delay:.035*index,type:'spring',stiffness:120,damping:20,mass:.8} }}
       onHoverStart={()=>onHover(index)} onHoverEnd={()=>onHover(null)}
     >
-      <motion.button className="friend-profile" onClick={openProfile} onPointerDown={beginHold} onPointerMove={moveHold} onPointerUp={endHold} onPointerCancel={cancelHold} onPointerLeave={cancelHold} onContextMenu={event=>{if(canReceiveKnock(activity))event.preventDefault();}} aria-label={`Open ${friend.name}'s latest moment${canReceiveKnock(activity)?'; press and hold for actions':''}`} whileHover={{scale:1.075,y:-3.5}} whileTap={{scale:.97,y:0}} transition={{type:'spring',stiffness:270,damping:20}}><span className="friend-float"><motion.span className="portrait" layoutId={`avatar-${friend.name}`} animate={!reduceMotion&&knockImpact?{x:[0,9,-4,3,0],scaleX:[1,.86,1.07,.98,1],scaleY:[1,1.08,.94,1.02,1],rotate:[0,4,-3,1,0]}:{x:0,scaleX:1,scaleY:1,rotate:0}} transition={{duration:reduceMotion?0:.62,ease:'easeInOut',times:[0,.16,.42,.7,1]}}>{knockImpact&&<motion.span className="knock-impact-ring" initial={reduceMotion?{opacity:0}:{opacity:.92,scale:.72}} animate={reduceMotion?{opacity:.45}:{opacity:0,scale:1.42}} transition={{duration:reduceMotion ? .18 : .58,ease:'easeOut'}} aria-hidden="true"/>}<img src={friend.image} alt="" /></motion.span><b>{friend.name}</b></span></motion.button>
+      <motion.button className="friend-profile" onClick={openProfile} onPointerDown={beginHold} onPointerMove={moveHold} onPointerUp={endHold} onPointerCancel={cancelHold} onPointerLeave={cancelHold} onContextMenu={event=>{if(canReceiveKnock(activity))event.preventDefault();}} aria-label={`Open ${friend.name}'s latest moment${canReceiveKnock(activity)?'; press and hold for actions':''}`} whileHover={{scale:1.075,y:-3.5}} whileTap={{scale:.97,y:0}} transition={{type:'spring',stiffness:270,damping:20}}><span className="friend-float"><motion.span className="portrait" layoutId={`avatar-${friend.name}`} animate={!reduceMotion&&knockImpact?{x:[0,9,-4,3,0],scaleX:[1,.86,1.07,.98,1],scaleY:[1,1.08,.94,1.02,1],rotate:[0,4,-3,1,0]}:{x:0,scaleX:1,scaleY:1,rotate:0}} transition={{duration:reduceMotion?0:.62,ease:'easeInOut',times:[0,.16,.42,.7,1]}}>{knockImpact&&<motion.span className="knock-impact-ring" initial={reduceMotion?{opacity:0}:{opacity:.92,scale:.72}} animate={reduceMotion?{opacity:.45}:{opacity:0,scale:1.42}} transition={{duration:reduceMotion ? .18 : .58,ease:'easeOut'}} aria-hidden="true"/>}<img src={friend.image} alt="" />{knockImpact&&canReceiveKnock(activity)&&<span className="ice-shards" aria-hidden="true"><i/><i/><i/><i/><i/><i/></span>}</motion.span><b>{friend.name}</b></span></motion.button>
       {ask&&<AskChip ask={ask} placement={placement} now={askNow} onOpen={()=>onAsk(ask)}/>}
-      <AnimatePresence>{knockNudge&&<KnockNudge friend={friend} activity={activity} onSend={()=>onKnock(friend)} onDismiss={onDismissKnock} onImpact={setKnockImpact}/>}</AnimatePresence>
-      <AnimatePresence>{actionsOpen&&<ProfileActions friend={friend} onKnock={()=>onKnock(friend)} onKick={()=>onKick(friend)} onDismiss={onDismissActions} onImpact={setKnockImpact}/>}</AnimatePresence>
+      <AnimatePresence>{knockNudge&&<KnockNudge friend={friend} activity={activity} onSend={()=>onKnock(friend)} onDismiss={onDismissKnock} onImpact={handleImpact}/>}</AnimatePresence>
+      <AnimatePresence>{actionsOpen&&<ProfileActions friend={friend} onKnock={()=>onKnock(friend)} onKick={()=>onKick(friend)} onDismiss={onDismissActions} onImpact={handleImpact}/>}</AnimatePresence>
     </motion.div>
   );
 }
