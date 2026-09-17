@@ -4,12 +4,12 @@ import { motion, useReducedMotion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 
 const routes = [
-  { start:4, middle:34, end:78, tilt:-18, turn:14 },
-  { start:88, middle:64, end:16, tilt:16, turn:-20 },
-  { start:28, middle:57, end:84, tilt:-9, turn:21 },
-  { start:74, middle:38, end:8, tilt:20, turn:-14 },
-  { start:12, middle:48, end:66, tilt:-15, turn:11 },
-  { start:92, middle:54, end:30, tilt:12, turn:-24 },
+  { start:4, end:78, tilt:-18, turn:14 },
+  { start:88, end:16, tilt:16, turn:-20 },
+  { start:28, end:84, tilt:-9, turn:21 },
+  { start:74, end:8, tilt:20, turn:-14 },
+  { start:12, end:66, tilt:-15, turn:11 },
+  { start:92, end:30, tilt:12, turn:-24 },
 ] as const;
 
 export default function FloatingAstronaut(){
@@ -29,15 +29,21 @@ export default function FloatingAstronaut(){
     <motion.div
       className="astronaut-route"
       key={routeIndex}
-      initial={{left:`${route.start}vw`,top:'112vh',rotate:route.tilt,opacity:0,scale:.82}}
+      initial={{left:`${route.start}vw`,top:'116vh',rotate:route.tilt,opacity:0,scale:.84}}
       animate={{
-        left:[`${route.start}vw`,`${route.middle}vw`,`${route.middle+4}vw`,`${route.end}vw`],
-        top:['112vh','72vh','27vh','-34vh'],
-        rotate:[route.tilt,route.tilt+5,route.turn-4,route.turn],
-        opacity:[0,.62,.62,0],
-        scale:[.82,.94,1,.88],
+        left:`${route.end}vw`,
+        top:'-36vh',
+        rotate:route.turn,
+        opacity:[0,.18,.62,.62,.18,0],
+        scale:[.84,.9,.98,.98,.92,.86],
       }}
-      transition={{duration:8.8,times:[0,.28,.68,1],ease:[.42,0,.24,1]}}
+      transition={{
+        left:{duration:9.5,ease:[.45,0,.55,1]},
+        top:{duration:9.5,ease:[.45,0,.55,1]},
+        rotate:{duration:9.5,ease:[.45,0,.55,1]},
+        opacity:{duration:9.5,times:[0,.1,.24,.76,.9,1],ease:'easeInOut'},
+        scale:{duration:9.5,times:[0,.14,.3,.7,.86,1],ease:'easeInOut'},
+      }}
     >
       <motion.img
         src="/ducky-astro.svg"
