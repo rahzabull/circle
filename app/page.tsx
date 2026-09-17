@@ -4,7 +4,7 @@ import type { CSSProperties, ChangeEvent, PointerEvent as ReactPointerEvent } fr
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, animate, motion, motionValue, useMotionValue, useReducedMotion, useSpring } from 'framer-motion';
 import type { MotionStyle, MotionValue } from 'framer-motion';
-import { Bell, Camera, Check, ChevronRight, Heart, ImagePlus, LocateFixed, LockKeyhole, MessageCircleQuestion, Mic, Pencil, Play, Plus, Send, SmilePlus, Trash2, Undo2, Upload, Users, X } from 'lucide-react';
+import { Bell, Camera, Check, ChevronRight, Heart, ImagePlus, LocateFixed, LockKeyhole, MessageCircleQuestion, Mic, Play, Plus, Send, SmilePlus, Upload, Users, X } from 'lucide-react';
 
 type Friend = {
   name: string; color: string; x: number; y: number; size: number; image: string;
@@ -19,7 +19,7 @@ type Knock = { id:string; from:string; to:string; createdAt:number; status:'wait
 type AskResponse = { id:string; responder:string; image:string; sentAt:string };
 type AskPrompt = { id:string; sender:string; text:string; recipients:string[]; audienceLabel:string; createdAt:number; responses:AskResponse[] };
 type AskAudience = 'everyone'|'group'|'friends';
-type ReactionKind = 'meme'|'voice'|'doodle'|'selfie';
+type ReactionKind = 'meme'|'voice'|'selfie'|'photo';
 type Reaction = { id:string; type:ReactionKind; label:string; emoji?:string; image?:string; duration?:string };
 type SocialNotification = { id:string; friend:Friend; text:string; mark:string; time:string; action:'knock'|'knock-response'|'reaction'|'ask'|'ask-response'; askId?:string; knockId?:string };
 
@@ -244,35 +244,25 @@ function ReactionObject({reaction,index}:{reaction:Reaction;index:number}){
     {reaction.type==='meme'&&<><span>{reaction.emoji}</span><b>{reaction.label}</b></>}
     {reaction.type==='voice'&&<><Play size={10} fill="currentColor"/><i className="mini-wave"><em/><em/><em/><em/></i><b>{reaction.duration}</b></>}
     {reaction.type==='selfie'&&<img src={reaction.image} alt="Your selfie reaction"/>}
-    {reaction.type==='doodle'&&<img src={reaction.image} alt="Your doodle reaction"/>}
+    {reaction.type==='photo'&&<img src={reaction.image} alt="Your photo response"/>}
   </motion.button>;
 }
 
 function VoiceReaction({onSend,onClose}:{onSend:()=>void;onClose:()=>void}){
-  const [ready,setReady]=useState(false);
+  const [ready,setReady]=useState(false);const [recording,setRecording]=useState(false);const timer=useRef<number|undefined>(undefined);
+  useEffect(()=>()=>{if(timer.current)window.clearTimeout(timer.current);},[]);
+  const start=(event:ReactPointerEvent<HTMLButtonElement>)=>{event.currentTarget.setPointerCapture(event.pointerId);setRecording(true);timer.current=window.setTimeout(()=>{setRecording(false);setReady(true);},3000);};
+  const stop=()=>{if(!recording)return;if(timer.current)window.clearTimeout(timer.current);setRecording(false);setReady(true);};
   return <motion.div className="reaction-tool voice-tool" initial={{opacity:0,y:10,scale:.95}} animate={{opacity:1,y:0,scale:1}} exit={{opacity:0,y:7,scale:.96}}>
-    <button className="tool-close" onClick={onClose} aria-label="Close voice reaction"><X size={14}/></button><small>VOICE REACTION</small>
-    {!ready?<button className="hold-voice" onPointerDown={()=>setReady(true)}><span><Mic size={23}/></span><b>Hold to react</b><small>Release creates a private 0:04 clip</small></button>:<><div className="voice-preview"><button aria-label="Play voice reaction"><Play size={13} fill="currentColor"/></button><i className="mini-wave"><em/><em/><em/><em/><em/><em/></i><b>0:04</b></div><button className="tool-send" onClick={onSend}><Send size={14}/> Send</button></>}
-  </motion.div>;
-}
-
-function DoodlePad({onSend,onClose}:{onSend:(image:string)=>void;onClose:()=>void}){
-  const canvas=useRef<HTMLCanvasElement>(null);const drawing=useRef(false);const history=useRef<string[]>([]);
-  useEffect(()=>{const element=canvas.current;if(!element)return;const context=element.getContext('2d');if(!context)return;context.lineCap='round';context.lineJoin='round';context.lineWidth=4;context.strokeStyle='#ff5964';},[]);
-  const point=(event:ReactPointerEvent<HTMLCanvasElement>)=>{const rect=event.currentTarget.getBoundingClientRect();return{x:(event.clientX-rect.left)*event.currentTarget.width/rect.width,y:(event.clientY-rect.top)*event.currentTarget.height/rect.height};};
-  const down=(event:ReactPointerEvent<HTMLCanvasElement>)=>{const context=event.currentTarget.getContext('2d');if(!context)return;history.current.push(event.currentTarget.toDataURL());drawing.current=true;event.currentTarget.setPointerCapture(event.pointerId);const p=point(event);context.beginPath();context.moveTo(p.x,p.y);};
-  const move=(event:ReactPointerEvent<HTMLCanvasElement>)=>{if(!drawing.current)return;const context=event.currentTarget.getContext('2d');if(!context)return;const p=point(event);context.lineTo(p.x,p.y);context.stroke();};
-  const restore=(source?:string)=>{const element=canvas.current;const context=element?.getContext('2d');if(!element||!context)return;context.clearRect(0,0,element.width,element.height);if(source){const image=new Image();image.onload=()=>context.drawImage(image,0,0);image.src=source;}};
-  return <motion.div className="reaction-tool doodle-tool" initial={{opacity:0,y:10,scale:.95}} animate={{opacity:1,y:0,scale:1}} exit={{opacity:0,y:7,scale:.96}}>
-    <div className="doodle-head"><small>DOODLE REACTION</small><button onClick={onClose} aria-label="Close doodle"><X size={14}/></button></div><canvas ref={canvas} width={300} height={170} onPointerDown={down} onPointerMove={move} onPointerUp={()=>{drawing.current=false;}} onPointerCancel={()=>{drawing.current=false;}}/>
-    <div className="doodle-actions"><button onClick={()=>restore(history.current.pop())}><Undo2 size={14}/> Undo</button><button onClick={()=>{history.current=[];restore();}}><Trash2 size={14}/> Clear</button><button className="tool-send" onClick={()=>canvas.current&&onSend(canvas.current.toDataURL())}><Send size={14}/> Send</button></div>
+    <button className="tool-close" onClick={onClose} aria-label="Close voice note"><X size={14}/></button><small>3 SECOND NOTE</small>
+    {!ready?<button className={`hold-voice${recording?' recording':''}`} aria-label="Record a three-second voice note" onPointerDown={start} onPointerUp={stop} onPointerCancel={stop} onClick={()=>{if(!recording)setReady(true);}}><span><Mic size={23}/></span><b>{recording?'Recording…':'Hold to record'}</b><small>{recording?'Release when you’re done · 3 sec max':'A tiny private voice note'}</small></button>:<><div className="voice-preview"><button aria-label="Play voice note"><Play size={13} fill="currentColor"/></button><i className="mini-wave"><em/><em/><em/><em/><em/><em/></i><b>0:03</b></div><button className="tool-send" onClick={onSend}><Send size={14}/> Send note</button></>}
   </motion.div>;
 }
 
 function PostViewer({ friend, onClose, onNotify }:{friend:Friend;onClose:()=>void;onNotify:(text:string)=>void}) {
-  const [liked,setLiked]=useState(false);const [reactionMenu,setReactionMenu]=useState(false);const [picker,setPicker]=useState(false);const [tool,setTool]=useState<'voice'|'doodle'|null>(null);
+  const [liked,setLiked]=useState(false);const [picker,setPicker]=useState(false);const [tool,setTool]=useState<'voice'|null>(null);
   const [reactions,setReactions]=useState<Reaction[]>([{id:'voice-maya',type:'voice',label:'Maya',duration:'0:03'},{id:'selfie-leo',type:'selfie',label:'Leo',image:friends[5].image}]);
-  const addReaction=(reaction:Reaction)=>{setReactions(current=>[...current,reaction]);setReactionMenu(false);setTool(null);onNotify(`${reaction.type} reaction sent privately`);};
+  const addReaction=(reaction:Reaction)=>{setReactions(current=>[...current,reaction]);setPicker(false);setTool(null);onNotify(reaction.type==='photo'?'Photo response sent privately':reaction.type==='voice'?'3-second note sent privately':'Reaction sent privately');};
   const pick=(meme:typeof memes[number])=>{addReaction({id:`meme-${Date.now()}`,type:'meme',label:'You',emoji:meme.emoji});setPicker(false);};
   return <motion.div className="viewer-layer" initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}}>
     <motion.button className="viewer-backdrop" onClick={onClose} aria-label="Close moment" />
@@ -287,13 +277,14 @@ function PostViewer({ friend, onClose, onNotify }:{friend:Friend;onClose:()=>voi
         <div className="reaction-objects">{reactions.map((reaction,index)=><ReactionObject reaction={reaction} index={index} key={reaction.id}/>)}</div>
       </div>
       <div className="post-copy"><p>{friend.caption}</p><PrivacyIndicator/></div>
-      <div className="post-actions-row"><button className="react-action" onClick={()=>setReactionMenu(v=>!v)}><SmilePlus size={17}/> React privately</button></div>
-      <AnimatePresence>{reactionMenu&&<motion.div className="reaction-tray" initial={{opacity:0,y:7,scale:.96}} animate={{opacity:1,y:0,scale:1}} exit={{opacity:0,y:5,scale:.97}}>
-        <button className={liked?'liked':''} onClick={()=>{setLiked(v=>!v);setReactionMenu(false);}}><Heart size={16} fill={liked?'currentColor':'none'}/><span>Like</span></button><button onClick={()=>{setPicker(true);setReactionMenu(false);}}><span>😂</span><b>Meme</b></button><button onClick={()=>{setTool('voice');setReactionMenu(false);}}><Mic size={16}/><span>Voice</span></button><button onClick={()=>{setTool('doodle');setReactionMenu(false);}}><Pencil size={16}/><span>Doodle</span></button><label className="reaction-upload"><Camera size={16}/><span>Selfie</span><input type="file" accept="image/*" onChange={event=>{const file=event.target.files?.[0];if(file)addReaction({id:`selfie-${Date.now()}`,type:'selfie',label:'You',image:URL.createObjectURL(file)});}}/></label>
-      </motion.div>}</AnimatePresence>
+      <div className="post-actions-row" role="group" aria-label="Private responses">
+        <button className={liked?'liked':''} aria-pressed={liked} onClick={()=>{setPicker(false);setTool(null);setLiked(current=>{const next=!current;onNotify(next?'Loved privately':'Love removed');return next;});}}><Heart size={17} fill={liked?'currentColor':'none'}/><span>{liked?'Loved':'Love it'}</span></button>
+        <button className={picker?'active':''} aria-expanded={picker} onClick={()=>{setPicker(value=>!value);setTool(null);}}><SmilePlus size={17}/><span>React</span></button>
+        <button className={tool==='voice'?'active':''} aria-expanded={tool==='voice'} onClick={()=>{setTool(current=>current==='voice'?null:'voice');setPicker(false);}}><Mic size={17}/><span>3 sec note</span></button>
+        <label className="post-action-upload"><ImagePlus size={17}/><span>Photo back</span><input type="file" accept="image/*" aria-label={`Send a photo back to ${friend.name}`} onChange={event=>{const file=event.target.files?.[0];if(file){addReaction({id:`photo-${Date.now()}`,type:'photo',label:'You',image:URL.createObjectURL(file)});event.currentTarget.value='';}}}/></label>
+      </div>
       <AnimatePresence>{picker&&<MemePicker onPick={pick} onClose={()=>setPicker(false)}/>}</AnimatePresence>
-      <AnimatePresence>{tool==='voice'&&<VoiceReaction onClose={()=>setTool(null)} onSend={()=>addReaction({id:`voice-${Date.now()}`,type:'voice',label:'You',duration:'0:04'})}/>}</AnimatePresence>
-      <AnimatePresence>{tool==='doodle'&&<DoodlePad onClose={()=>setTool(null)} onSend={image=>addReaction({id:`doodle-${Date.now()}`,type:'doodle',label:'You',image})}/>}</AnimatePresence>
+      <AnimatePresence>{tool==='voice'&&<VoiceReaction onClose={()=>setTool(null)} onSend={()=>addReaction({id:`voice-${Date.now()}`,type:'voice',label:'You',duration:'0:03'})}/>}</AnimatePresence>
     </motion.article>
   </motion.div>;
 }
