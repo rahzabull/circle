@@ -30,6 +30,7 @@ type ActivityVisual = { activity:ActivityState; size:number; separation:number }
 const HOUR=60*60*1000;const DAY=24*HOUR;const prototypeNow=Date.now();
 const ACTIVITY_THRESHOLDS={active:HOUR,recentlyActive:DAY,quiet:4*DAY,knockCooldown:DAY} as const;
 const MAX_CIRCLE_FRIENDS=10;
+const PLAYER_DIAMETER=110;const PLAYER_RADIUS=PLAYER_DIAMETER/2;const PLAYER_CROWN_OFFSET_Y=-59;const PLAYER_CROWN_RADIUS=30;const PLAYER_COLLISION_GAP=10;
 const currentUser={id:'you',name:'You',image:'https://i.pravatar.cc/240?img=68',color:'#ff5b63'} as const;
 const getActivityState=(friend:Friend,override?:ActivityOverride):ActivityState=>{const latest=Math.max(override?.lastActiveAt??friend.lastActiveAt,override?.lastPostedAt??friend.lastPostedAt);const age=(override?Date.now():prototypeNow)-latest;if(age<=ACTIVITY_THRESHOLDS.active)return'active';if(age<=ACTIVITY_THRESHOLDS.recentlyActive)return'recentlyActive';if(age<=ACTIVITY_THRESHOLDS.quiet)return'quiet';return'inactive';};
 const canReceiveKnock=(state:ActivityState)=>state==='quiet'||state==='inactive';
@@ -214,8 +215,10 @@ function FriendSpace({ selected, asks, activityOverrides, nudgeFriend, actionFri
           if(distance<minimum){const nx=rawDistance<.001?Math.cos(a+b):dx/distance;const ny=rawDistance<.001?Math.sin(a+b):dy/distance;const correction=(minimum-distance)*.505;bodies[a].x-=nx*correction;bodies[a].y-=ny*correction;bodies[b].x+=nx*correction;bodies[b].y+=ny*correction;}
         }
         visible.forEach(index=>{const body=bodies[index];
-          const dx=friendPositionX(index,body)-playerX;const dy=friendPositionY(index,body)-playerY;const rawDistance=Math.hypot(dx,dy);const distance=Math.max(rawDistance,.001);const minimum=(body.size+110)/2+10;
+          const dx=friendPositionX(index,body)-playerX;const dy=friendPositionY(index,body)-playerY;const rawDistance=Math.hypot(dx,dy);const distance=Math.max(rawDistance,.001);const minimum=(body.size+PLAYER_DIAMETER)/2+PLAYER_COLLISION_GAP;
           if(distance<minimum){const angle=index/friends.length*Math.PI*2;const nx=rawDistance<.001?Math.cos(angle):dx/distance;const ny=rawDistance<.001?Math.sin(angle):dy/distance;const correction=minimum-distance;body.x+=nx*correction;body.y+=ny*correction;body.vx+=nx*correction*.025;body.vy+=ny*correction*.025;}
+          const crownDx=friendPositionX(index,body)-playerX;const crownDy=friendPositionY(index,body)-(playerY+PLAYER_CROWN_OFFSET_Y);const rawCrownDistance=Math.hypot(crownDx,crownDy);const crownDistance=Math.max(rawCrownDistance,.001);const crownMinimum=body.size/2+PLAYER_CROWN_RADIUS+PLAYER_COLLISION_GAP;
+          if(crownDistance<crownMinimum){const nx=rawCrownDistance<.001?0:crownDx/crownDistance;const ny=rawCrownDistance<.001?-1:crownDy/crownDistance;const correction=crownMinimum-crownDistance;body.x+=nx*correction;body.y+=ny*correction;body.vx+=nx*correction*.025;body.vy+=ny*correction*.025;}
         });
         const iconRadius=askMetrics.current.size/2;
         askOwnerIndices.current.forEach(owner=>{
@@ -225,8 +228,10 @@ function FriendSpace({ selected, asks, activityOverrides, nudgeFriend, actionFri
             const dx=friendPositionX(index,bodies[index])-iconX;const dy=friendPositionY(index,bodies[index])-iconY;const rawDistance=Math.hypot(dx,dy);const distance=Math.max(rawDistance,.001);const minimum=iconRadius+bodies[index].size/2+8;
             if(distance<minimum){const nx=rawDistance<.001?Math.cos(owner+index):dx/distance;const ny=rawDistance<.001?Math.sin(owner+index):dy/distance;const correction=(minimum-distance)*.505;bodies[owner].x-=nx*correction;bodies[owner].y-=ny*correction;bodies[index].x+=nx*correction;bodies[index].y+=ny*correction;bodies[owner].vx-=nx*correction*.018;bodies[owner].vy-=ny*correction*.018;bodies[index].vx+=nx*correction*.018;bodies[index].vy+=ny*correction*.018;iconX-=nx*correction;iconY-=ny*correction;}
           });
-          const playerDx=iconX-playerX;const playerDy=iconY-playerY;const rawPlayerDistance=Math.hypot(playerDx,playerDy);const playerDistance=Math.max(rawPlayerDistance,.001);const playerMinimum=iconRadius+55+8;
-          if(playerDistance<playerMinimum){const nx=rawPlayerDistance<.001?Math.SQRT1_2:playerDx/playerDistance;const ny=rawPlayerDistance<.001?-Math.SQRT1_2:playerDy/playerDistance;const correction=playerMinimum-playerDistance;bodies[owner].x+=nx*correction;bodies[owner].y+=ny*correction;bodies[owner].vx+=nx*correction*.02;bodies[owner].vy+=ny*correction*.02;}
+          const playerDx=iconX-playerX;const playerDy=iconY-playerY;const rawPlayerDistance=Math.hypot(playerDx,playerDy);const playerDistance=Math.max(rawPlayerDistance,.001);const playerMinimum=iconRadius+PLAYER_RADIUS+8;
+          if(playerDistance<playerMinimum){const nx=rawPlayerDistance<.001?Math.SQRT1_2:playerDx/playerDistance;const ny=rawPlayerDistance<.001?-Math.SQRT1_2:playerDy/playerDistance;const correction=playerMinimum-playerDistance;bodies[owner].x+=nx*correction;bodies[owner].y+=ny*correction;bodies[owner].vx+=nx*correction*.02;bodies[owner].vy+=ny*correction*.02;iconX+=nx*correction;iconY+=ny*correction;}
+          const crownDx=iconX-playerX;const crownDy=iconY-(playerY+PLAYER_CROWN_OFFSET_Y);const rawCrownDistance=Math.hypot(crownDx,crownDy);const crownDistance=Math.max(rawCrownDistance,.001);const crownMinimum=iconRadius+PLAYER_CROWN_RADIUS+8;
+          if(crownDistance<crownMinimum){const nx=rawCrownDistance<.001?0:crownDx/crownDistance;const ny=rawCrownDistance<.001?-1:crownDy/crownDistance;const correction=crownMinimum-crownDistance;bodies[owner].x+=nx*correction;bodies[owner].y+=ny*correction;bodies[owner].vx+=nx*correction*.02;bodies[owner].vy+=ny*correction*.02;}
         });
         for(let a=0;a<askOwnerIndices.current.length;a++)for(let b=a+1;b<askOwnerIndices.current.length;b++){
           const ownerA=askOwnerIndices.current[a];const ownerB=askOwnerIndices.current[b];const dx=askPositionX(ownerB)-askPositionX(ownerA);const dy=askPositionY(ownerB)-askPositionY(ownerA);const rawDistance=Math.hypot(dx,dy);const distance=Math.max(rawDistance,.001);const minimum=iconRadius*2+8;
