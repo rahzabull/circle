@@ -68,7 +68,7 @@
 .friend .portrait>i.new{background:#ff5c64}.friend .portrait>i.online{background:#67c85b}
 .friend.is-inactive img{filter:grayscale(1) saturate(0) contrast(1.05) brightness(.56);opacity:.8}
 .friend.is-inactive .portrait{border-color:rgba(255,255,255,.12);box-shadow:0 10px 30px rgba(0,0,0,.18)}
-.you{left:50%;top:48%;width:174px;height:174px;margin:-87px 0 0 -87px;padding:7px;overflow:visible;background:#fff;box-shadow:0 0 0 1px rgba(255,255,255,.92),0 0 28px rgba(255,255,255,.36),0 0 72px rgba(255,255,255,.2),0 24px 68px rgba(0,0,0,.48)}
+.you{left:50%;top:48%;width:174px;height:174px;margin:-87px 0 0 -87px;padding:7px;overflow:visible;background:#ffd84d;box-shadow:0 0 0 1px rgba(255,216,77,.98),0 0 28px rgba(255,216,77,.3),0 0 72px rgba(255,216,77,.14),0 24px 68px rgba(0,0,0,.48)}
 .you img{width:100%;height:100%;flex:none;border-radius:50%}
 .you>b{position:absolute;top:calc(100% + 12px);left:50%;color:#f8f7f3;font-size:15px;font-weight:580;white-space:nowrap;transform:translateX(-50%)}
 .circle-count{position:absolute;z-index:20;left:34px;bottom:34px;display:flex;align-items:center;gap:14px;padding:13px 17px;border:1px solid rgba(255,255,255,.1);border-radius:999px;background:rgba(255,255,255,.025);color:#f2f2ef;cursor:pointer;transition:background .25s ease,border-color .25s ease}
