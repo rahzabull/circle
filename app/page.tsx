@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, animate, motion, motionValue, useMotionValue, useReducedMotion, useSpring } from 'framer-motion';
 import type { MotionStyle, MotionValue } from 'framer-motion';
 import { Bell, Camera, Check, ChevronRight, Heart, ImagePlus, LocateFixed, LockKeyhole, MessageCircleQuestion, Mic, Play, Plus, Send, SmilePlus, Upload, Users, X } from 'lucide-react';
+import GalaxyBackground from './GalaxyBackground';
 
 type Friend = {
   name: string; color: string; x: number; y: number; size: number; image: string;
@@ -395,6 +396,7 @@ export default function Home() {
   const sendAsk=(text:string,recipients:string[],audienceLabel:string)=>{const ask:AskPrompt={id:`ask-you-${Date.now()}`,sender:'You',text,recipients,audienceLabel,createdAt:Date.now(),responses:[]};const previousOwnAskIds=new Set(asks.filter(item=>item.sender==='You').map(item=>item.id));setAsks(current=>[ask,...current.filter(item=>item.sender!=='You')]);setSocialNotifications(current=>current.filter(item=>!(item.action==='ask-response'&&item.askId&&previousOwnAskIds.has(item.askId))));setAskComposerOpen(false);showToast(`Ask sent to ${recipients.length} ${recipients.length===1?'friend':'friends'}`);};
   const replyToAsk=(ask:AskPrompt,image:string)=>{setAsks(current=>current.map(item=>item.id===ask.id?{...item,responses:[...item.responses.filter(response=>response.responder!=='You'),{id:`response-you-${Date.now()}`,responder:'You',image,sentAt:'now'}]}:item));setReplyAsk(null);showToast(`Photo sent privately to ${ask.sender}`);};
   return <main className="friend-space" aria-label={backgroundLabel}>
+    <GalaxyBackground/>
     <header className="circle-header"><div><h1>Circle</h1><p>Your people. Closer.</p></div><nav><button ref={knockInboxRef} className="knock-inbox-trigger" onClick={()=>{setKnocksOpen(value=>!value);setNotificationsOpen(false);}} aria-label={knocksOpen?'Close Knocks':'Open Knocks'} aria-expanded={knocksOpen} aria-controls="knock-inbox"><span>👊</span><b>Knock</b>{incomingKnocks.length>0&&<i>{incomingKnocks.length}</i>}</button><button ref={bellRef} className="bell" onClick={()=>{setNotificationsOpen(value=>!value);setKnocksOpen(false);}} aria-label={notificationsOpen?'Close notifications':'Open notifications'} aria-expanded={notificationsOpen}><Bell size={21} strokeWidth={1.8}/><span/></button></nav></header>
     <FriendSpace selected={selected} asks={asks} activityOverrides={activityOverrides} nudgeFriend={nudgeFriend} onOpen={openFriend} onUser={()=>setComposerOpen(true)} onAsk={openAsk} onKnock={sendKnock} onDismissKnock={()=>setNudgeFriend(null)}/>
     <button ref={inviteTriggerRef} className="circle-count" onClick={()=>setInviteOpen(v=>!v)} aria-label="Add people to your circle" aria-expanded={inviteOpen} aria-controls="quick-invite"><Users size={19}/><span>9 close friends</span><Plus size={17}/></button>
