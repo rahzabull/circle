@@ -306,10 +306,6 @@ function FriendSpace({ selected, asks, activityOverrides, nudgeFriend, actionFri
   );
 }
 
-function PrivacyIndicator() {
-  return <div className="privacy-wrap"><div className="privacy" aria-label="Visible to 8 friends"><Users size={15}/><span>Visible to 8 friends</span></div></div>;
-}
-
 function MemePicker({ onPick, onClose }:{onPick:(meme:typeof memes[number])=>void;onClose:()=>void}) {
   return <motion.div className="meme-picker" initial={{opacity:0,y:14,scale:.96}} animate={{opacity:1,y:0,scale:1}} exit={{opacity:0,y:8,scale:.96}}>
     <div className="picker-head"><span><b>Drop a feeling</b><small>Say it without saying it.</small></span><button onClick={onClose} aria-label="Close meme picker"><X size={17}/></button></div>
@@ -347,15 +343,15 @@ function PostViewer({ friend, onClose, onNotify, onViewProfile }:{friend:Friend;
     <motion.button className="viewer-backdrop" onClick={onClose} aria-label="Close moment" />
     <motion.article className="post-viewer" initial={{opacity:0,y:36,scale:.96}} animate={{opacity:1,y:0,scale:1}} exit={{opacity:0,y:26,scale:.96}} transition={{type:'spring',stiffness:175,damping:23}}>
       <header className="post-head">
-        <div className="post-person"><motion.span layoutId={`avatar-${friend.name}`} style={{background:friend.color}}><img src={friend.image} alt=""/></motion.span><p><b>{friend.name}</b><small>{friend.time}</small></p></div>
-        <div className="post-head-actions"><button className="post-profile-link" onClick={()=>onViewProfile(friend)} aria-label={`View ${friend.name}'s profile feed`}><UserRound size={14}/><span>Profile</span></button><button className="post-close" onClick={onClose} aria-label="Close moment"><X size={20}/></button></div>
+        <div className="post-person"><motion.span layoutId={`avatar-${friend.name}`} style={{background:friend.color}}><img src={friend.image} alt=""/></motion.span><p><b>{friend.name}</b><small>{friend.time}</small></p><button className="post-profile-link" onClick={()=>onViewProfile(friend)} aria-label={`View ${friend.name}'s profile feed`}><UserRound size={14}/><span>Profile</span></button></div>
+        <div className="post-head-actions"><button className="post-close" onClick={onClose} aria-label="Close moment"><X size={20}/></button></div>
       </header>
       <div className="post-photo-wrap">
         <motion.img className="post-photo" src={friend.photo} alt={`${friend.name}'s latest moment`} initial={{scale:1.035}} animate={{scale:1}} transition={{duration:.65,ease:[.2,.8,.2,1]}}/>
         <div className="photo-wash" />
         <div className="reaction-objects">{reactions.map((reaction,index)=><ReactionObject reaction={reaction} index={index} key={reaction.id}/>)}</div>
       </div>
-      <div className="post-copy"><p>{friend.caption}</p><PrivacyIndicator/></div>
+      <div className="post-copy"><p>{friend.caption}</p></div>
       <div className="post-actions-row" role="group" aria-label="Private responses">
         <button className={liked?'liked':''} aria-pressed={liked} onClick={()=>{setPicker(false);setTool(null);setLiked(current=>{const next=!current;onNotify(next?'Loved privately':'Love removed');return next;});}}><Heart size={17} fill={liked?'currentColor':'none'}/><span>{liked?'Loved':'Love it'}</span></button>
         <button className={picker?'active':''} aria-expanded={picker} onClick={()=>{setPicker(value=>!value);setTool(null);}}><SmilePlus size={17}/><span>React</span></button>
