@@ -103,6 +103,8 @@ const initialNotifications:SocialNotification[]=[
   {id:'n-selfie',friend:friends[5],text:'reacted with his face',mark:'🤳',time:'31m',action:'reaction'},
 ];
 
+const isPendingAskForYou=(ask:AskPrompt)=>ask.recipients.includes('You')&&!ask.responses.some(response=>response.responder==='You');
+
 type BubbleOffset = { x:MotionValue<number>; y:MotionValue<number>; size:MotionValue<string> };
 
 function AskChip({ask,placement='right',onOpen}:{ask:AskPrompt;placement?:'left'|'right'|'above';onOpen:()=>void}){
@@ -177,11 +179,11 @@ function FriendSpace({ selected, asks, activityOverrides, nudgeFriend, actionFri
   const bubbleOffsets=useMemo<BubbleOffset[]>(()=>friends.map((_,index)=>({x:motionValue(0),y:motionValue(0),size:motionValue(`${activityVisuals[index].size}px`)})),[]);
   const removedFriendSet=useMemo(()=>new Set(removedFriendNames),[removedFriendNames]);
   const visibleIndices=useRef<number[]>(friends.reduce<number[]>((indices,friend,index)=>{if(!removedFriendSet.has(friend.name))indices.push(index);return indices;},[]));
-  const askOwnerIndices=useRef<number[]>(visibleIndices.current.filter(index=>asks.some(ask=>ask.sender===friends[index].name&&ask.recipients.includes('You'))));
+  const askOwnerIndices=useRef<number[]>(visibleIndices.current.filter(index=>asks.some(ask=>ask.sender===friends[index].name&&isPendingAskForYou(ask))));
   const askMetrics=useRef({size:34,inset:25,top:-8});
 
   useEffect(()=>{activityVisualsRef.current=activityVisuals;},[activityVisuals]);
-  useEffect(()=>{const visible=friends.reduce<number[]>((indices,friend,index)=>{if(!removedFriendSet.has(friend.name))indices.push(index);return indices;},[]);visibleIndices.current=visible;askOwnerIndices.current=visible.filter(index=>asks.some(ask=>ask.sender===friends[index].name&&ask.recipients.includes('You')));},[asks,removedFriendSet]);
+  useEffect(()=>{const visible=friends.reduce<number[]>((indices,friend,index)=>{if(!removedFriendSet.has(friend.name))indices.push(index);return indices;},[]);visibleIndices.current=visible;askOwnerIndices.current=visible.filter(index=>asks.some(ask=>ask.sender===friends[index].name&&isPendingAskForYou(ask)));},[asks,removedFriendSet]);
 
   useEffect(()=>{
     const updateScale=()=>{const styles=spaceRef.current?getComputedStyle(spaceRef.current):null;const scale=styles?parseFloat(styles.getPropertyValue('--scene-scale')):1.4;const size=styles?parseFloat(styles.getPropertyValue('--ask-icon-size')):34;const inset=styles?parseFloat(styles.getPropertyValue('--ask-icon-inset')):25;const top=styles?parseFloat(styles.getPropertyValue('--ask-icon-top')):-8;sceneScale.current=Number.isFinite(scale)?scale:1.4;askMetrics.current={size:Number.isFinite(size)?size:34,inset:Number.isFinite(inset)?inset:25,top:Number.isFinite(top)?top:-8};};
@@ -283,7 +285,7 @@ function FriendSpace({ selected, asks, activityOverrides, nudgeFriend, actionFri
     <section ref={spaceRef} className={`social-space orbital-field${selected ? ' is-muted' : ''}${isDragging?' is-dragging':''}`} aria-label="Your close friends" onPointerDown={pointerDown} onPointerMove={pointerMove} onPointerUp={pointerEnd} onPointerCancel={pointerEnd} onClickCapture={event=>{if(suppressClick.current){event.preventDefault();event.stopPropagation();}}}>
       <motion.div className="world-layer" style={{x:smoothWorldX,y:smoothWorldY}}>
         <div className="world-stage">
-          <AnimatePresence>{friends.map((friend,index)=>removedFriendSet.has(friend.name)?null:<FloatingFriend friend={friend} index={index} selected={selected?.name===friend.name} offset={bubbleOffsets[index]} ask={asks.find(ask=>ask.sender===friend.name&&ask.recipients.includes('You'))||null} activity={activityVisuals[index].activity} knockNudge={nudgeFriend===friend.name} actionsOpen={actionFriend===friend.name} onHover={value=>{hovered.current=value;}} onOpen={()=>onOpen(friend)} onAsk={onAsk} onKnock={onKnock} onRevealActions={onRevealActions} onDismissKnock={onDismissKnock} onDismissActions={onDismissActions} onKick={onKick} key={friend.name} />)}</AnimatePresence>
+          <AnimatePresence>{friends.map((friend,index)=>removedFriendSet.has(friend.name)?null:<FloatingFriend friend={friend} index={index} selected={selected?.name===friend.name} offset={bubbleOffsets[index]} ask={asks.find(ask=>ask.sender===friend.name&&isPendingAskForYou(ask))||null} activity={activityVisuals[index].activity} knockNudge={nudgeFriend===friend.name} actionsOpen={actionFriend===friend.name} onHover={value=>{hovered.current=value;}} onOpen={()=>onOpen(friend)} onAsk={onAsk} onKnock={onKnock} onRevealActions={onRevealActions} onDismissKnock={onDismissKnock} onDismissActions={onDismissActions} onKick={onKick} key={friend.name} />)}</AnimatePresence>
         </div>
       </motion.div>
       <div className="player-layer"><div className="player-anchor"><motion.button className="you" aria-label="Open your profile feed" onClick={onUser} whileHover={{scale:1.045}} whileTap={{scale:.97}}><img className="you-avatar" src={currentUser.image} alt=""/><img className="player-crown" src="/crown.png" alt="" aria-hidden="true" draggable={false}/></motion.button></div></div>
