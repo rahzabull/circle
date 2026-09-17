@@ -33,7 +33,6 @@ const ACTIVITY_THRESHOLDS={active:HOUR,recentlyActive:DAY,quiet:4*DAY,knockCoold
 const ASK_LIFETIME=DAY;
 const MAX_CIRCLE_FRIENDS=10;
 const PLAYER_DIAMETER=110;const PLAYER_RADIUS=PLAYER_DIAMETER/2;const PLAYER_CROWN_OFFSET_Y=-59;const PLAYER_CROWN_RADIUS=30;const PLAYER_COLLISION_GAP=10;
-const ADD_FRIEND_BUBBLE={x:-173,y:151,size:64} as const;
 const currentUser={id:'you',name:'You',image:'https://i.pravatar.cc/240?img=68',color:'#ff5b63'} as const;
 const getActivityState=(friend:Friend,override?:ActivityOverride):ActivityState=>{const latest=Math.max(override?.lastActiveAt??friend.lastActiveAt,override?.lastPostedAt??friend.lastPostedAt);const age=(override?Date.now():prototypeNow)-latest;if(age<=ACTIVITY_THRESHOLDS.active)return'active';if(age<=ACTIVITY_THRESHOLDS.recentlyActive)return'recentlyActive';if(age<=ACTIVITY_THRESHOLDS.quiet)return'quiet';return'inactive';};
 const canReceiveKnock=(state:ActivityState)=>state==='quiet'||state==='inactive';
@@ -184,7 +183,6 @@ function FriendSpace({ selected, asks, activityOverrides, nudgeFriend, actionFri
   const activityVisuals=useMemo(()=>friends.map(friend=>{const activity=getActivityState(friend,activityOverrides[friend.name]);return getActivityVisual(friend,activity);}),[activityOverrides]);
   const activityVisualsRef=useRef(activityVisuals);
   const bubbleOffsets=useMemo<BubbleOffset[]>(()=>friends.map((_,index)=>({x:motionValue(0),y:motionValue(0),size:motionValue(`${activityVisuals[index].size}px`)})),[]);
-  const addBubbleOffset=useMemo<BubbleOffset>(()=>({x:motionValue(0),y:motionValue(0),size:motionValue(`${ADD_FRIEND_BUBBLE.size}px`)}),[]);
   const removedFriendSet=useMemo(()=>new Set(removedFriendNames),[removedFriendNames]);
   const visibleIndices=useRef<number[]>(friends.reduce<number[]>((indices,friend,index)=>{if(!removedFriendSet.has(friend.name))indices.push(index);return indices;},[]));
   const askOwnerIndices=useRef<number[]>(visibleIndices.current.filter(index=>asks.some(ask=>ask.sender===friends[index].name&&isPendingAskForYou(ask,askNow))));
@@ -204,7 +202,7 @@ function FriendSpace({ selected, asks, activityOverrides, nudgeFriend, actionFri
   },[]);
 
   useEffect(()=>{
-    const bodies=friends.map((_,index)=>({x:0,y:0,vx:0,vy:0,size:activityVisualsRef.current[index].size}));const addBody={x:0,y:0,vx:0,vy:0,size:ADD_FRIEND_BUBBLE.size}; let frame=0; let last=performance.now();
+    const bodies=friends.map((_,index)=>({x:0,y:0,vx:0,vy:0,size:activityVisualsRef.current[index].size}));let frame=0; let last=performance.now();
     const tick=(now:number)=>{
       const step=Math.min((now-last)/16.667,2); last=now;
       const force=friends.map(()=>({x:0,y:0}));
@@ -222,7 +220,6 @@ function FriendSpace({ selected, asks, activityOverrides, nudgeFriend, actionFri
         body.vx=(body.vx+force[index].x*step)*Math.pow(.87,step);body.vy=(body.vy+force[index].y*step)*Math.pow(.87,step);
         body.x+=body.vx*step;body.y+=body.vy*step;
       });
-      if(canAddFriend){const targetX=Math.sin(now*.00027+2.4)*2.3;const targetY=Math.cos(now*.00031+1.2)*2.3;addBody.vx=(addBody.vx+(targetX-addBody.x)*.016*step)*Math.pow(.88,step);addBody.vy=(addBody.vy+(targetY-addBody.y)*.016*step)*Math.pow(.88,step);addBody.x+=addBody.vx*step;addBody.y+=addBody.vy*step;}
       const scale=Math.max(sceneScale.current,.01);const worldOffsetX=smoothWorldX.get();const worldOffsetY=smoothWorldY.get();const panX=-worldOffsetX/scale;const panY=-worldOffsetY/scale;const inverseOrbit=-orbitRotation.get()*Math.PI/180;const orbitCos=Math.cos(inverseOrbit);const orbitSin=Math.sin(inverseOrbit);const inverseRotate=(x:number,y:number)=>({x:x*orbitCos-y*orbitSin,y:x*orbitSin+y*orbitCos});const forwardRotate=(x:number,y:number)=>({x:x*orbitCos+y*orbitSin,y:-x*orbitSin+y*orbitCos});const playerPoint=inverseRotate(panX,panY);const crownPoint=inverseRotate(panX,panY+PLAYER_CROWN_OFFSET_Y);const playerX=playerPoint.x;const playerY=playerPoint.y;const crownX=crownPoint.x;const crownY=crownPoint.y;
       const attachmentPosition=(index:number,offsetX:number,offsetY:number)=>{const offset=inverseRotate(offsetX,offsetY);return{x:friendPositionX(index,bodies[index])+offset.x,y:friendPositionY(index,bodies[index])+offset.y};};
       const askPosition=(index:number)=>{const body=bodies[index];return attachmentPosition(index,body.size/2-askMetrics.current.inset+askMetrics.current.size/2,-body.size/2+askMetrics.current.top+askMetrics.current.size/2);};
@@ -234,14 +231,12 @@ function FriendSpace({ selected, asks, activityOverrides, nudgeFriend, actionFri
           const rawDistance=Math.hypot(dx,dy);const distance=Math.max(rawDistance,.001);const minimum=(bodies[a].size+bodies[b].size)/2+10;
           if(distance<minimum){const nx=rawDistance<.001?Math.cos(a+b):dx/distance;const ny=rawDistance<.001?Math.sin(a+b):dy/distance;const correction=(minimum-distance)*.505;bodies[a].x-=nx*correction;bodies[a].y-=ny*correction;bodies[b].x+=nx*correction;bodies[b].y+=ny*correction;}
         }
-        if(canAddFriend)visible.forEach(index=>{const dx=friendPositionX(index,bodies[index])-(ADD_FRIEND_BUBBLE.x+addBody.x);const dy=friendPositionY(index,bodies[index])-(ADD_FRIEND_BUBBLE.y+addBody.y);const rawDistance=Math.hypot(dx,dy);const distance=Math.max(rawDistance,.001);const minimum=(addBody.size+bodies[index].size)/2+10;if(distance<minimum){const nx=rawDistance<.001?Math.cos(index+4):dx/distance;const ny=rawDistance<.001?Math.sin(index+4):dy/distance;const correction=(minimum-distance)*.505;addBody.x-=nx*correction;addBody.y-=ny*correction;bodies[index].x+=nx*correction;bodies[index].y+=ny*correction;addBody.vx-=nx*correction*.016;addBody.vy-=ny*correction*.016;bodies[index].vx+=nx*correction*.016;bodies[index].vy+=ny*correction*.016;}});
         visible.forEach(index=>{const body=bodies[index];
           const dx=friendPositionX(index,body)-playerX;const dy=friendPositionY(index,body)-playerY;const rawDistance=Math.hypot(dx,dy);const distance=Math.max(rawDistance,.001);const minimum=(body.size+PLAYER_DIAMETER)/2+PLAYER_COLLISION_GAP;
           if(distance<minimum){const angle=index/friends.length*Math.PI*2;const nx=rawDistance<.001?Math.cos(angle):dx/distance;const ny=rawDistance<.001?Math.sin(angle):dy/distance;const correction=minimum-distance;body.x+=nx*correction;body.y+=ny*correction;body.vx+=nx*correction*.025;body.vy+=ny*correction*.025;}
           const crownDx=friendPositionX(index,body)-crownX;const crownDy=friendPositionY(index,body)-crownY;const rawCrownDistance=Math.hypot(crownDx,crownDy);const crownDistance=Math.max(rawCrownDistance,.001);const crownMinimum=body.size/2+PLAYER_CROWN_RADIUS+PLAYER_COLLISION_GAP;
           if(crownDistance<crownMinimum){const nx=rawCrownDistance<.001?0:crownDx/crownDistance;const ny=rawCrownDistance<.001?-1:crownDy/crownDistance;const correction=crownMinimum-crownDistance;body.x+=nx*correction;body.y+=ny*correction;body.vx+=nx*correction*.025;body.vy+=ny*correction*.025;}
         });
-        if(canAddFriend){let addX=ADD_FRIEND_BUBBLE.x+addBody.x;let addY=ADD_FRIEND_BUBBLE.y+addBody.y;const playerDx=addX-playerX;const playerDy=addY-playerY;const rawPlayerDistance=Math.hypot(playerDx,playerDy);const playerDistance=Math.max(rawPlayerDistance,.001);const playerMinimum=(addBody.size+PLAYER_DIAMETER)/2+PLAYER_COLLISION_GAP;if(playerDistance<playerMinimum){const nx=rawPlayerDistance<.001?-Math.SQRT1_2:playerDx/playerDistance;const ny=rawPlayerDistance<.001?Math.SQRT1_2:playerDy/playerDistance;const correction=playerMinimum-playerDistance;addBody.x+=nx*correction;addBody.y+=ny*correction;addBody.vx+=nx*correction*.025;addBody.vy+=ny*correction*.025;addX+=nx*correction;addY+=ny*correction;}const crownDx=addX-crownX;const crownDy=addY-crownY;const rawCrownDistance=Math.hypot(crownDx,crownDy);const crownDistance=Math.max(rawCrownDistance,.001);const crownMinimum=addBody.size/2+PLAYER_CROWN_RADIUS+PLAYER_COLLISION_GAP;if(crownDistance<crownMinimum){const nx=rawCrownDistance<.001?0:crownDx/crownDistance;const ny=rawCrownDistance<.001?-1:crownDy/crownDistance;const correction=crownMinimum-crownDistance;addBody.x+=nx*correction;addBody.y+=ny*correction;addBody.vx+=nx*correction*.025;addBody.vy+=ny*correction*.025;}}
         const iconRadius=askMetrics.current.size/2+askMetrics.current.outset;
         askOwnerIndices.current.forEach(owner=>{
           let {x:iconX,y:iconY}=askPosition(owner);
@@ -250,7 +245,6 @@ function FriendSpace({ selected, asks, activityOverrides, nudgeFriend, actionFri
             const dx=friendPositionX(index,bodies[index])-iconX;const dy=friendPositionY(index,bodies[index])-iconY;const rawDistance=Math.hypot(dx,dy);const distance=Math.max(rawDistance,.001);const minimum=iconRadius+bodies[index].size/2+8;
             if(distance<minimum){const nx=rawDistance<.001?Math.cos(owner+index):dx/distance;const ny=rawDistance<.001?Math.sin(owner+index):dy/distance;const correction=(minimum-distance)*.505;bodies[owner].x-=nx*correction;bodies[owner].y-=ny*correction;bodies[index].x+=nx*correction;bodies[index].y+=ny*correction;bodies[owner].vx-=nx*correction*.018;bodies[owner].vy-=ny*correction*.018;bodies[index].vx+=nx*correction*.018;bodies[index].vy+=ny*correction*.018;iconX-=nx*correction;iconY-=ny*correction;}
           });
-          if(canAddFriend){const dx=ADD_FRIEND_BUBBLE.x+addBody.x-iconX;const dy=ADD_FRIEND_BUBBLE.y+addBody.y-iconY;const rawDistance=Math.hypot(dx,dy);const distance=Math.max(rawDistance,.001);const minimum=iconRadius+addBody.size/2+8;if(distance<minimum){const nx=rawDistance<.001?-Math.SQRT1_2:dx/distance;const ny=rawDistance<.001?Math.SQRT1_2:dy/distance;const correction=(minimum-distance)*.505;bodies[owner].x-=nx*correction;bodies[owner].y-=ny*correction;addBody.x+=nx*correction;addBody.y+=ny*correction;bodies[owner].vx-=nx*correction*.018;bodies[owner].vy-=ny*correction*.018;addBody.vx+=nx*correction*.018;addBody.vy+=ny*correction*.018;iconX-=nx*correction;iconY-=ny*correction;}}
           const playerDx=iconX-playerX;const playerDy=iconY-playerY;const rawPlayerDistance=Math.hypot(playerDx,playerDy);const playerDistance=Math.max(rawPlayerDistance,.001);const playerMinimum=iconRadius+PLAYER_RADIUS+8;
           if(playerDistance<playerMinimum){const nx=rawPlayerDistance<.001?Math.SQRT1_2:playerDx/playerDistance;const ny=rawPlayerDistance<.001?-Math.SQRT1_2:playerDy/playerDistance;const correction=playerMinimum-playerDistance;bodies[owner].x+=nx*correction;bodies[owner].y+=ny*correction;bodies[owner].vx+=nx*correction*.02;bodies[owner].vy+=ny*correction*.02;iconX+=nx*correction;iconY+=ny*correction;}
           const crownDx=iconX-crownX;const crownDy=iconY-crownY;const rawCrownDistance=Math.hypot(crownDx,crownDy);const crownDistance=Math.max(rawCrownDistance,.001);const crownMinimum=iconRadius+PLAYER_CROWN_RADIUS+8;
@@ -265,19 +259,17 @@ function FriendSpace({ selected, asks, activityOverrides, nudgeFriend, actionFri
           visible.forEach(index=>{const body=bodies[index];keepInsideViewport(body,friendPositionX(index,body),friendPositionY(index,body),body.size/2+2);});
           askOwnerIndices.current.forEach(owner=>{const icon=askPosition(owner);keepInsideViewport(bodies[owner],icon.x,icon.y,iconRadius);});
           visible.forEach(index=>{const body=bodies[index];const friend=friends[index];if(attachedControls.current.nudgeFriend===friend.name){const nudge=attachmentPosition(index,0,-body.size/2+27);keepInsideViewport(body,nudge.x,nudge.y,22);}if(attachedControls.current.actionFriend===friend.name){const actionSize=Math.min(56,Math.max(42,body.size*.46));const knock=attachmentPosition(index,body.size/2-actionSize*.19,-body.size/2-actionSize*.08);const remove=attachmentPosition(index,body.size/2+actionSize*.17,body.size/2-actionSize*.11);keepInsideViewport(body,knock.x,knock.y,actionSize/2+4);keepInsideViewport(body,remove.x,remove.y,actionSize/2+4);}});
-          if(canAddFriend)keepInsideViewport(addBody,ADD_FRIEND_BUBBLE.x+addBody.x,ADD_FRIEND_BUBBLE.y+addBody.y,addBody.size/2+2);
         }
       }
       bodies.forEach((body,index)=>{
         bubbleOffsets[index].x.set(body.x);bubbleOffsets[index].y.set(body.y);bubbleOffsets[index].size.set(`${body.size.toFixed(2)}px`);
       });
-      if(canAddFriend){addBubbleOffset.x.set(addBody.x);addBubbleOffset.y.set(addBody.y);}
       frame=requestAnimationFrame(tick);
     };
     const friendPositionX=(index:number,body:{x:number})=>friends[index].x+body.x;
     const friendPositionY=(index:number,body:{y:number})=>friends[index].y+body.y;
     frame=requestAnimationFrame(tick); return()=>cancelAnimationFrame(frame);
-  },[addBubbleOffset,bubbleOffsets,canAddFriend,smoothWorldX,smoothWorldY]);
+  },[bubbleOffsets,smoothWorldX,smoothWorldY]);
 
   const returnWorldToCenter=()=>{
     momentum.current.x?.stop();momentum.current.y?.stop();
@@ -314,11 +306,10 @@ function FriendSpace({ selected, asks, activityOverrides, nudgeFriend, actionFri
         <div className="world-stage">
           <motion.div className="world-orbit" style={{rotate:orbitRotation}}>
             <AnimatePresence>{friends.map((friend,index)=>removedFriendSet.has(friend.name)?null:<FloatingFriend friend={friend} index={index} selected={selected?.name===friend.name} offset={bubbleOffsets[index]} orbitCounterRotation={orbitCounterRotation} ask={asks.find(ask=>ask.sender===friend.name&&isPendingAskForYou(ask,askNow))||null} askNow={askNow} activity={activityVisuals[index].activity} knockNudge={nudgeFriend===friend.name} actionsOpen={actionFriend===friend.name} onHover={value=>{hovered.current=value;}} onOpen={()=>onOpen(friend)} onAsk={onAsk} onKnock={onKnock} onRevealActions={onRevealActions} onDismissKnock={onDismissKnock} onDismissActions={onDismissActions} onKick={onKick} key={friend.name} />)}</AnimatePresence>
-            <AnimatePresence>{canAddFriend&&<motion.button className="add-person-bubble" style={{'--add-x':`${ADD_FRIEND_BUBBLE.x}px`,'--add-y':`${ADD_FRIEND_BUBBLE.y}px`,'--bubble-size':addBubbleOffset.size,x:addBubbleOffset.x,y:addBubbleOffset.y,rotate:orbitCounterRotation} as MotionStyle} onPointerDown={event=>event.stopPropagation()} onClick={onAddFriend} initial={{opacity:0,scale:.75}} animate={{opacity:1,scale:1}} exit={{opacity:0,scale:.7}} whileHover={{scale:1.07,y:-3}} whileTap={{scale:.92,y:0}} aria-label="Add a person to your Circle"><Plus size={26} strokeWidth={2.1}/></motion.button>}</AnimatePresence>
           </motion.div>
         </div>
       </motion.div>
-      <div className="player-layer"><div className="player-anchor"><motion.button className="you" aria-label="Open your profile feed" onClick={onUser} whileHover={{scale:1.045}} whileTap={{scale:.97}}><img className="you-avatar" src={currentUser.image} alt=""/><img className="player-crown" src="/crown.png" alt="" aria-hidden="true" draggable={false}/></motion.button></div></div>
+      <div className="player-layer"><div className="player-anchor"><motion.button className="you" aria-label="Open your profile feed" onClick={onUser} whileHover={{scale:1.045}} whileTap={{scale:.97}}><img className="you-avatar" src={currentUser.image} alt=""/><img className="player-crown" src="/crown.png" alt="" aria-hidden="true" draggable={false}/></motion.button><AnimatePresence>{canAddFriend&&<motion.button className="add-person-bubble player-add-person" onPointerDown={event=>event.stopPropagation()} onClick={onAddFriend} initial={{opacity:0,scale:.75}} animate={{opacity:1,scale:1}} exit={{opacity:0,scale:.7}} whileHover={{scale:1.07}} whileTap={{scale:.92}} aria-label="Add a person to your Circle"><Plus size={26} strokeWidth={2.1}/></motion.button>}</AnimatePresence></div></div>
     </section>
   );
 }
