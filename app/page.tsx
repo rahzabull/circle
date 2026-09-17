@@ -29,6 +29,7 @@ type ActivityVisual = { activity:ActivityState; size:number; separation:number }
 
 const HOUR=60*60*1000;const DAY=24*HOUR;const prototypeNow=Date.now();
 const ACTIVITY_THRESHOLDS={active:HOUR,recentlyActive:DAY,quiet:4*DAY,knockCooldown:DAY} as const;
+const ASK_LIFETIME=DAY;
 const MAX_CIRCLE_FRIENDS=10;
 const PLAYER_DIAMETER=110;const PLAYER_RADIUS=PLAYER_DIAMETER/2;const PLAYER_CROWN_OFFSET_Y=-59;const PLAYER_CROWN_RADIUS=30;const PLAYER_COLLISION_GAP=10;
 const currentUser={id:'you',name:'You',image:'https://i.pravatar.cc/240?img=68',color:'#ff5b63'} as const;
@@ -103,13 +104,15 @@ const initialNotifications:SocialNotification[]=[
   {id:'n-selfie',friend:friends[5],text:'reacted with his face',mark:'🤳',time:'31m',action:'reaction'},
 ];
 
-const isPendingAskForYou=(ask:AskPrompt)=>ask.recipients.includes('You')&&!ask.responses.some(response=>response.responder==='You');
+const getAskTimeRemaining=(ask:AskPrompt,now:number|null)=>now===null?ASK_LIFETIME:Math.max(0,ask.createdAt+ASK_LIFETIME-now);
+const isPendingAskForYou=(ask:AskPrompt,now:number|null)=>ask.recipients.includes('You')&&!ask.responses.some(response=>response.responder==='You')&&getAskTimeRemaining(ask,now)>0;
 
 type BubbleOffset = { x:MotionValue<number>; y:MotionValue<number>; size:MotionValue<string> };
 
-function AskChip({ask,placement='right',onOpen}:{ask:AskPrompt;placement?:'left'|'right'|'above';onOpen:()=>void}){
+function AskChip({ask,placement='right',now,onOpen}:{ask:AskPrompt;placement?:'left'|'right'|'above';now:number|null;onOpen:()=>void}){
+  const remaining=getAskTimeRemaining(ask,now);const progress=Math.min(1,remaining/ASK_LIFETIME);const timeLeft=remaining>=HOUR?`${Math.ceil(remaining/HOUR)}h left`:`${Math.max(1,Math.ceil(remaining/(60*1000)))}m left`;
   return <motion.div className={`ask-prompt ask-${placement}`} onPointerDown={event=>event.stopPropagation()} initial={{opacity:0,scale:.72,y:5}} animate={{opacity:1,scale:1,y:0}}>
-    <motion.button className="ask-prompt-icon" onClick={event=>{event.stopPropagation();onOpen();}} whileHover={{scale:1.08,y:-1}} whileTap={{scale:.94}} aria-label={`Open ${ask.sender}'s Ask`} aria-haspopup="dialog"><img src="/ask-icon.svg?v=2" alt="" aria-hidden="true"/></motion.button>
+    <motion.button className="ask-prompt-icon" style={{'--ask-progress':`${progress*360}deg`} as CSSProperties} onClick={event=>{event.stopPropagation();onOpen();}} whileHover={{scale:1.08,y:-1}} whileTap={{scale:.94}} aria-label={`Open ${ask.sender}'s Ask; ${timeLeft}`} aria-haspopup="dialog" title={timeLeft}><span className="ask-timer-ring" aria-hidden="true"/><img src="/ask-icon.svg?v=2" alt="" aria-hidden="true"/></motion.button>
   </motion.div>;
 }
 
@@ -134,7 +137,7 @@ function ProfileActions({friend,onKnock,onKick,onDismiss,onImpact}:{friend:Frien
   </motion.div>;
 }
 
-function FloatingFriend({ friend, index, selected, offset, ask, activity, knockNudge, actionsOpen, onHover, onOpen, onAsk, onKnock, onRevealActions, onDismissKnock, onDismissActions, onKick }:{ friend:Friend; index:number; selected:boolean; offset:BubbleOffset; ask:AskPrompt|null; activity:ActivityState; knockNudge:boolean; actionsOpen:boolean; onHover:(index:number|null)=>void; onOpen:()=>void; onAsk:(ask:AskPrompt)=>void; onKnock:(friend:Friend)=>boolean; onRevealActions:(friend:Friend)=>void; onDismissKnock:()=>void; onDismissActions:()=>void; onKick:(friend:Friend)=>void }) {
+function FloatingFriend({ friend, index, selected, offset, ask, askNow, activity, knockNudge, actionsOpen, onHover, onOpen, onAsk, onKnock, onRevealActions, onDismissKnock, onDismissActions, onKick }:{ friend:Friend; index:number; selected:boolean; offset:BubbleOffset; ask:AskPrompt|null; askNow:number|null; activity:ActivityState; knockNudge:boolean; actionsOpen:boolean; onHover:(index:number|null)=>void; onOpen:()=>void; onAsk:(ask:AskPrompt)=>void; onKnock:(friend:Friend)=>boolean; onRevealActions:(friend:Friend)=>void; onDismissKnock:()=>void; onDismissActions:()=>void; onKick:(friend:Friend)=>void }) {
   const placement:'left'|'right'|'above'=friend.x>25?'right':friend.x<-25?'left':friend.y>100?'above':'left';
   const [knockImpact,setKnockImpact]=useState(false);const reduceMotion=useReducedMotion();
   const holdTimer=useRef<number|undefined>(undefined);const holdState=useRef<{pointerId:number;startX:number;startY:number;triggered:boolean}|null>(null);const suppressOpenUntil=useRef(0);
@@ -159,7 +162,7 @@ function FloatingFriend({ friend, index, selected, offset, ask, activity, knockN
       onHoverStart={()=>onHover(index)} onHoverEnd={()=>onHover(null)}
     >
       <motion.button className="friend-profile" onClick={openProfile} onPointerDown={beginHold} onPointerMove={moveHold} onPointerUp={endHold} onPointerCancel={cancelHold} onPointerLeave={cancelHold} onContextMenu={event=>{if(canReceiveKnock(activity))event.preventDefault();}} aria-label={`Open ${friend.name}'s latest moment${canReceiveKnock(activity)?'; press and hold for actions':''}`} whileHover={{scale:1.055}} whileTap={{scale:.97}}><span className="friend-float"><motion.span className="portrait" layoutId={`avatar-${friend.name}`} animate={!reduceMotion&&knockImpact?{x:[0,3,-2,2,0],rotate:[0,2,-2,1,0]}:{x:0,rotate:0}} transition={{duration:reduceMotion?0:.72,type:'spring',stiffness:260,damping:13}}><img src={friend.image} alt="" /></motion.span><b>{friend.name}</b></span></motion.button>
-      {ask&&<AskChip ask={ask} placement={placement} onOpen={()=>onAsk(ask)}/>}
+      {ask&&<AskChip ask={ask} placement={placement} now={askNow} onOpen={()=>onAsk(ask)}/>}
       <AnimatePresence>{knockNudge&&<KnockNudge friend={friend} activity={activity} onSend={()=>onKnock(friend)} onDismiss={onDismissKnock} onImpact={setKnockImpact}/>}</AnimatePresence>
       <AnimatePresence>{actionsOpen&&<ProfileActions friend={friend} onKnock={()=>onKnock(friend)} onKick={()=>onKick(friend)} onDismiss={onDismissActions} onImpact={setKnockImpact}/>}</AnimatePresence>
     </motion.div>
@@ -170,6 +173,7 @@ function FriendSpace({ selected, asks, activityOverrides, nudgeFriend, actionFri
   const worldX=useMotionValue(0); const worldY=useMotionValue(0);
   const smoothWorldX=useSpring(worldX,{stiffness:390,damping:40,mass:.92}); const smoothWorldY=useSpring(worldY,{stiffness:390,damping:40,mass:.92});
   const [isDragging,setIsDragging]=useState(false);
+  const [askNow,setAskNow]=useState<number|null>(null);
   const spaceRef=useRef<HTMLElement>(null); const sceneScale=useRef(1.4);
   const drag=useRef({active:false,moved:false,pointerId:-1,startX:0,startY:0,startWorldX:0,startWorldY:0});
   const suppressClick=useRef(false); const hovered=useRef<number|null>(null);
@@ -179,14 +183,15 @@ function FriendSpace({ selected, asks, activityOverrides, nudgeFriend, actionFri
   const bubbleOffsets=useMemo<BubbleOffset[]>(()=>friends.map((_,index)=>({x:motionValue(0),y:motionValue(0),size:motionValue(`${activityVisuals[index].size}px`)})),[]);
   const removedFriendSet=useMemo(()=>new Set(removedFriendNames),[removedFriendNames]);
   const visibleIndices=useRef<number[]>(friends.reduce<number[]>((indices,friend,index)=>{if(!removedFriendSet.has(friend.name))indices.push(index);return indices;},[]));
-  const askOwnerIndices=useRef<number[]>(visibleIndices.current.filter(index=>asks.some(ask=>ask.sender===friends[index].name&&isPendingAskForYou(ask))));
-  const askMetrics=useRef({size:34,inset:25,top:-8});
+  const askOwnerIndices=useRef<number[]>(visibleIndices.current.filter(index=>asks.some(ask=>ask.sender===friends[index].name&&isPendingAskForYou(ask,askNow))));
+  const askMetrics=useRef({size:34,inset:25,top:-8,outset:5});
 
   useEffect(()=>{activityVisualsRef.current=activityVisuals;},[activityVisuals]);
-  useEffect(()=>{const visible=friends.reduce<number[]>((indices,friend,index)=>{if(!removedFriendSet.has(friend.name))indices.push(index);return indices;},[]);visibleIndices.current=visible;askOwnerIndices.current=visible.filter(index=>asks.some(ask=>ask.sender===friends[index].name&&isPendingAskForYou(ask)));},[asks,removedFriendSet]);
+  useEffect(()=>{let expiryTimer:number|undefined;const update=()=>setAskNow(Date.now());const scheduleNextExpiry=()=>{if(expiryTimer)window.clearTimeout(expiryTimer);const now=Date.now();const nextExpiry=asks.filter(ask=>ask.recipients.includes('You')&&!ask.responses.some(response=>response.responder==='You')).map(ask=>ask.createdAt+ASK_LIFETIME).filter(expiresAt=>expiresAt>now).sort((a,b)=>a-b)[0];if(nextExpiry)expiryTimer=window.setTimeout(()=>{update();scheduleNextExpiry();},nextExpiry-now+25);};update();scheduleNextExpiry();const timer=window.setInterval(update,60*1000);document.addEventListener('visibilitychange',update);window.addEventListener('focus',update);return()=>{window.clearInterval(timer);if(expiryTimer)window.clearTimeout(expiryTimer);document.removeEventListener('visibilitychange',update);window.removeEventListener('focus',update);};},[asks]);
+  useEffect(()=>{const visible=friends.reduce<number[]>((indices,friend,index)=>{if(!removedFriendSet.has(friend.name))indices.push(index);return indices;},[]);visibleIndices.current=visible;askOwnerIndices.current=visible.filter(index=>asks.some(ask=>ask.sender===friends[index].name&&isPendingAskForYou(ask,askNow)));},[asks,removedFriendSet,askNow]);
 
   useEffect(()=>{
-    const updateScale=()=>{const styles=spaceRef.current?getComputedStyle(spaceRef.current):null;const scale=styles?parseFloat(styles.getPropertyValue('--scene-scale')):1.4;const size=styles?parseFloat(styles.getPropertyValue('--ask-icon-size')):34;const inset=styles?parseFloat(styles.getPropertyValue('--ask-icon-inset')):25;const top=styles?parseFloat(styles.getPropertyValue('--ask-icon-top')):-8;sceneScale.current=Number.isFinite(scale)?scale:1.4;askMetrics.current={size:Number.isFinite(size)?size:34,inset:Number.isFinite(inset)?inset:25,top:Number.isFinite(top)?top:-8};};
+    const updateScale=()=>{const styles=spaceRef.current?getComputedStyle(spaceRef.current):null;const scale=styles?parseFloat(styles.getPropertyValue('--scene-scale')):1.4;const size=styles?parseFloat(styles.getPropertyValue('--ask-icon-size')):34;const inset=styles?parseFloat(styles.getPropertyValue('--ask-icon-inset')):25;const top=styles?parseFloat(styles.getPropertyValue('--ask-icon-top')):-8;const outset=styles?parseFloat(styles.getPropertyValue('--ask-ring-outset')):5;sceneScale.current=Number.isFinite(scale)?scale:1.4;askMetrics.current={size:Number.isFinite(size)?size:34,inset:Number.isFinite(inset)?inset:25,top:Number.isFinite(top)?top:-8,outset:Number.isFinite(outset)?outset:5};};
     updateScale();window.addEventListener('resize',updateScale);return()=>window.removeEventListener('resize',updateScale);
   },[]);
 
@@ -222,7 +227,7 @@ function FriendSpace({ selected, asks, activityOverrides, nudgeFriend, actionFri
           const crownDx=friendPositionX(index,body)-playerX;const crownDy=friendPositionY(index,body)-(playerY+PLAYER_CROWN_OFFSET_Y);const rawCrownDistance=Math.hypot(crownDx,crownDy);const crownDistance=Math.max(rawCrownDistance,.001);const crownMinimum=body.size/2+PLAYER_CROWN_RADIUS+PLAYER_COLLISION_GAP;
           if(crownDistance<crownMinimum){const nx=rawCrownDistance<.001?0:crownDx/crownDistance;const ny=rawCrownDistance<.001?-1:crownDy/crownDistance;const correction=crownMinimum-crownDistance;body.x+=nx*correction;body.y+=ny*correction;body.vx+=nx*correction*.025;body.vy+=ny*correction*.025;}
         });
-        const iconRadius=askMetrics.current.size/2;
+        const iconRadius=askMetrics.current.size/2+askMetrics.current.outset;
         askOwnerIndices.current.forEach(owner=>{
           let iconX=askPositionX(owner);let iconY=askPositionY(owner);
           visible.forEach(index=>{
@@ -285,7 +290,7 @@ function FriendSpace({ selected, asks, activityOverrides, nudgeFriend, actionFri
     <section ref={spaceRef} className={`social-space orbital-field${selected ? ' is-muted' : ''}${isDragging?' is-dragging':''}`} aria-label="Your close friends" onPointerDown={pointerDown} onPointerMove={pointerMove} onPointerUp={pointerEnd} onPointerCancel={pointerEnd} onClickCapture={event=>{if(suppressClick.current){event.preventDefault();event.stopPropagation();}}}>
       <motion.div className="world-layer" style={{x:smoothWorldX,y:smoothWorldY}}>
         <div className="world-stage">
-          <AnimatePresence>{friends.map((friend,index)=>removedFriendSet.has(friend.name)?null:<FloatingFriend friend={friend} index={index} selected={selected?.name===friend.name} offset={bubbleOffsets[index]} ask={asks.find(ask=>ask.sender===friend.name&&isPendingAskForYou(ask))||null} activity={activityVisuals[index].activity} knockNudge={nudgeFriend===friend.name} actionsOpen={actionFriend===friend.name} onHover={value=>{hovered.current=value;}} onOpen={()=>onOpen(friend)} onAsk={onAsk} onKnock={onKnock} onRevealActions={onRevealActions} onDismissKnock={onDismissKnock} onDismissActions={onDismissActions} onKick={onKick} key={friend.name} />)}</AnimatePresence>
+          <AnimatePresence>{friends.map((friend,index)=>removedFriendSet.has(friend.name)?null:<FloatingFriend friend={friend} index={index} selected={selected?.name===friend.name} offset={bubbleOffsets[index]} ask={asks.find(ask=>ask.sender===friend.name&&isPendingAskForYou(ask,askNow))||null} askNow={askNow} activity={activityVisuals[index].activity} knockNudge={nudgeFriend===friend.name} actionsOpen={actionFriend===friend.name} onHover={value=>{hovered.current=value;}} onOpen={()=>onOpen(friend)} onAsk={onAsk} onKnock={onKnock} onRevealActions={onRevealActions} onDismissKnock={onDismissKnock} onDismissActions={onDismissActions} onKick={onKick} key={friend.name} />)}</AnimatePresence>
         </div>
       </motion.div>
       <div className="player-layer"><div className="player-anchor"><motion.button className="you" aria-label="Open your profile feed" onClick={onUser} whileHover={{scale:1.045}} whileTap={{scale:.97}}><img className="you-avatar" src={currentUser.image} alt=""/><img className="player-crown" src="/crown.png" alt="" aria-hidden="true" draggable={false}/></motion.button></div></div>
