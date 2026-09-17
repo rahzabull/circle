@@ -1,6 +1,6 @@
 'use client';
 
-import type { CSSProperties, ChangeEvent, PointerEvent as ReactPointerEvent } from 'react';
+import type { CSSProperties, ChangeEvent, MouseEvent as ReactMouseEvent, PointerEvent as ReactPointerEvent } from 'react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, animate, motion, motionValue, useMotionValue, useReducedMotion, useSpring } from 'framer-motion';
 import type { MotionStyle, MotionValue } from 'framer-motion';
@@ -77,10 +77,10 @@ function AskChip({ask,placement='right',onOpen}:{ask:AskPrompt;placement?:'left'
   </motion.div>;
 }
 
-function KnockNudge({friend,activity,onSend,onDismiss,onImpact}:{friend:Friend;activity:ActivityState;onSend:()=>void;onDismiss:()=>void;onImpact:(active:boolean)=>void}){
+function KnockNudge({friend,activity,onSend,onDismiss,onImpact}:{friend:Friend;activity:ActivityState;onSend:()=>boolean;onDismiss:()=>void;onImpact:(active:boolean)=>void}){
   const [stage,setStage]=useState<'suggested'|'sending'|'sent'>('suggested');const timers=useRef<number[]>([]);const reduceMotion=useReducedMotion();
   useEffect(()=>()=>{timers.current.forEach(timer=>window.clearTimeout(timer));onImpact(false);},[onImpact]);
-  const send=()=>{setStage('sending');onImpact(true);onSend();timers.current.push(window.setTimeout(()=>{onImpact(false);setStage('sent');},700),window.setTimeout(onDismiss,1750));};
+  const send=()=>{if(!onSend())return;setStage('sending');onImpact(true);timers.current.push(window.setTimeout(()=>{onImpact(false);setStage('sent');},700),window.setTimeout(onDismiss,1750));};
   return <motion.div className={`knock-nudge is-${stage}`} onPointerDown={event=>event.stopPropagation()} initial={{opacity:0,scale:.78,y:5}} animate={{opacity:1,scale:1,y:0}} exit={{opacity:0,scale:.85,y:4}} role="status" aria-live="polite" aria-label={stage==='sending'?`Knocking on ${friend.name}`:stage==='sent'?`Knocked on ${friend.name}`:undefined}>
     {stage==='suggested'&&<motion.button className="knock-fist" onClick={send} animate={reduceMotion?{}:{y:[0,0,4,0,0],rotate:[0,0,-10,4,0]}} transition={reduceMotion?{duration:0}:{duration:1.05,repeat:Infinity,repeatDelay:3.6}} aria-label={`Knock on ${friend.name}; ${activity}`}>👊</motion.button>}
     {stage==='sending'&&<motion.span className="knock-fist knocking" animate={reduceMotion?{}:{y:[0,13,-1,11,0],rotate:[0,-12,4,-10,0]}} transition={reduceMotion?{duration:0}:{duration:.68,ease:'easeInOut'}} aria-hidden="true">👊</motion.span>}
@@ -88,9 +88,20 @@ function KnockNudge({friend,activity,onSend,onDismiss,onImpact}:{friend:Friend;a
   </motion.div>;
 }
 
-function FloatingFriend({ friend, index, selected, offset, ask, activity, knockNudge, onHover, onOpen, onAsk, onKnock, onDismissKnock }:{ friend:Friend; index:number; selected:boolean; offset:BubbleOffset; ask:AskPrompt|null; activity:ActivityState; knockNudge:boolean; onHover:(index:number|null)=>void; onOpen:()=>void; onAsk:(ask:AskPrompt)=>void; onKnock:(friend:Friend)=>void; onDismissKnock:()=>void }) {
+function FloatingFriend({ friend, index, selected, offset, ask, activity, knockNudge, onHover, onOpen, onAsk, onKnock, onRevealKnock, onDismissKnock }:{ friend:Friend; index:number; selected:boolean; offset:BubbleOffset; ask:AskPrompt|null; activity:ActivityState; knockNudge:boolean; onHover:(index:number|null)=>void; onOpen:()=>void; onAsk:(ask:AskPrompt)=>void; onKnock:(friend:Friend)=>boolean; onRevealKnock:(friend:Friend)=>void; onDismissKnock:()=>void }) {
   const placement:'left'|'right'|'above'=friend.x>25?'right':friend.x<-25?'left':friend.y>100?'above':'left';
   const [knockImpact,setKnockImpact]=useState(false);const reduceMotion=useReducedMotion();
+  const holdTimer=useRef<number|undefined>(undefined);const holdState=useRef<{pointerId:number;startX:number;startY:number;triggered:boolean}|null>(null);const suppressOpenUntil=useRef(0);
+  useEffect(()=>()=>{if(holdTimer.current)window.clearTimeout(holdTimer.current);},[]);
+  const clearHold=()=>{if(holdTimer.current)window.clearTimeout(holdTimer.current);holdTimer.current=undefined;holdState.current=null;};
+  const beginHold=(event:ReactPointerEvent<HTMLButtonElement>)=>{
+    if(event.button!==0||!canReceiveKnock(activity))return;
+    const pointerId=event.pointerId;clearHold();holdState.current={pointerId,startX:event.clientX,startY:event.clientY,triggered:false};
+    holdTimer.current=window.setTimeout(()=>{const state=holdState.current;if(!state||state.pointerId!==pointerId)return;state.triggered=true;onRevealKnock(friend);},460);
+  };
+  const moveHold=(event:ReactPointerEvent<HTMLButtonElement>)=>{const state=holdState.current;if(!state||state.pointerId!==event.pointerId)return;if(Math.hypot(event.clientX-state.startX,event.clientY-state.startY)>=7&&!state.triggered)clearHold();};
+  const endHold=(event:ReactPointerEvent<HTMLButtonElement>)=>{const state=holdState.current;if(!state||state.pointerId!==event.pointerId)return;if(state.triggered)suppressOpenUntil.current=performance.now()+500;clearHold();};
+  const openProfile=(event:ReactMouseEvent<HTMLButtonElement>)=>{if(performance.now()<suppressOpenUntil.current){event.preventDefault();event.stopPropagation();return;}onOpen();};
   return (
     <motion.div
       className={`friend activity-${activity} ${activity==='active'||activity==='recentlyActive'?'is-active':'is-inactive'}${selected ? ' is-selected' : ''}${ask?' has-ask':''}${knockNudge?' has-knock':''}`}
@@ -99,14 +110,14 @@ function FloatingFriend({ friend, index, selected, offset, ask, activity, knockN
       transition={{ opacity:{duration:.32,ease:'easeOut'}, scale:{delay:.035*index,type:'spring',stiffness:120,damping:20,mass:.8} }}
       onHoverStart={()=>onHover(index)} onHoverEnd={()=>onHover(null)}
     >
-      <motion.button className="friend-profile" onClick={onOpen} aria-label={`Open ${friend.name}'s latest moment`} whileHover={{scale:1.055}} whileTap={{scale:.97}}><span className="friend-float"><motion.span className="portrait" layoutId={`avatar-${friend.name}`} animate={!reduceMotion&&knockImpact?{x:[0,3,-2,2,0],rotate:[0,2,-2,1,0]}:{x:0,rotate:0}} transition={{duration:reduceMotion?0:.72,type:'spring',stiffness:260,damping:13}}><img src={friend.image} alt="" /></motion.span><b>{friend.name}</b></span></motion.button>
+      <motion.button className="friend-profile" onClick={openProfile} onPointerDown={beginHold} onPointerMove={moveHold} onPointerUp={endHold} onPointerCancel={endHold} onPointerLeave={endHold} onContextMenu={event=>{if(canReceiveKnock(activity))event.preventDefault();}} aria-label={`Open ${friend.name}'s latest moment${canReceiveKnock(activity)?'; press and hold to reveal Knock':''}`} whileHover={{scale:1.055}} whileTap={{scale:.97}}><span className="friend-float"><motion.span className="portrait" layoutId={`avatar-${friend.name}`} animate={!reduceMotion&&knockImpact?{x:[0,3,-2,2,0],rotate:[0,2,-2,1,0]}:{x:0,rotate:0}} transition={{duration:reduceMotion?0:.72,type:'spring',stiffness:260,damping:13}}><img src={friend.image} alt="" /></motion.span><b>{friend.name}</b></span></motion.button>
       {ask&&<AskChip ask={ask} placement={placement} onOpen={()=>onAsk(ask)}/>}
       <AnimatePresence>{knockNudge&&<KnockNudge friend={friend} activity={activity} onSend={()=>onKnock(friend)} onDismiss={onDismissKnock} onImpact={setKnockImpact}/>}</AnimatePresence>
     </motion.div>
   );
 }
 
-function FriendSpace({ selected, asks, activityOverrides, nudgeFriend, onOpen, onUser, onAsk, onKnock, onDismissKnock }:{ selected:Friend|null; asks:AskPrompt[]; activityOverrides:Record<string,ActivityOverride>; nudgeFriend:string|null; onOpen:(friend:Friend)=>void; onUser:()=>void; onAsk:(ask:AskPrompt)=>void; onKnock:(friend:Friend)=>void; onDismissKnock:()=>void }) {
+function FriendSpace({ selected, asks, activityOverrides, nudgeFriend, onOpen, onUser, onAsk, onKnock, onRevealKnock, onDismissKnock }:{ selected:Friend|null; asks:AskPrompt[]; activityOverrides:Record<string,ActivityOverride>; nudgeFriend:string|null; onOpen:(friend:Friend)=>void; onUser:()=>void; onAsk:(ask:AskPrompt)=>void; onKnock:(friend:Friend)=>boolean; onRevealKnock:(friend:Friend)=>void; onDismissKnock:()=>void }) {
   const worldX=useMotionValue(0); const worldY=useMotionValue(0);
   const smoothWorldX=useSpring(worldX,{stiffness:390,damping:40,mass:.92}); const smoothWorldY=useSpring(worldY,{stiffness:390,damping:40,mass:.92});
   const [isDragging,setIsDragging]=useState(false); const [hasMoved,setHasMoved]=useState(false);
@@ -221,7 +232,7 @@ function FriendSpace({ selected, asks, activityOverrides, nudgeFriend, onOpen, o
     <section ref={spaceRef} className={`social-space orbital-field${selected ? ' is-muted' : ''}${isDragging?' is-dragging':''}`} aria-label="Your close friends" onPointerDown={pointerDown} onPointerMove={pointerMove} onPointerUp={pointerEnd} onPointerCancel={pointerEnd} onClickCapture={event=>{if(suppressClick.current){event.preventDefault();event.stopPropagation();}}}>
       <motion.div className="world-layer" style={{x:smoothWorldX,y:smoothWorldY}}>
         <div className="world-stage">
-          {friends.map((friend,index)=><FloatingFriend friend={friend} index={index} selected={selected?.name===friend.name} offset={bubbleOffsets[index]} ask={asks.find(ask=>ask.sender===friend.name&&ask.recipients.includes('You'))||null} activity={getActivityState(friend,activityOverrides[friend.name])} knockNudge={nudgeFriend===friend.name} onHover={value=>{hovered.current=value;}} onOpen={()=>onOpen(friend)} onAsk={onAsk} onKnock={onKnock} onDismissKnock={onDismissKnock} key={friend.name} />)}
+          {friends.map((friend,index)=><FloatingFriend friend={friend} index={index} selected={selected?.name===friend.name} offset={bubbleOffsets[index]} ask={asks.find(ask=>ask.sender===friend.name&&ask.recipients.includes('You'))||null} activity={getActivityState(friend,activityOverrides[friend.name])} knockNudge={nudgeFriend===friend.name} onHover={value=>{hovered.current=value;}} onOpen={()=>onOpen(friend)} onAsk={onAsk} onKnock={onKnock} onRevealKnock={onRevealKnock} onDismissKnock={onDismissKnock} key={friend.name} />)}
         </div>
       </motion.div>
       <div className="player-layer"><div className="player-anchor"><motion.button className="you" aria-label="Create a post" onClick={onUser} whileHover={{scale:1.045}} whileTap={{scale:.97}}><img src="https://i.pravatar.cc/240?img=68" alt=""/></motion.button></div></div>
@@ -391,14 +402,15 @@ export default function Home() {
   const closeResponses=()=>{setResponsesAsk(null);window.requestAnimationFrame(()=>bellRef.current?.focus());};
   const selectNotification=(item:SocialNotification)=>{setNotificationsOpen(false);if(item.action==='knock-response'){setKnockResponseId(item.knockId||null);}else if(item.action==='ask'||item.action==='ask-response'){const ask=asks.find(candidate=>candidate.id===item.askId);if(ask)openAsk(ask);}else openFriend(item.friend);};
   const selectKnock=(knock:Knock)=>{setKnocksOpen(false);if(knock.status==='waiting')setKnockComposerId(knock.id);};
-  const sendKnock=(friend:Friend)=>{const now=Date.now();if(now-(knockCooldowns[friend.name]||0)<ACTIVITY_THRESHOLDS.knockCooldown){showToast(`${friend.name} is on Knock cooldown`);return;}const knock:Knock={id:`knock-you-${friend.name}-${now}`,from:'You',to:friend.name,createdAt:now,status:'sent'};setKnocks(current=>[knock,...current]);setKnockCooldowns(current=>{const next={...current,[friend.name]:now};window.localStorage.setItem('circle-knock-cooldowns',JSON.stringify(next));return next;});const timer=window.setTimeout(()=>{const response:KnockResponse={image:friend.photo,status:['Alive.','At work 😭','Gym.','Rotting.'][friends.indexOf(friend)%4],sentAt:Date.now()};setKnocks(current=>current.map(item=>item.id===knock.id?{...item,status:'responded',response}:item));setActivityOverrides(current=>({...current,[friend.name]:{lastActiveAt:Date.now(),lastPostedAt:Date.now()}}));setSocialNotifications(current=>[{id:`response-${knock.id}`,friend,text:'sent proof of life',mark:'📷',time:'now',action:'knock-response',knockId:knock.id},...current]);showToast(`${friend.name} sent proof of life`);},6500);responseTimers.current.push(timer);};
+  const revealKnock=(friend:Friend)=>{if(!canReceiveKnock(getActivityState(friend,activityOverrides[friend.name])))return;const lastKnock=knockCooldowns[friend.name]||0;if(Date.now()-lastKnock<ACTIVITY_THRESHOLDS.knockCooldown){setNudgeFriend(null);showToast(`${friend.name} is on Knock cooldown`);return;}setNudgeFriend(friend.name);};
+  const sendKnock=(friend:Friend)=>{const now=Date.now();if(now-(knockCooldowns[friend.name]||0)<ACTIVITY_THRESHOLDS.knockCooldown){showToast(`${friend.name} is on Knock cooldown`);return false;}const knock:Knock={id:`knock-you-${friend.name}-${now}`,from:'You',to:friend.name,createdAt:now,status:'sent'};setKnocks(current=>[knock,...current]);setKnockCooldowns(current=>{const next={...current,[friend.name]:now};window.localStorage.setItem('circle-knock-cooldowns',JSON.stringify(next));return next;});const timer=window.setTimeout(()=>{const response:KnockResponse={image:friend.photo,status:['Alive.','At work 😭','Gym.','Rotting.'][friends.indexOf(friend)%4],sentAt:Date.now()};setKnocks(current=>current.map(item=>item.id===knock.id?{...item,status:'responded',response}:item));setActivityOverrides(current=>({...current,[friend.name]:{lastActiveAt:Date.now(),lastPostedAt:Date.now()}}));setSocialNotifications(current=>[{id:`response-${knock.id}`,friend,text:'sent proof of life',mark:'📷',time:'now',action:'knock-response',knockId:knock.id},...current]);showToast(`${friend.name} sent proof of life`);},6500);responseTimers.current.push(timer);return true;};
   const respondToKnock=(knock:Knock,response:KnockResponse)=>{setKnocks(current=>current.map(item=>item.id===knock.id?{...item,status:'responded',response}:item));setKnockComposerId(null);showToast(`Proof of life sent to ${knock.from}`);};
   const sendAsk=(text:string,recipients:string[],audienceLabel:string)=>{const ask:AskPrompt={id:`ask-you-${Date.now()}`,sender:'You',text,recipients,audienceLabel,createdAt:Date.now(),responses:[]};const previousOwnAskIds=new Set(asks.filter(item=>item.sender==='You').map(item=>item.id));setAsks(current=>[ask,...current.filter(item=>item.sender!=='You')]);setSocialNotifications(current=>current.filter(item=>!(item.action==='ask-response'&&item.askId&&previousOwnAskIds.has(item.askId))));setAskComposerOpen(false);showToast(`Ask sent to ${recipients.length} ${recipients.length===1?'friend':'friends'}`);};
   const replyToAsk=(ask:AskPrompt,image:string)=>{setAsks(current=>current.map(item=>item.id===ask.id?{...item,responses:[...item.responses.filter(response=>response.responder!=='You'),{id:`response-you-${Date.now()}`,responder:'You',image,sentAt:'now'}]}:item));setReplyAsk(null);showToast(`Photo sent privately to ${ask.sender}`);};
   return <main className="friend-space" aria-label={backgroundLabel}>
     <GalaxyBackground/>
     <header className="circle-header"><div><h1>Circle</h1><p>Your people. Closer.</p></div><nav><button ref={knockInboxRef} className="knock-inbox-trigger" onClick={()=>{setKnocksOpen(value=>!value);setNotificationsOpen(false);}} aria-label={knocksOpen?'Close Knocks':'Open Knocks'} aria-expanded={knocksOpen} aria-controls="knock-inbox"><span>👊</span><b>Knock</b>{incomingKnocks.length>0&&<i>{incomingKnocks.length}</i>}</button><button ref={bellRef} className="bell" onClick={()=>{setNotificationsOpen(value=>!value);setKnocksOpen(false);}} aria-label={notificationsOpen?'Close notifications':'Open notifications'} aria-expanded={notificationsOpen}><Bell size={21} strokeWidth={1.8}/><span/></button></nav></header>
-    <FriendSpace selected={selected} asks={asks} activityOverrides={activityOverrides} nudgeFriend={nudgeFriend} onOpen={openFriend} onUser={()=>setComposerOpen(true)} onAsk={openAsk} onKnock={sendKnock} onDismissKnock={()=>setNudgeFriend(null)}/>
+    <FriendSpace selected={selected} asks={asks} activityOverrides={activityOverrides} nudgeFriend={nudgeFriend} onOpen={openFriend} onUser={()=>setComposerOpen(true)} onAsk={openAsk} onKnock={sendKnock} onRevealKnock={revealKnock} onDismissKnock={()=>setNudgeFriend(null)}/>
     <button ref={inviteTriggerRef} className="circle-count" onClick={()=>setInviteOpen(v=>!v)} aria-label="Add people to your circle" aria-expanded={inviteOpen} aria-controls="quick-invite"><Users size={19}/><span>9 close friends</span><Plus size={17}/></button>
     <AnimatePresence>{inviteOpen&&<motion.aside id="quick-invite" className="quick-invite" initial={{opacity:0,y:10,scale:.96}} animate={{opacity:1,y:0,scale:1}} exit={{opacity:0,y:6,scale:.97}}><button ref={inviteCloseRef} onClick={()=>setInviteOpen(false)} aria-label="Close invite"><X size={16}/></button><small>INVITE TO YOUR CIRCLE</small><h2>Someone missing?</h2><div><input type="email" aria-label="Email address" placeholder="friend@email.com"/><button onClick={()=>setInviteOpen(false)} aria-label="Send invite"><Send size={16}/></button></div></motion.aside>}</AnimatePresence>
     <button className="post-action" onClick={()=>setComposerOpen(true)}><span><Plus size={30}/></span><b>Post</b></button>
