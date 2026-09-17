@@ -35,7 +35,9 @@
 .friend:hover .portrait{box-shadow:0 22px 60px rgba(0,0,0,.48),0 0 0 3px rgba(255,255,255,.3)}
 .you{left:50%;top:50%;bottom:auto;width:122px;height:122px;margin:-61px 0 0 -61px;padding:7px;border:0;border-radius:50%;background:#fff;box-shadow:0 22px 62px rgba(0,0,0,.44),0 0 0 2px rgba(255,255,255,.3);cursor:pointer}
 .you img{width:100%;height:100%;border-radius:50%;filter:saturate(.82) contrast(1.02)}
-.notification-panel{color:var(--ink)}
+.notification-panel,.post-viewer,.composer,.invite-card,.meme-picker,.reaction-tool,.ritual-modal,.ask-dialog,.ask-composer,.ask-responses,.profile-feed,.privacy-pop{color:var(--ink)}
+.notification-panel input,.notification-panel textarea,.post-viewer input,.post-viewer textarea,.composer input,.composer textarea,.invite-card input,.invite-card textarea,.meme-picker input,.meme-picker textarea,.reaction-tool input,.reaction-tool textarea,.ritual-modal input,.ritual-modal textarea,.ask-dialog input,.ask-dialog textarea,.ask-composer input,.ask-composer textarea,.ask-responses input,.ask-responses textarea,.profile-feed input,.profile-feed textarea,.privacy-pop input,.privacy-pop textarea{color:var(--ink);caret-color:var(--ink)}
+.notification-panel input::placeholder,.notification-panel textarea::placeholder,.post-viewer input::placeholder,.post-viewer textarea::placeholder,.composer input::placeholder,.composer textarea::placeholder,.invite-card input::placeholder,.invite-card textarea::placeholder,.meme-picker input::placeholder,.meme-picker textarea::placeholder,.reaction-tool input::placeholder,.reaction-tool textarea::placeholder,.ritual-modal input::placeholder,.ritual-modal textarea::placeholder,.ask-dialog input::placeholder,.ask-dialog textarea::placeholder,.ask-composer input::placeholder,.ask-composer textarea::placeholder,.ask-responses input::placeholder,.ask-responses textarea::placeholder,.profile-feed input::placeholder,.profile-feed textarea::placeholder,.privacy-pop input::placeholder,.privacy-pop textarea::placeholder{color:#8d9691;opacity:1}
 
 @media(max-width:800px){
   .topbar{padding:18px 20px}
