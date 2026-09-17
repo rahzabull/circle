@@ -119,7 +119,7 @@ type BubbleOffset = { x:MotionValue<number>; y:MotionValue<number>; size:MotionV
 function AskChip({ask,placement='right',now,onOpen}:{ask:AskPrompt;placement?:'left'|'right'|'above';now:number|null;onOpen:()=>void}){
   const remaining=getAskTimeRemaining(ask,now);const progress=Math.min(1,remaining/ASK_LIFETIME);const timeLeft=remaining>=HOUR?`${Math.ceil(remaining/HOUR)}h left`:`${Math.max(1,Math.ceil(remaining/(60*1000)))}m left`;
   return <motion.div className={`ask-prompt ask-${placement}`} onPointerDown={event=>event.stopPropagation()} initial={{opacity:0,scale:.72,y:5}} animate={{opacity:1,scale:1,y:0}}>
-    <motion.button className="ask-prompt-icon" style={{'--ask-progress':`${progress*360}deg`} as CSSProperties} onClick={event=>{event.stopPropagation();onOpen();}} whileHover={{scale:1.08,y:-1}} whileTap={{scale:.94}} aria-label={`Open ${ask.sender}'s Ask; ${timeLeft}`} aria-haspopup="dialog" title={timeLeft}><span className="ask-timer-ring" aria-hidden="true"/><img src="/ask-icon.png?v=3" alt="" aria-hidden="true"/></motion.button>
+    <motion.button className="ask-prompt-icon" onClick={event=>{event.stopPropagation();onOpen();}} whileHover={{scale:1.08,y:-1}} whileTap={{scale:.94}} aria-label={`Open ${ask.sender}'s Ask; ${timeLeft}`} aria-haspopup="dialog" title={timeLeft}><span className="ask-timer-ring" aria-hidden="true"><svg viewBox="0 0 48 48"><circle className="ask-timer-track" cx="24" cy="24" r="20.5"/><motion.circle className="ask-timer-progress" cx="24" cy="24" r="20.5" initial={false} animate={{pathLength:progress}} transition={{duration:.65,ease:[.2,.8,.2,1]}}/></svg></span><img src="/ask-icon.png?v=3" alt="" aria-hidden="true"/></motion.button>
   </motion.div>;
 }
 
