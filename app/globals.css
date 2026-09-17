@@ -108,7 +108,7 @@
 .world-stage .friend:hover .friend-float>b,.world-stage .friend:focus-visible .friend-float>b{opacity:1;transform:translate(-50%,0)}
 .player-layer{position:fixed;z-index:4;inset:0;pointer-events:none}
 .player-anchor{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) scale(var(--scene-scale));transform-origin:50% 50%;pointer-events:auto}
-.player-anchor .you{position:relative;z-index:1;left:auto;top:auto;width:110px;height:110px;margin:0;padding:6px;overflow:visible;pointer-events:auto}
+.player-anchor .you{position:relative;z-index:1;left:auto;top:auto;width:110px;height:110px;margin:0;padding:5px;overflow:visible;pointer-events:auto}
 .player-anchor .you>.you-avatar{position:relative;z-index:1}
 .player-anchor .you>.player-crown{position:absolute;z-index:3;left:50%;top:1px;width:42px;height:auto;border-radius:0;object-fit:contain;transform:translate(-50%,-62%) rotate(-2deg);transform-origin:50% 100%;filter:drop-shadow(0 7px 9px rgba(0,0,0,.38));pointer-events:none;user-select:none}
 @media(max-width:700px){.social-space.orbital-field{--scene-scale:1.176;--ask-icon-size:38px;--ask-icon-inset:26px}}
