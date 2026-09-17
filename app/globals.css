@@ -57,6 +57,7 @@
 .friend-space::before{content:'';position:absolute;z-index:0;inset:0;background:url('/circle-space-bg.png') center/cover no-repeat;filter:saturate(.6) contrast(.86) brightness(.62);opacity:.2;pointer-events:none}
 .friend-space::after{z-index:2}
 .galaxy-background{position:absolute;z-index:1;inset:0;overflow:hidden;contain:strict;pointer-events:none}.galaxy-background canvas{display:block;width:100%;height:100%;pointer-events:none}
+.astronaut-flight{position:fixed;z-index:2;inset:0;overflow:hidden;contain:layout paint;pointer-events:none}.astronaut-route{position:absolute;width:clamp(104px,10vw,168px);will-change:left,top,transform,opacity;transform-origin:50% 50%;pointer-events:none}.astronaut-route img{display:block;width:100%;height:auto;filter:drop-shadow(0 18px 24px rgba(0,0,0,.34));user-select:none;pointer-events:none}
 .circle-header{position:absolute;z-index:25;top:0;left:0;right:0;display:flex;align-items:flex-start;justify-content:space-between;padding:28px 34px;color:#f8f7f3}
 .circle-header h1{margin:0;font-size:28px;font-weight:780;letter-spacing:-.045em;line-height:1}
 .circle-header p{margin:8px 0 0;color:#919391;font-size:13px;letter-spacing:-.01em}
@@ -118,6 +119,7 @@
 .player-anchor .you>.you-avatar{position:relative;z-index:1}
 .player-anchor .you>.player-crown{position:absolute;z-index:3;left:50%;top:1px;width:42px;height:auto;border-radius:0;object-fit:contain;transform:translate(-50%,-62%) rotate(-2deg);transform-origin:50% 100%;filter:drop-shadow(0 7px 9px rgba(0,0,0,.38));pointer-events:none;user-select:none}
 @media(max-width:700px){.social-space.orbital-field{--scene-scale:1.176;--ask-icon-size:38px;--ask-icon-inset:26px}}
+@media(max-width:700px){.astronaut-route{width:clamp(82px,22vw,122px)}}
 @media(max-width:560px){
   .social-space.orbital-field{--scene-scale:.98}
   .world-stage .friend:nth-child(4),.world-stage .friend:nth-child(7){display:flex}

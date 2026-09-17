@@ -6,6 +6,7 @@ import { AnimatePresence, animate, motion, motionValue, useMotionValue, useReduc
 import type { MotionStyle, MotionValue } from 'framer-motion';
 import { Bell, Camera, Check, ChevronRight, Heart, ImagePlus, LockKeyhole, MessageCircleQuestion, Mic, Play, Plus, Send, SmilePlus, Upload, UserRound, Users, X } from 'lucide-react';
 import GalaxyBackground from './GalaxyBackground';
+import FloatingAstronaut from './FloatingAstronaut';
 
 type Friend = {
   name: string; color: string; x: number; y: number; size: number; image: string;
@@ -486,6 +487,7 @@ export default function Home() {
   const respondToKnock=(knock:Knock,response:KnockResponse)=>{setKnocks(current=>current.map(item=>item.id===knock.id?{...item,status:'responded',response}:item));setKnockComposerId(null);showToast(`Proof of life sent to ${knock.from}`);};
   return <main className="friend-space" aria-label={backgroundLabel}>
     <GalaxyBackground/>
+    <FloatingAstronaut/>
     <header className="circle-header"><div><h1>Circle</h1><p>Your people. Closer.</p></div><nav><button ref={knockInboxRef} className="knock-inbox-trigger" onClick={()=>{setKnocksOpen(value=>!value);setNotificationsOpen(false);}} aria-label={knocksOpen?'Close Knocks':'Open Knocks'} aria-expanded={knocksOpen} aria-controls="knock-inbox"><span>👊</span><b>Knock</b>{incomingKnocks.length>0&&<i>{incomingKnocks.length}</i>}</button><button ref={bellRef} className="bell" onClick={()=>{setNotificationsOpen(value=>!value);setKnocksOpen(false);}} aria-label={notificationsOpen?'Close notifications':'Open notifications'} aria-expanded={notificationsOpen}><Bell size={21} strokeWidth={1.8}/><span/></button></nav></header>
     <FriendSpace selected={selected} asks={asks} activityOverrides={activityOverrides} nudgeFriend={nudgeFriend} actionFriend={actionFriend} removedFriendNames={removedFriendNames} canAddFriend={!circleAtCapacity} onOpen={openFriend} onUser={()=>openProfile('you')} onAddFriend={()=>{setActionFriend(null);setNotificationsOpen(false);setKnocksOpen(false);setInviteOpen(true);}} onAsk={openAsk} onKnock={sendKnock} onRevealActions={revealActions} onDismissKnock={()=>setNudgeFriend(null)} onDismissActions={()=>setActionFriend(null)} onKick={kickOut}/>
     <button ref={inviteTriggerRef} className={`circle-count${circleAtCapacity?' is-full':''}`} onClick={()=>setInviteOpen(v=>!v)} aria-label={circleAtCapacity?'Circle at capacity, maximum 10 close friends':`Add people to your circle, ${circleSpotsLeft} ${circleSpotsLeft===1?'spot':'spots'} remaining`} aria-expanded={inviteOpen} aria-controls="quick-invite"><Users size={19}/><span>{circleFriends.length} close friends{pendingInvites.length>0?` · ${pendingInvites.length} pending`:''}</span><i>{circleSeatsUsed}/{MAX_CIRCLE_FRIENDS}</i><Plus size={17}/></button>
