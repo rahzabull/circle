@@ -38,7 +38,7 @@ const currentUser={id:'you',name:'You',image:'https://i.pravatar.cc/240?img=68',
 const getActivityState=(friend:Friend,override?:ActivityOverride):ActivityState=>{const latest=Math.max(override?.lastActiveAt??friend.lastActiveAt,override?.lastPostedAt??friend.lastPostedAt);const age=(override?Date.now():prototypeNow)-latest;if(age<=ACTIVITY_THRESHOLDS.active)return'active';if(age<=ACTIVITY_THRESHOLDS.recentlyActive)return'recentlyActive';if(age<=ACTIVITY_THRESHOLDS.quiet)return'quiet';return'inactive';};
 const canReceiveKnock=(state:ActivityState)=>state==='quiet'||state==='inactive';
 const getIceLevel=(friend:Friend,activity:ActivityState)=>{if(!canReceiveKnock(activity))return 0;const age=prototypeNow-Math.max(friend.lastActiveAt,friend.lastPostedAt);if(activity==='quiet')return Math.min(.58,.3+Math.max(0,age-DAY)/(3*DAY)*.28);return Math.min(.94,.64+Math.max(0,age-5*DAY)/(9*DAY)*.3);};
-const ACTIVITY_VISUAL_RULES:Record<ActivityState,{scale:number;min:number;max:number;separation:number}>={active:{scale:1.04,min:112,max:138,separation:0},recentlyActive:{scale:.92,min:94,max:108,separation:8},quiet:{scale:.78,min:74,max:88,separation:18},inactive:{scale:.72,min:60,max:70,separation:28}};
+const ACTIVITY_VISUAL_RULES:Record<ActivityState,{scale:number;min:number;max:number;separation:number}>={active:{scale:1.04,min:112,max:138,separation:0},recentlyActive:{scale:.92,min:94,max:108,separation:8},quiet:{scale:.78,min:74,max:88,separation:18},inactive:{scale:.72,min:74,max:82,separation:28}};
 const getTemperatureIcon=(iceLevel:number)=>{
   if(iceLevel<=0)return null;
   if(iceLevel<.43)return '/temperature-inactive.svg';
