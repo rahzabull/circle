@@ -47,20 +47,20 @@ function GalaxyBackground(){
       const scale=.32;haze.width=Math.max(1,Math.ceil(width*scale));haze.height=Math.max(1,Math.ceil(height*scale));
       const hazeWidth=haze.width;const hazeHeight=haze.height;hazeContext.clearRect(0,0,hazeWidth,hazeHeight);
       const blue=hazeContext.createRadialGradient(hazeWidth*.07,hazeHeight*.3,0,hazeWidth*.07,hazeHeight*.3,hazeWidth*.48);
-      blue.addColorStop(0,'rgba(42,65,116,.16)');blue.addColorStop(.42,'rgba(28,45,88,.075)');blue.addColorStop(1,'rgba(10,15,28,0)');hazeContext.fillStyle=blue;hazeContext.fillRect(0,0,hazeWidth,hazeHeight);
+      blue.addColorStop(0,'rgba(42,65,116,.22)');blue.addColorStop(.42,'rgba(28,45,88,.1)');blue.addColorStop(1,'rgba(10,15,28,0)');hazeContext.fillStyle=blue;hazeContext.fillRect(0,0,hazeWidth,hazeHeight);
       const violet=hazeContext.createRadialGradient(hazeWidth*.93,hazeHeight*.78,0,hazeWidth*.93,hazeHeight*.78,hazeWidth*.43);
-      violet.addColorStop(0,'rgba(73,52,105,.11)');violet.addColorStop(.48,'rgba(42,35,75,.055)');violet.addColorStop(1,'rgba(15,12,26,0)');hazeContext.fillStyle=violet;hazeContext.fillRect(0,0,hazeWidth,hazeHeight);
+      violet.addColorStop(0,'rgba(73,52,105,.15)');violet.addColorStop(.48,'rgba(42,35,75,.075)');violet.addColorStop(1,'rgba(15,12,26,0)');hazeContext.fillStyle=violet;hazeContext.fillRect(0,0,hazeWidth,hazeHeight);
       const warm=hazeContext.createRadialGradient(hazeWidth*.84,hazeHeight*.12,0,hazeWidth*.84,hazeHeight*.12,hazeWidth*.22);
-      warm.addColorStop(0,'rgba(114,82,48,.065)');warm.addColorStop(1,'rgba(25,18,12,0)');hazeContext.fillStyle=warm;hazeContext.fillRect(0,0,hazeWidth,hazeHeight);
+      warm.addColorStop(0,'rgba(114,82,48,.09)');warm.addColorStop(1,'rgba(25,18,12,0)');hazeContext.fillStyle=warm;hazeContext.fillRect(0,0,hazeWidth,hazeHeight);
     };
 
     const buildStars=()=>{
-      const random=seededRandom(0x51a7cafe^Math.round(width)^Math.round(height));const area=width*height;const power=lowPower ? .7 : 1;
+      const random=seededRandom(0x51a7cafe^Math.round(width)^Math.round(height));const area=width*height;const power=lowPower ? .85 : 1;
       const count=(density:number,minimum:number,maximum:number)=>Math.round(clamp(area/density,minimum,maximum)*power);
       const layers=[
-        {count:count(4200,110,430),radius:[.16,.48],alpha:[.1,.42],twinkle:[.08,.22],speed:[.00012,.00028],drift:5e-9,depth:.22,shimmer:.005},
-        {count:count(26000,22,80),radius:[.34,.76],alpha:[.22,.61],twinkle:[.12,.32],speed:[.00016,.00042],drift:1.1e-8,depth:.55,shimmer:.035},
-        {count:count(85000,6,24),radius:[.64,1.18],alpha:[.4,.76],twinkle:[.15,.36],speed:[.00012,.00034],drift:2.1e-8,depth:1,shimmer:.14},
+        {count:count(3600,145,500),radius:[.24,.58],alpha:[.22,.58],twinkle:[.1,.28],speed:[.00012,.0003],drift:5e-8,depth:.22,shimmer:.006},
+        {count:count(22000,26,88),radius:[.42,.92],alpha:[.36,.72],twinkle:[.16,.38],speed:[.00016,.00044],drift:9e-8,depth:.55,shimmer:.045},
+        {count:count(80000,7,24),radius:[.72,1.3],alpha:[.55,.88],twinkle:[.18,.4],speed:[.00012,.00036],drift:1.5e-7,depth:1,shimmer:.18},
       ] as const;
       const colors=['#f5f5ec','#dce8ff','#b9d1ff','#ffe7bd'];const next:Star[]=[];
       layers.forEach((layer,layerIndex)=>{
@@ -93,12 +93,12 @@ function GalaxyBackground(){
       pointer.x+=(pointer.targetX-pointer.x)*.018;pointer.y+=(pointer.targetY-pointer.y)*.018;
       context.clearRect(0,0,width,height);
       const hazeX=Math.sin(elapsed*.0000041)*1.6;const hazeY=Math.cos(elapsed*.0000034)*1.2;
-      context.globalAlpha=.78;context.drawImage(haze,-3+hazeX,-3+hazeY,width+6,height+6);context.globalAlpha=1;
+      context.globalAlpha=.9;context.drawImage(haze,-3+hazeX,-3+hazeY,width+6,height+6);context.globalAlpha=1;
       stars.forEach(star=>{
-        const wave=.5+.5*Math.sin(time*star.twinkleSpeed+star.phase);const shimmer=star.shimmer?Math.pow(Math.max(0,Math.sin(time*star.twinkleSpeed*.29+star.phase*1.73)),18)*.16:0;
-        const alpha=Math.min(.88,star.alpha*(1-star.twinkleDepth+wave*star.twinkleDepth)+shimmer);
+        const wave=.5+.5*Math.sin(time*star.twinkleSpeed+star.phase);const shimmer=star.shimmer?Math.pow(Math.max(0,Math.sin(time*star.twinkleSpeed*.29+star.phase*1.73)),18)*.22:0;
+        const alpha=Math.min(.94,star.alpha*(1-star.twinkleDepth+wave*star.twinkleDepth)+shimmer);
         const x=star.x*width+pointer.x*star.depth;const y=star.y*height+pointer.y*star.depth;
-        if(star.depth>.5&&star.radius>.7){context.globalAlpha=alpha*.1;context.fillStyle=star.color;context.beginPath();context.arc(x,y,star.radius*3.1,0,Math.PI*2);context.fill();}
+        if(star.depth>.5&&star.radius>.7){context.globalAlpha=alpha*.16;context.fillStyle=star.color;context.beginPath();context.arc(x,y,star.radius*3.3,0,Math.PI*2);context.fill();}
         context.globalAlpha=alpha;context.fillStyle=star.color;context.beginPath();context.arc(x,y,star.radius,0,Math.PI*2);context.fill();
       });
       context.globalAlpha=1;
