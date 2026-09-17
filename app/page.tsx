@@ -292,14 +292,7 @@ function FriendSpace({ selected, asks, activityOverrides, nudgeFriend, actionFri
 }
 
 function PrivacyIndicator() {
-  const [open,setOpen]=useState(false);
-  return <div className="privacy-wrap">
-    <button className="privacy" onClick={()=>setOpen(v=>!v)} aria-expanded={open}><Users size={15}/><span>Visible to 8 friends</span></button>
-    <AnimatePresence>{open && <motion.div className="privacy-pop" initial={{opacity:0,y:8,scale:.96}} animate={{opacity:1,y:0,scale:1}} exit={{opacity:0,y:5,scale:.97}}>
-      <div><LockKeyhole size={16}/><span><b>Your circle only</b><small>No sharing outside this group.</small></span></div>
-      <div className="privacy-faces">{friends.slice(0,8).map(friend=><img src={friend.image} alt={friend.name} title={friend.name} key={friend.name}/>)}</div>
-    </motion.div>}</AnimatePresence>
-  </div>;
+  return <div className="privacy-wrap"><div className="privacy" aria-label="Visible to 8 friends"><Users size={15}/><span>Visible to 8 friends</span></div></div>;
 }
 
 function MemePicker({ onPick, onClose }:{onPick:(meme:typeof memes[number])=>void;onClose:()=>void}) {
@@ -332,7 +325,7 @@ function VoiceReaction({onSend,onClose}:{onSend:()=>void;onClose:()=>void}){
 
 function PostViewer({ friend, onClose, onNotify, onViewProfile }:{friend:Friend;onClose:()=>void;onNotify:(text:string)=>void;onViewProfile:(friend:Friend)=>void}) {
   const [liked,setLiked]=useState(false);const [picker,setPicker]=useState(false);const [tool,setTool]=useState<'voice'|null>(null);
-  const [reactions,setReactions]=useState<Reaction[]>([{id:'voice-maya',type:'voice',label:'Maya',duration:'0:03'},{id:'selfie-leo',type:'selfie',label:'Leo',image:friends[5].image}]);
+  const [reactions,setReactions]=useState<Reaction[]>([{id:'voice-maya',type:'voice',label:'Maya',duration:'0:03'}]);
   const addReaction=(reaction:Reaction)=>{setReactions(current=>[...current,reaction]);setPicker(false);setTool(null);onNotify(reaction.type==='photo'?'Photo response sent privately':reaction.type==='voice'?'3-second note sent privately':'Reaction sent privately');};
   const pick=(meme:typeof memes[number])=>{addReaction({id:`meme-${Date.now()}`,type:'meme',label:'You',emoji:meme.emoji});setPicker(false);};
   return <motion.div className="viewer-layer" initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}}>
