@@ -28,11 +28,11 @@
 .friend{gap:0;animation:none;margin:0;will-change:transform;backface-visibility:hidden}
 .friend .portrait{padding:0;border:0;background:#d7d7d5;box-shadow:0 14px 42px rgba(0,0,0,.28);transition:box-shadow .38s cubic-bezier(.2,.8,.2,1),filter .38s ease}
 .friend .portrait::after{display:none}
-.friend.is-active .portrait{box-shadow:0 18px 55px rgba(0,0,0,.4),0 0 0 2px rgba(255,255,255,.2)}
+.friend.is-active .portrait{box-shadow:0 18px 55px rgba(0,0,0,.4)}
 .friend.is-active img{filter:saturate(.92) contrast(1.02)}
 .friend.is-inactive img{filter:grayscale(1) contrast(.88) brightness(.68);opacity:.86}
 .friend.is-inactive .portrait{box-shadow:0 12px 35px rgba(0,0,0,.2)}
-.friend:hover .portrait{box-shadow:0 22px 60px rgba(0,0,0,.48),0 0 0 3px rgba(255,255,255,.3)}
+.friend:hover .portrait{box-shadow:0 22px 60px rgba(0,0,0,.48)}
 .you{left:50%;top:50%;bottom:auto;width:122px;height:122px;margin:-61px 0 0 -61px;padding:7px;border:0;border-radius:50%;background:#fff;box-shadow:0 22px 62px rgba(0,0,0,.44),0 0 0 2px rgba(255,255,255,.3);cursor:pointer}
 .you img{width:100%;height:100%;border-radius:50%;filter:saturate(.82) contrast(1.02)}
 .notification-panel,.post-viewer,.composer,.invite-card,.meme-picker,.reaction-tool,.ritual-modal,.ask-dialog,.ask-composer,.ask-responses,.profile-feed,.privacy-pop{color:var(--ink)}
@@ -67,7 +67,7 @@
 .orbital-field{left:50%;top:50%;width:min(920px,72vw);height:min(690px,76svh)}
 .friend{gap:9px}
 .friend>b{padding:0;border-radius:0;background:none;color:#f7f6f2;font-size:13px;font-weight:560;line-height:1;text-shadow:0 2px 12px rgba(0,0,0,.65);box-shadow:none;backdrop-filter:none}
-.friend .portrait{border:1px solid rgba(255,255,255,.32)}
+.friend .portrait{border:0}
 .friend .portrait>i{position:absolute;right:5%;top:5%;display:block;width:16px;height:16px;border:2px solid #171817;border-radius:50%;box-shadow:0 4px 12px rgba(0,0,0,.35)}
 .friend .portrait>i.new{background:#ff5c64}.friend .portrait>i.online{background:#67c85b}
 .friend.is-inactive img{filter:grayscale(1) saturate(0) contrast(1.05) brightness(.56);opacity:.8}
@@ -112,7 +112,7 @@
 .world-stage .friend .portrait{width:var(--bubble-size);height:var(--bubble-size)}
 .world-stage .friend .friend-float>b{position:absolute;left:50%;top:calc(100% + 8px);padding:5px 9px;border:1px solid rgba(255,255,255,.12);border-radius:999px;background:rgba(22,23,22,.82);color:#f7f6f2;font-size:11px;font-weight:650;line-height:1;white-space:nowrap;opacity:0;transform:translate(-50%,-3px);box-shadow:0 7px 20px rgba(0,0,0,.28);backdrop-filter:blur(9px);transition:opacity .2s ease,transform .25s cubic-bezier(.2,.8,.2,1);pointer-events:none}
 .world-stage .friend:hover .friend-float>b,.world-stage .friend:focus-visible .friend-float>b{opacity:1;transform:translate(-50%,0)}
-.world-stage .friend:hover .portrait{box-shadow:0 24px 62px rgba(0,0,0,.5),0 0 0 2px rgba(255,255,255,.25)}
+.world-stage .friend:hover .portrait{box-shadow:0 24px 62px rgba(0,0,0,.5)}
 .world-stage .friend.has-unseen-post .portrait{box-shadow:0 0 0 3px #ff0080,0 0 0 6px rgba(255,0,128,.18),0 18px 52px rgba(0,0,0,.42)}.world-stage .friend.has-unseen-post:hover .portrait{box-shadow:0 0 0 3px #ff0080,0 0 0 7px rgba(255,0,128,.24),0 24px 62px rgba(0,0,0,.5)}
 .world-stage .friend>.activity-temperature{position:absolute;z-index:7;top:56%;display:block;width:auto;height:clamp(35px,calc(var(--bubble-size) * .45),42px);max-width:none;border-radius:0;object-fit:contain;opacity:.96;filter:drop-shadow(0 4px 6px rgba(0,0,0,.42))!important;transform:translateY(-50%);pointer-events:none;user-select:none}.world-stage .friend>.activity-temperature.is-left{left:-1px;--temperature-turn:-24deg;--temperature-kick:5deg}.world-stage .friend>.activity-temperature.is-right{right:-1px;--temperature-turn:24deg;--temperature-kick:-5deg}.friend.activity-quiet .activity-temperature{opacity:.78}.friend.activity-inactive .activity-temperature{opacity:.96}.world-stage .friend>.activity-temperature.is-dropped{animation:temperature-drop .82s cubic-bezier(.2,.72,.22,1) both}@keyframes temperature-drop{0%{opacity:.96;transform:translateY(-50%) rotate(0) scale(1)}18%{opacity:1;transform:translateY(-56%) rotate(var(--temperature-kick)) scale(1.05)}100%{opacity:0;transform:translateY(calc(-50% + 68px)) rotate(var(--temperature-turn)) scale(.72)}}
 .player-layer{position:fixed;z-index:4;inset:0;pointer-events:none}
