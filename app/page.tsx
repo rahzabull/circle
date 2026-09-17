@@ -4,7 +4,7 @@ import type { CSSProperties, ChangeEvent, FormEvent, MouseEvent as ReactMouseEve
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, animate, motion, motionValue, useMotionValue, useReducedMotion, useSpring } from 'framer-motion';
 import type { MotionStyle, MotionValue } from 'framer-motion';
-import { Bell, Camera, Check, ChevronRight, Heart, ImagePlus, LocateFixed, LockKeyhole, MessageCircleQuestion, Mic, Play, Plus, Send, SmilePlus, Upload, UserRound, Users, X } from 'lucide-react';
+import { Bell, Camera, Check, ChevronRight, Heart, ImagePlus, LockKeyhole, MessageCircleQuestion, Mic, Play, Plus, Send, SmilePlus, Upload, UserRound, Users, X } from 'lucide-react';
 import GalaxyBackground from './GalaxyBackground';
 
 type Friend = {
@@ -28,7 +28,6 @@ type ActiveSurface = {kind:'post';friend:Friend}|{kind:'profile';owner:'you'|Fri
 
 const HOUR=60*60*1000;const DAY=24*HOUR;const prototypeNow=Date.now();
 const ACTIVITY_THRESHOLDS={active:HOUR,recentlyActive:DAY,quiet:4*DAY,knockCooldown:DAY} as const;
-const AUTO_CENTER_DISTANCE=110;
 const MAX_CIRCLE_FRIENDS=10;
 const currentUser={id:'you',name:'You',image:'https://i.pravatar.cc/240?img=68',color:'#ff5b63'} as const;
 const getActivityState=(friend:Friend,override?:ActivityOverride):ActivityState=>{const latest=Math.max(override?.lastActiveAt??friend.lastActiveAt,override?.lastPostedAt??friend.lastPostedAt);const age=(override?Date.now():prototypeNow)-latest;if(age<=ACTIVITY_THRESHOLDS.active)return'active';if(age<=ACTIVITY_THRESHOLDS.recentlyActive)return'recentlyActive';if(age<=ACTIVITY_THRESHOLDS.quiet)return'quiet';return'inactive';};
@@ -164,9 +163,9 @@ function FloatingFriend({ friend, index, selected, offset, ask, activity, knockN
 function FriendSpace({ selected, asks, activityOverrides, nudgeFriend, actionFriend, removedFriendNames, onOpen, onUser, onAsk, onKnock, onRevealActions, onDismissKnock, onDismissActions, onKick }:{ selected:Friend|null; asks:AskPrompt[]; activityOverrides:Record<string,ActivityOverride>; nudgeFriend:string|null; actionFriend:string|null; removedFriendNames:string[]; onOpen:(friend:Friend)=>void; onUser:()=>void; onAsk:(ask:AskPrompt)=>void; onKnock:(friend:Friend)=>boolean; onRevealActions:(friend:Friend)=>void; onDismissKnock:()=>void; onDismissActions:()=>void; onKick:(friend:Friend)=>void }) {
   const worldX=useMotionValue(0); const worldY=useMotionValue(0);
   const smoothWorldX=useSpring(worldX,{stiffness:390,damping:40,mass:.92}); const smoothWorldY=useSpring(worldY,{stiffness:390,damping:40,mass:.92});
-  const [isDragging,setIsDragging]=useState(false); const [hasMoved,setHasMoved]=useState(false);
+  const [isDragging,setIsDragging]=useState(false);
   const spaceRef=useRef<HTMLElement>(null); const sceneScale=useRef(1.4);
-  const drag=useRef({active:false,moved:false,pointerId:-1,startX:0,startY:0,startWorldX:0,startWorldY:0,lastX:0,lastY:0,lastTime:0,velocityX:0,velocityY:0});
+  const drag=useRef({active:false,moved:false,pointerId:-1,startX:0,startY:0,startWorldX:0,startWorldY:0});
   const suppressClick=useRef(false); const hovered=useRef<number|null>(null);
   const momentum=useRef<{x?:ReturnType<typeof animate>;y?:ReturnType<typeof animate>}>({});
   const bubbleOffsets=useMemo<BubbleOffset[]>(()=>friends.map(()=>({x:motionValue(0),y:motionValue(0)})),[]);
@@ -242,39 +241,30 @@ function FriendSpace({ selected, asks, activityOverrides, nudgeFriend, actionFri
     momentum.current.x?.stop();momentum.current.y?.stop();
     const transition={type:'spring' as const,stiffness:72,damping:19,mass:1.15,restDelta:.25};
     momentum.current.x=animate(worldX,0,transition);momentum.current.y=animate(worldY,0,transition);
-    setHasMoved(false);
   };
   const pointerDown=(event:ReactPointerEvent<HTMLElement>)=>{
     const target=event.target as HTMLElement;if(!target.closest('.profile-actions'))onDismissActions();
-    if(event.button!==0||selected||target.closest('.you,.reset-world,.profile-actions'))return;
+    if(event.button!==0||selected||target.closest('.you,.profile-actions'))return;
     momentum.current.x?.stop(); momentum.current.y?.stop();
     worldX.set(smoothWorldX.get());worldY.set(smoothWorldY.get());
-    setHasMoved(Math.hypot(worldX.get(),worldY.get())>1);
-    drag.current={active:true,moved:false,pointerId:event.pointerId,startX:event.clientX,startY:event.clientY,startWorldX:worldX.get(),startWorldY:worldY.get(),lastX:event.clientX,lastY:event.clientY,lastTime:event.timeStamp,velocityX:0,velocityY:0};
+    drag.current={active:true,moved:false,pointerId:event.pointerId,startX:event.clientX,startY:event.clientY,startWorldX:worldX.get(),startWorldY:worldY.get()};
   };
   const pointerMove=(event:ReactPointerEvent<HTMLElement>)=>{
     const state=drag.current;if(!state.active||state.pointerId!==event.pointerId)return;
     const dx=event.clientX-state.startX;const dy=event.clientY-state.startY;
     if(!state.moved&&Math.hypot(dx,dy)<7)return;
     if(!state.moved){state.moved=true;suppressClick.current=true;setIsDragging(true);event.currentTarget.setPointerCapture(event.pointerId);}
-    const elapsed=Math.max(event.timeStamp-state.lastTime,8);
-    state.velocityX=-(event.clientX-state.lastX)/elapsed*1000;state.velocityY=-(event.clientY-state.lastY)/elapsed*1000;
-    state.lastX=event.clientX;state.lastY=event.clientY;state.lastTime=event.timeStamp;
     const nextWorldX=state.startWorldX-dx;const nextWorldY=state.startWorldY-dy;
-    worldX.set(nextWorldX);worldY.set(nextWorldY);setHasMoved(Math.hypot(nextWorldX,nextWorldY)>AUTO_CENTER_DISTANCE);
+    worldX.set(nextWorldX);worldY.set(nextWorldY);
   };
   const pointerEnd=(event:ReactPointerEvent<HTMLElement>)=>{
     const state=drag.current;if(!state.active||state.pointerId!==event.pointerId)return;
     state.active=false;
     if(state.moved){
       setIsDragging(false);
-      if(Math.hypot(worldX.get(),worldY.get())<=AUTO_CENTER_DISTANCE)returnWorldToCenter();
-      else{
-        momentum.current.x=animate(worldX,worldX.get(),{type:'inertia',velocity:state.velocityX,power:.22,timeConstant:620,restDelta:.4});
-        momentum.current.y=animate(worldY,worldY.get(),{type:'inertia',velocity:state.velocityY,power:.22,timeConstant:620,restDelta:.4});
-      }
       window.setTimeout(()=>{suppressClick.current=false;},0);
     }
+    returnWorldToCenter();
   };
   return (
     <section ref={spaceRef} className={`social-space orbital-field${selected ? ' is-muted' : ''}${isDragging?' is-dragging':''}`} aria-label="Your close friends" onPointerDown={pointerDown} onPointerMove={pointerMove} onPointerUp={pointerEnd} onPointerCancel={pointerEnd} onClickCapture={event=>{if(suppressClick.current){event.preventDefault();event.stopPropagation();}}}>
@@ -284,7 +274,6 @@ function FriendSpace({ selected, asks, activityOverrides, nudgeFriend, actionFri
         </div>
       </motion.div>
       <div className="player-layer"><div className="player-anchor"><motion.button className="you" aria-label="Open your profile feed" onClick={onUser} whileHover={{scale:1.045}} whileTap={{scale:.97}}><img className="you-avatar" src={currentUser.image} alt=""/><img className="player-crown" src="/crown.png" alt="" aria-hidden="true" draggable={false}/></motion.button></div></div>
-      <div className="reset-anchor"><AnimatePresence initial={false}>{hasMoved&&<motion.button key="reset" className="reset-world" aria-label="Return to center" title="Return to center" onPointerDown={event=>event.stopPropagation()} onClick={returnWorldToCenter} initial={{opacity:0,y:6,scale:.92}} animate={{opacity:1,y:0,scale:1}} exit={{opacity:0,scale:.9,transition:{duration:.12,ease:'easeOut'}}} transition={{duration:.16,ease:'easeOut'}} whileHover={{scale:1.06}} whileTap={{scale:.94}}><LocateFixed size={17}/></motion.button>}</AnimatePresence></div>
     </section>
   );
 }
